@@ -1,0 +1,6 @@
+{
+  "name": "CommuteNews",
+  "description": "A premium cross-platform audio-first reading app that converts pasted text and news URLs into personalized, natural-sounding audio summaries for seamless offline listening.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
