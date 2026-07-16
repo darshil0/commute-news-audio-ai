@@ -65,3 +65,13 @@ Compile both the client-side single page app and the self-contained backend bund
 npm run build
 npm run start
 ```
+
+---
+
+## 📚 System Documentation
+
+For detailed information on design patterns, engineering metrics, and core API setups, please review our comprehensive guide directories:
+
+* **[Design and Architecture Mapping (Design.MD)](Design.MD)**: System component layout, offline database schema setups, state flow mappings, and core design choices.
+* **[Technical Skills Profile (Skills.MD)](Skills.MD)**: Breakdown of technical expertise, frameworks, haptic utilities, and library layers utilized.
+* **[Prompt Engineering Specifications (PROMPTS.md)](PROMPTS.md)**: Details on the reverse engineered prompt models, JSON compilers, and inline audio tags configuration parameters.

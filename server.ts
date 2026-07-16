@@ -105,6 +105,14 @@ function verifyToken(token: string): string | null {
   }
 }
 
+function cleanJsonString(str: string): string {
+  let cleaned = str.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+  }
+  return cleaned;
+}
+
 function toError(err: unknown, fallback: string): ApiError {
   if (err instanceof Error) return err as ApiError;
   return Object.assign(new Error(fallback), { statusCode: 500 });
@@ -280,7 +288,7 @@ Return strict JSON:
       });
 
       const text = result.text?.trim() ?? "{}";
-      res.json(JSON.parse(text));
+      res.json(JSON.parse(cleanJsonString(text)));
     })
   );
 
@@ -333,7 +341,7 @@ ${text}`;
         config: { responseMimeType: "application/json" },
       });
 
-      const parsed = JSON.parse(result.text?.trim() ?? "{}");
+      const parsed = JSON.parse(cleanJsonString(result.text?.trim() ?? "{}"));
       res.json(parsed);
     })
   );

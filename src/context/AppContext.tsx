@@ -113,6 +113,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const playbackStateRef = useRef(playbackState);
   const articlesRef = useRef(articles);
+  const playlistsRef = useRef(playlists);
   const progressRef = useRef(progress);
   const preferencesRef = useRef(preferences);
   const userProfileRef = useRef(userProfile);
@@ -129,6 +130,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     articlesRef.current = articles;
   }, [articles]);
+
+  useEffect(() => {
+    playlistsRef.current = playlists;
+  }, [playlists]);
 
   useEffect(() => {
     progressRef.current = progress;
@@ -190,7 +195,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const localSnapshot: SyncData = {
         articles: articlesRef.current,
-        playlists,
+        playlists: playlistsRef.current,
         progress: progressRef.current,
         preferences: preferencesRef.current,
         queue: playbackStateRef.current.queue,
@@ -215,7 +220,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
         setArticles(mergedArticles);
 
-        const mergedPlaylists = [...playlists];
+        const mergedPlaylists = [...playlistsRef.current];
         for (const remotePl of remoteData.playlists) {
           const index = mergedPlaylists.findIndex((p) => p.id === remotePl.id);
           if (index === -1) {
@@ -237,7 +242,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await ApiService.backupData(profile.token, {
         ...localSnapshot,
         articles: articlesRef.current,
-        playlists,
+        playlists: playlistsRef.current,
         progress: progressRef.current,
         preferences: preferencesRef.current,
         queue: playbackStateRef.current.queue,
@@ -251,7 +256,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         void syncWithServer();
       }
     }
-  }, [playlists]);
+  }, []);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -472,6 +477,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [analyticsEvent, scheduleSync]);
 
   const deleteArticle = useCallback(async (id: string) => {
+    if (playbackStateRef.current.currentArticleId === id) {
+      currentAudioRef.current?.pause();
+    }
     await localDB.deleteArticle(id);
     setArticles((prev) => prev.filter((a) => a.id !== id));
     setPlaybackState((prev) => ({
@@ -627,13 +635,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         let audioSrc: string | null = null;
 
         if (cachedBase64) {
-          audioSrc = `data:audio/mp3;base64,${cachedBase64}`;
+          audioSrc = `data:audio/wav;base64,${cachedBase64}`;
         } else {
           if (!isOnlineRef.current) {
             throw new Error("This brief is not downloaded for offline listening. Reconnect to generate audio.");
           }
           const liveBase64 = await ApiService.generateTTS(article.summary, article.voiceName, 1.0);
-          audioSrc = `data:audio/mp3;base64,${liveBase64}`;
+          audioSrc = `data:audio/wav;base64,${liveBase64}`;
         }
 
         audioObj = new Audio(audioSrc);
