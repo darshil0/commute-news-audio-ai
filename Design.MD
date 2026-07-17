@@ -70,3 +70,40 @@ When online, user profiles trigger synchronization. The application reconciles c
 1. Fetching remote backups of user states.
 2. Comparing timestamps and merging missing objects into IndexedDB.
 3. Uploading a reconciled snapshot to the central Express server storage vault.
+
+---
+
+## 🔒 4. Security Infrastructure Design
+
+The Express backend implements explicit validation layers to protect server resources, prevent attacks, and ensure user privacy.
+
+```
+Incoming Request
+       │
+       ▼
+ ┌───────────┐
+ │ IP Filter │ ────(If Blocked IP)────► 403 Forbidden (Anti-SSRF Protection)
+ └─────┬─────┘
+       │ (Allowed IP)
+       ▼
+ ┌───────────┐
+ │ Auth Hook │ ────(If Invalid Token / Path Traversal)──► 401/400 (Identity Validation)
+ └─────┬─────┘
+       │ (Authorized User)
+       ▼
+ ┌───────────┐
+ │ Controller│ ────(Sanitize Username)────► Safe File Store / API Proxies
+ └───────────┘
+```
+
+### SSRF Protection / IP Filter
+The server uses an IP lookup helper (`isBlockedIp`) that inspects hostnames and URLs. It resolves hostnames and explicitly blocks loopback, private IPv4 subnets, link-local, multicast, and matching IPv6 blocks.
+
+### Token Authentication Layer
+- User identity is signed using a cryptographic HMAC (SHA-256) signature.
+- Tokens enforce an exact 30-day lifetime check (`Date.now() - 30 * 24 * 60 * 60 * 1000`).
+- Tokens must contain modern explicit claim headers (`exp`); tokens lacking these or having invalid/expired signatures are immediately rejected.
+
+### Path-Traversal and Username Safety
+- Usernames must strictly conform to a safe alphanumeric regex validation (`USERNAME_PATTERN`): only lowercase alphanumeric, single hyphens, or underscores are allowed, with length bounded between 3 and 32 characters.
+- Synchronization endpoints map session IDs and usernames directly to storage files via `safeSyncFilePath`. This enforces path resolution inside a designated sync directory and rejects any input containing navigation sequences (`..`, `/`, `\`).

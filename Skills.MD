@@ -29,3 +29,11 @@ This document details the critical engineering competencies, patterns, and techn
 ## 🧠 4. Generative AI Engineering (Google Gemini SDK)
 * **Structured JSON Conversational Compilers**: Constructed precise prompt structures driving `gemini-3.5-flash` to return strict, machine-readable JSON schemas safely parsed by our custom markdown-stripping JSON engine.
 * **Gemini TTS Synthesis Integration**: Connected client preferences dynamically with Google's native `gemini-3.1-flash-tts-preview` model, parsing base64 wave audio binaries on demand.
+
+---
+
+## 🔒 5. Robust Security Engineering & Defense Practices
+* **Server-Side Request Forgery (SSRF) Blocking**: Implemented defensive URL/IP resolution checks, blocklisting local, multicast, and private addresses to prevent access to internal metadata networks.
+* **Cryptographic Token Issuance & Verification**: Applied Node.js standard `crypto` module capabilities to generate cryptographically safe SHA-256 HMAC digital signatures, ensuring authentic, tamper-resistant web sessions with strict, explicit expiration lifetimes.
+* **Path-Traversal Prevention**: Mitigated local file inclusion and path traversal vulnerabilities by validating all user identity strings, strictly matching they conform to expected naming schemas (`USERNAME_PATTERN`), and utilizing direct, isolated filepath resolution checks (`safeSyncFilePath`).
+* **Modularity and Testability**: Exposed core defensive helpers via server exports to allow clean integration with automated CI/CD testing, incorporating a standalone logic-verification test suite that runs without binding network ports.
