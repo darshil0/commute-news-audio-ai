@@ -18,9 +18,9 @@ const PORT = Number(process.env.PORT) || 3000;
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "dev-only-change-me";
-const USERNAME_PATTERN = /^[a-z0-9_-]{3,32}$/;
+export const USERNAME_PATTERN = /^[a-z0-9_-]{3,32}$/;
 
-function safeSyncFilePath(username: string): string {
+export function safeSyncFilePath(username: string): string {
   if (!USERNAME_PATTERN.test(username)) {
     throw Object.assign(new Error("Invalid session identity."), { statusCode: 403 });
   }
@@ -92,17 +92,18 @@ function hashPassword(password: string, salt: string): Promise<string> {
 
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-function signToken(username: string): string {
-  const payload = JSON.stringify({ username, ts: Date.now(), exp: Date.now() + TOKEN_TTL_MS });
+export function signToken(username: string, tokenSecret: string = TOKEN_SECRET, customTs?: number): string {
+  const ts = customTs ?? Date.now();
+  const payload = JSON.stringify({ username, ts, exp: ts + TOKEN_TTL_MS });
   const body = Buffer.from(payload).toString("base64url");
-  const sig = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
+  const sig = crypto.createHmac("sha256", tokenSecret).update(body).digest("base64url");
   return `${body}.${sig}`;
 }
 
-function verifyToken(token: string): string | null {
+export function verifyToken(token: string, tokenSecret: string = TOKEN_SECRET): string | null {
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
-  const expected = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
+  const expected = crypto.createHmac("sha256", tokenSecret).update(body).digest("base64url");
   
   const sigBuffer = Buffer.from(sig);
   const expectedBuffer = Buffer.from(expected);
@@ -138,7 +139,7 @@ function toError(err: unknown, fallback: string): ApiError {
   return Object.assign(new Error(fallback), { statusCode: 500 });
 }
 
-function isBlockedIp(ip: string): boolean {
+export function isBlockedIp(ip: string): boolean {
   // IPv4 checks
   const v4 = ip.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
   if (v4) {
@@ -546,7 +547,9 @@ ${text}`;
   });
 }
 
-startServer().catch((err) => {
-  console.error("Failed to start server:", toError(err, "Failed to start server"));
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== "test") {
+  startServer().catch((err) => {
+    console.error("Failed to start server:", toError(err, "Failed to start server"));
+    process.exit(1);
+  });
+}
