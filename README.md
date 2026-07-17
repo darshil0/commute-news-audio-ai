@@ -66,6 +66,23 @@ npm run build
 npm run start
 ```
 
+### 4. Running Security Verification Tests
+Verify security controls, helper functions, and protection logic locally by running the test suite with `NODE_ENV=test`:
+```bash
+NODE_ENV=test npx tsx tests/security.test.ts
+```
+
+---
+
+## 🔒 Security Infrastructure & Verification Suite
+
+CommuteBrief incorporates a rigorous backend security layer exposed for modular verification. The security suite in `tests/security.test.ts` exercises key system defenses:
+
+* **SSRF Mitigation & IP Blocklisting**: Protects internal resources by blocking loopback, link-local, private, and multicast IPv4 and IPv6 addresses.
+* **Username Safety Sanitization**: Implements a strict alphanumeric and length pattern (`USERNAME_PATTERN`) to prevent execution injection or identity spoofing.
+* **Path-Traversal Protection**: Standardizes directory path extraction (`safeSyncFilePath`) and rejects inputs attempting directory traversal.
+* **Secure Token Signature & Expiry Validation**: Employs cryptographic SHA-256 HMAC tokens with exact signature matching, lifetime validation, and rejection of legacy signatures or missing claims.
+
 ---
 
 ## 📚 System Documentation
