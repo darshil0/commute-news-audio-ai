@@ -18,6 +18,14 @@ const PORT = Number(process.env.PORT) || 3000;
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "dev-only-change-me";
+const USERNAME_PATTERN = /^[a-z0-9_-]{3,32}$/;
+
+function safeSyncFilePath(username: string): string {
+  if (!USERNAME_PATTERN.test(username)) {
+    throw Object.assign(new Error("Invalid session identity."), { statusCode: 403 });
+  }
+  return path.join(DATA_DIR, `sync_${username}.json`);
+}
 
 type UserRecord = {
   passwordHash: string;
@@ -73,12 +81,19 @@ async function saveUsers(users: UsersDb) {
   await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
 }
 
-function hashPassword(password: string, salt: string): string {
-  return crypto.pbkdf2Sync(password, salt, 100000, 64, "sha256").toString("hex");
+function hashPassword(password: string, salt: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    crypto.pbkdf2(password, salt, 100000, 64, "sha256", (err, derivedKey) => {
+      if (err) reject(err);
+      else resolve(derivedKey.toString("hex"));
+    });
+  });
 }
 
+const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
 function signToken(username: string): string {
-  const payload = JSON.stringify({ username, ts: Date.now() });
+  const payload = JSON.stringify({ username, ts: Date.now(), exp: Date.now() + TOKEN_TTL_MS });
   const body = Buffer.from(payload).toString("base64url");
   const sig = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
   return `${body}.${sig}`;
@@ -98,7 +113,12 @@ function verifyToken(token: string): string | null {
   if (!crypto.timingSafeEqual(sigBuffer, expectedBuffer)) return null;
 
   try {
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as { username?: string };
+    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as {
+      username?: string;
+      exp?: number;
+    };
+    // Reject tokens that are missing an expiry (e.g. pre-fix tokens) or have expired.
+    if (typeof payload.exp !== "number" || Date.now() > payload.exp) return null;
     return payload.username || null;
   } catch {
     return null;
@@ -118,12 +138,93 @@ function toError(err: unknown, fallback: string): ApiError {
   return Object.assign(new Error(fallback), { statusCode: 500 });
 }
 
+function isBlockedIp(ip: string): boolean {
+  // IPv4 checks
+  const v4 = ip.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])];
+    if (a === 127) return true; // loopback
+    if (a === 10) return true; // private
+    if (a === 169 && b === 254) return true; // link-local incl. cloud metadata (169.254.169.254)
+    if (a === 172 && b >= 16 && b <= 31) return true; // private
+    if (a === 192 && b === 168) return true; // private
+    if (a === 0) return true; // "this" network
+    return false;
+  }
+  // IPv6 checks (loopback, unique local, link-local)
+  const lower = ip.toLowerCase();
+  if (lower === "::1") return true;
+  if (lower.startsWith("fc") || lower.startsWith("fd")) return true;
+  if (lower.startsWith("fe80")) return true;
+  return false;
+}
+
+async function assertPublicHttpUrl(rawUrl: string): Promise<URL> {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    throw Object.assign(new Error("Invalid article URL."), { statusCode: 400 });
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw Object.assign(new Error("Only http/https URLs are supported."), { statusCode: 400 });
+  }
+
+  const hostname = parsed.hostname;
+  if (hostname === "localhost") {
+    throw Object.assign(new Error("Requests to localhost are not permitted."), { statusCode: 400 });
+  }
+
+  let addresses: string[];
+  try {
+    const dns = await import("dns/promises");
+    const results = await dns.lookup(hostname, { all: true });
+    addresses = results.map((r) => r.address);
+  } catch {
+    throw Object.assign(new Error("Could not resolve article URL host."), { statusCode: 400 });
+  }
+
+  if (addresses.length === 0 || addresses.some(isBlockedIp)) {
+    throw Object.assign(new Error("This URL points to a restricted network address."), { statusCode: 400 });
+  }
+
+  return parsed;
+}
+
 function asyncHandler(
   fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
+}
+
+// Simple fixed-window in-memory rate limiter, keyed by IP, to slow down brute-force
+// login/registration attempts. Not distributed-safe, but sufficient for a single-instance
+// deployment and much better than no limit at all.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_ATTEMPTS = 10;
+const rateLimitHits = new Map<string, { count: number; windowStart: number }>();
+
+function authRateLimit(req: Request, res: Response, next: NextFunction) {
+  const key = req.ip || "unknown";
+  const now = Date.now();
+  const entry = rateLimitHits.get(key);
+
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitHits.set(key, { count: 1, windowStart: now });
+    next();
+    return;
+  }
+
+  entry.count += 1;
+  if (entry.count > RATE_LIMIT_MAX_ATTEMPTS) {
+    res.status(429).json({ error: "Too many attempts. Please wait a minute and try again." });
+    return;
+  }
+
+  next();
 }
 
 function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
@@ -152,6 +253,7 @@ async function startServer() {
 
   app.post(
     "/api/auth/register",
+    authRateLimit,
     asyncHandler(async (req, res) => {
       const { username, password } = req.body as { username?: unknown; password?: unknown };
 
@@ -161,8 +263,14 @@ async function startServer() {
       }
 
       const uClean = username.trim().toLowerCase();
-      if (uClean.length < 3 || password.length < 8) {
-        res.status(400).json({ error: "Username must be at least 3 chars; password at least 8 chars." });
+      if (!USERNAME_PATTERN.test(uClean)) {
+        res.status(400).json({
+          error: "Username must be 3-32 characters and contain only letters, numbers, underscores, and hyphens.",
+        });
+        return;
+      }
+      if (password.length < 8) {
+        res.status(400).json({ error: "Password must be at least 8 chars." });
         return;
       }
 
@@ -173,7 +281,7 @@ async function startServer() {
       }
 
       const salt = crypto.randomBytes(16).toString("hex");
-      users[uClean] = { passwordHash: hashPassword(password, salt), salt };
+      users[uClean] = { passwordHash: await hashPassword(password, salt), salt };
       await saveUsers(users);
 
       res.json({ username: uClean, token: signToken(uClean) });
@@ -182,6 +290,7 @@ async function startServer() {
 
   app.post(
     "/api/auth/login",
+    authRateLimit,
     asyncHandler(async (req, res) => {
       const { username, password } = req.body as { username?: unknown; password?: unknown };
 
@@ -194,7 +303,18 @@ async function startServer() {
       const users = await loadUsers();
       const user = users[uClean];
 
-      if (!user || hashPassword(password, user.salt) !== user.passwordHash) {
+      if (!user) {
+        res.status(401).json({ error: "Invalid username or password." });
+        return;
+      }
+
+      const candidateHash = await hashPassword(password, user.salt);
+      const candidateBuf = Buffer.from(candidateHash, "hex");
+      const storedBuf = Buffer.from(user.passwordHash, "hex");
+      const matches =
+        candidateBuf.length === storedBuf.length && crypto.timingSafeEqual(candidateBuf, storedBuf);
+
+      if (!matches) {
         res.status(401).json({ error: "Invalid username or password." });
         return;
       }
@@ -207,7 +327,7 @@ async function startServer() {
     "/api/sync/save",
     authenticateToken,
     asyncHandler(async (req: AuthRequest, res) => {
-      const syncFile = path.join(DATA_DIR, `sync_${req.username}.json`);
+      const syncFile = safeSyncFilePath(req.username!);
       await fs.writeFile(syncFile, JSON.stringify(req.body, null, 2), "utf-8");
       res.json({ success: true, timestamp: Date.now() });
     })
@@ -217,7 +337,7 @@ async function startServer() {
     "/api/sync/get",
     authenticateToken,
     asyncHandler(async (req: AuthRequest, res) => {
-      const syncFile = path.join(DATA_DIR, `sync_${req.username}.json`);
+      const syncFile = safeSyncFilePath(req.username!);
       try {
         const data = JSON.parse(await fs.readFile(syncFile, "utf-8"));
         res.json(data);
@@ -239,14 +359,21 @@ async function startServer() {
 
       let html = "";
       try {
-        const response = await fetch(url, {
+        // Validate the URL isn't pointed at loopback/private/link-local addresses
+        // (defends against SSRF, including cloud metadata endpoints like 169.254.169.254).
+        // Note: this check is time-of-check/time-of-use; it stops direct attacks but not
+        // a determined DNS-rebinding attacker who controls the target domain's DNS.
+        const safeUrl = await assertPublicHttpUrl(url);
+        const response = await fetch(safeUrl, {
           headers: { "User-Agent": "Mozilla/5.0" },
           signal: AbortSignal.timeout(6000),
+          redirect: "manual", // don't silently follow redirects into internal networks
         });
         if (response.ok) {
           html = await response.text();
         }
-      } catch {
+      } catch (err) {
+        if (err instanceof Error && (err as ApiError).statusCode === 400) throw err;
         html = "";
       }
 
