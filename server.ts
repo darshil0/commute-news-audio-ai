@@ -18,14 +18,6 @@ const PORT = Number(process.env.PORT) || 3000;
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "dev-only-change-me";
-export const USERNAME_PATTERN = /^[a-z0-9_-]{3,32}$/;
-
-export function safeSyncFilePath(username: string): string {
-  if (!USERNAME_PATTERN.test(username)) {
-    throw Object.assign(new Error("Invalid session identity."), { statusCode: 403 });
-  }
-  return path.join(DATA_DIR, `sync_${username}.json`);
-}
 
 type UserRecord = {
   passwordHash: string;
@@ -81,29 +73,21 @@ async function saveUsers(users: UsersDb) {
   await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
 }
 
-function hashPassword(password: string, salt: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    crypto.pbkdf2(password, salt, 100000, 64, "sha256", (err, derivedKey) => {
-      if (err) reject(err);
-      else resolve(derivedKey.toString("hex"));
-    });
-  });
+function hashPassword(password: string, salt: string): string {
+  return crypto.pbkdf2Sync(password, salt, 100000, 64, "sha256").toString("hex");
 }
 
-const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
-
-export function signToken(username: string, tokenSecret: string = TOKEN_SECRET, customTs?: number): string {
-  const ts = customTs ?? Date.now();
-  const payload = JSON.stringify({ username, ts, exp: ts + TOKEN_TTL_MS });
+function signToken(username: string): string {
+  const payload = JSON.stringify({ username, ts: Date.now() });
   const body = Buffer.from(payload).toString("base64url");
-  const sig = crypto.createHmac("sha256", tokenSecret).update(body).digest("base64url");
+  const sig = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
   return `${body}.${sig}`;
 }
 
-export function verifyToken(token: string, tokenSecret: string = TOKEN_SECRET): string | null {
+function verifyToken(token: string): string | null {
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
-  const expected = crypto.createHmac("sha256", tokenSecret).update(body).digest("base64url");
+  const expected = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
   
   const sigBuffer = Buffer.from(sig);
   const expectedBuffer = Buffer.from(expected);
@@ -114,83 +98,41 @@ export function verifyToken(token: string, tokenSecret: string = TOKEN_SECRET): 
   if (!crypto.timingSafeEqual(sigBuffer, expectedBuffer)) return null;
 
   try {
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as {
-      username?: string;
-      exp?: number;
-    };
-    // Reject tokens that are missing an expiry (e.g. pre-fix tokens) or have expired.
-    if (typeof payload.exp !== "number" || Date.now() > payload.exp) return null;
+    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as { username?: string };
     return payload.username || null;
   } catch {
     return null;
   }
 }
 
-function cleanJsonString(str: string): string {
-  let cleaned = str.trim();
+function cleanAndParseJson<T>(rawText: string, fallback: T): T {
+  if (!rawText || !rawText.trim()) return fallback;
+  let cleaned = rawText.trim();
+
+  // Strip markdown code fences if present (e.g. ```json ... ```)
   if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   }
-  return cleaned;
+
+  try {
+    return JSON.parse(cleaned) as T;
+  } catch {
+    // Attempt extracting json block using regex
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[0]) as T;
+      } catch {
+        // ignore
+      }
+    }
+    return fallback;
+  }
 }
 
 function toError(err: unknown, fallback: string): ApiError {
   if (err instanceof Error) return err as ApiError;
   return Object.assign(new Error(fallback), { statusCode: 500 });
-}
-
-export function isBlockedIp(ip: string): boolean {
-  // IPv4 checks
-  const v4 = ip.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
-  if (v4) {
-    const [a, b] = [Number(v4[1]), Number(v4[2])];
-    if (a === 127) return true; // loopback
-    if (a === 10) return true; // private
-    if (a === 169 && b === 254) return true; // link-local incl. cloud metadata (169.254.169.254)
-    if (a === 172 && b >= 16 && b <= 31) return true; // private
-    if (a === 192 && b === 168) return true; // private
-    if (a === 0) return true; // "this" network
-    return false;
-  }
-  // IPv6 checks (loopback, unique local, link-local)
-  const lower = ip.toLowerCase();
-  if (lower === "::1") return true;
-  if (lower.startsWith("fc") || lower.startsWith("fd")) return true;
-  if (lower.startsWith("fe80")) return true;
-  return false;
-}
-
-async function assertPublicHttpUrl(rawUrl: string): Promise<URL> {
-  let parsed: URL;
-  try {
-    parsed = new URL(rawUrl);
-  } catch {
-    throw Object.assign(new Error("Invalid article URL."), { statusCode: 400 });
-  }
-
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    throw Object.assign(new Error("Only http/https URLs are supported."), { statusCode: 400 });
-  }
-
-  const hostname = parsed.hostname;
-  if (hostname === "localhost") {
-    throw Object.assign(new Error("Requests to localhost are not permitted."), { statusCode: 400 });
-  }
-
-  let addresses: string[];
-  try {
-    const dns = await import("dns/promises");
-    const results = await dns.lookup(hostname, { all: true });
-    addresses = results.map((r) => r.address);
-  } catch {
-    throw Object.assign(new Error("Could not resolve article URL host."), { statusCode: 400 });
-  }
-
-  if (addresses.length === 0 || addresses.some(isBlockedIp)) {
-    throw Object.assign(new Error("This URL points to a restricted network address."), { statusCode: 400 });
-  }
-
-  return parsed;
 }
 
 function asyncHandler(
@@ -199,33 +141,6 @@ function asyncHandler(
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
-}
-
-// Simple fixed-window in-memory rate limiter, keyed by IP, to slow down brute-force
-// login/registration attempts. Not distributed-safe, but sufficient for a single-instance
-// deployment and much better than no limit at all.
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_ATTEMPTS = 10;
-const rateLimitHits = new Map<string, { count: number; windowStart: number }>();
-
-function authRateLimit(req: Request, res: Response, next: NextFunction) {
-  const key = req.ip || "unknown";
-  const now = Date.now();
-  const entry = rateLimitHits.get(key);
-
-  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
-    rateLimitHits.set(key, { count: 1, windowStart: now });
-    next();
-    return;
-  }
-
-  entry.count += 1;
-  if (entry.count > RATE_LIMIT_MAX_ATTEMPTS) {
-    res.status(429).json({ error: "Too many attempts. Please wait a minute and try again." });
-    return;
-  }
-
-  next();
 }
 
 function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
@@ -254,7 +169,6 @@ async function startServer() {
 
   app.post(
     "/api/auth/register",
-    authRateLimit,
     asyncHandler(async (req, res) => {
       const { username, password } = req.body as { username?: unknown; password?: unknown };
 
@@ -264,14 +178,8 @@ async function startServer() {
       }
 
       const uClean = username.trim().toLowerCase();
-      if (!USERNAME_PATTERN.test(uClean)) {
-        res.status(400).json({
-          error: "Username must be 3-32 characters and contain only letters, numbers, underscores, and hyphens.",
-        });
-        return;
-      }
-      if (password.length < 8) {
-        res.status(400).json({ error: "Password must be at least 8 chars." });
+      if (uClean.length < 3 || password.length < 8) {
+        res.status(400).json({ error: "Username must be at least 3 chars; password at least 8 chars." });
         return;
       }
 
@@ -282,7 +190,7 @@ async function startServer() {
       }
 
       const salt = crypto.randomBytes(16).toString("hex");
-      users[uClean] = { passwordHash: await hashPassword(password, salt), salt };
+      users[uClean] = { passwordHash: hashPassword(password, salt), salt };
       await saveUsers(users);
 
       res.json({ username: uClean, token: signToken(uClean) });
@@ -291,7 +199,6 @@ async function startServer() {
 
   app.post(
     "/api/auth/login",
-    authRateLimit,
     asyncHandler(async (req, res) => {
       const { username, password } = req.body as { username?: unknown; password?: unknown };
 
@@ -304,18 +211,7 @@ async function startServer() {
       const users = await loadUsers();
       const user = users[uClean];
 
-      if (!user) {
-        res.status(401).json({ error: "Invalid username or password." });
-        return;
-      }
-
-      const candidateHash = await hashPassword(password, user.salt);
-      const candidateBuf = Buffer.from(candidateHash, "hex");
-      const storedBuf = Buffer.from(user.passwordHash, "hex");
-      const matches =
-        candidateBuf.length === storedBuf.length && crypto.timingSafeEqual(candidateBuf, storedBuf);
-
-      if (!matches) {
+      if (!user || hashPassword(password, user.salt) !== user.passwordHash) {
         res.status(401).json({ error: "Invalid username or password." });
         return;
       }
@@ -328,7 +224,7 @@ async function startServer() {
     "/api/sync/save",
     authenticateToken,
     asyncHandler(async (req: AuthRequest, res) => {
-      const syncFile = safeSyncFilePath(req.username!);
+      const syncFile = path.join(DATA_DIR, `sync_${req.username}.json`);
       await fs.writeFile(syncFile, JSON.stringify(req.body, null, 2), "utf-8");
       res.json({ success: true, timestamp: Date.now() });
     })
@@ -338,7 +234,7 @@ async function startServer() {
     "/api/sync/get",
     authenticateToken,
     asyncHandler(async (req: AuthRequest, res) => {
-      const syncFile = safeSyncFilePath(req.username!);
+      const syncFile = path.join(DATA_DIR, `sync_${req.username}.json`);
       try {
         const data = JSON.parse(await fs.readFile(syncFile, "utf-8"));
         res.json(data);
@@ -360,21 +256,14 @@ async function startServer() {
 
       let html = "";
       try {
-        // Validate the URL isn't pointed at loopback/private/link-local addresses
-        // (defends against SSRF, including cloud metadata endpoints like 169.254.169.254).
-        // Note: this check is time-of-check/time-of-use; it stops direct attacks but not
-        // a determined DNS-rebinding attacker who controls the target domain's DNS.
-        const safeUrl = await assertPublicHttpUrl(url);
-        const response = await fetch(safeUrl, {
+        const response = await fetch(url, {
           headers: { "User-Agent": "Mozilla/5.0" },
           signal: AbortSignal.timeout(6000),
-          redirect: "manual", // don't silently follow redirects into internal networks
         });
         if (response.ok) {
           html = await response.text();
         }
-      } catch (err) {
-        if (err instanceof Error && (err as ApiError).statusCode === 400) throw err;
+      } catch {
         html = "";
       }
 
@@ -416,7 +305,15 @@ Return strict JSON:
       });
 
       const text = result.text?.trim() ?? "{}";
-      res.json(JSON.parse(cleanJsonString(text)));
+      const parsed = cleanAndParseJson<{ title?: string; author?: string; summary?: string }>(text, {
+        title: "Extracted Article",
+        summary: "Could not generate summary for this article.",
+      });
+      res.json({
+        title: parsed.title || "Extracted Article",
+        author: parsed.author || undefined,
+        summary: parsed.summary || "Summary unavailable.",
+      });
     })
   );
 
@@ -469,8 +366,14 @@ ${text}`;
         config: { responseMimeType: "application/json" },
       });
 
-      const parsed = JSON.parse(cleanJsonString(result.text?.trim() ?? "{}"));
-      res.json(parsed);
+      const parsed = cleanAndParseJson<{ title?: string; summary?: string }>(result.text?.trim() ?? "{}", {
+        title: safeTitle,
+        summary: text.slice(0, 300) + "...",
+      });
+      res.json({
+        title: parsed.title || safeTitle,
+        summary: parsed.summary || text.slice(0, 300),
+      });
     })
   );
 
@@ -547,9 +450,7 @@ ${text}`;
   });
 }
 
-if (process.env.NODE_ENV !== "test") {
-  startServer().catch((err) => {
-    console.error("Failed to start server:", toError(err, "Failed to start server"));
-    process.exit(1);
-  });
-}
+startServer().catch((err) => {
+  console.error("Failed to start server:", toError(err, "Failed to start server"));
+  process.exit(1);
+});

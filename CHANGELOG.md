@@ -5,20 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2026-07-17
-
-### Added
-- **Security Verification Suite**:
-  - Implemented a complete verification suite (`tests/security.test.ts`) that verifies core backend protections.
-  - Added unit tests for loopback/private/link-local/multicast IP address blocking to mitigate SSRF risks.
-  - Added strict username safety pattern matching verification using custom RegEx.
-  - Added path traversal protection tests via file route path resolution.
-  - Added validation of HMAC token generation, valid/invalid signatures, and exact expiration limit criteria.
-- **Exposed Server Defensive Helpers**:
-  - Refactored `server.ts` to export utility functions for modularity, including `isBlockedIp`, `USERNAME_PATTERN`, `safeSyncFilePath`, `signToken`, and `verifyToken`.
-  - Conditional server start triggers using `process.env.NODE_ENV !== "test"` to avoid hanging ports during testing.
-
-## [1.1.0] - 2026-07-16
+## [1.1.0] - 2026-07-10
 
 ### Added
 - **AI Narrator Voice Customization**:
@@ -82,6 +69,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
-[1.2.0]: https://github.com/aistudio-build/commutenews/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/aistudio-build/commutenews/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/aistudio-build/commutenews/releases/tag/v1.0.0

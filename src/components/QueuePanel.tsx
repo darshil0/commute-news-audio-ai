@@ -24,10 +24,6 @@ export const QueuePanel: React.FC = () => {
     e.preventDefault();
   };
 
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-  };
-
   const handleDrop = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === targetIndex) return;
@@ -78,7 +74,6 @@ export const QueuePanel: React.FC = () => {
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDrop={(e) => handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
                 className={`bg-zinc-900/40 border border-zinc-900/60 rounded-xl p-3.5 flex items-center justify-between transition-all ${isCurrent ? 'border-emerald-500/25 bg-zinc-900' : 'hover:bg-zinc-900/80'} ${draggedIndex === index ? 'opacity-40' : ''}`}
               >
                 <div className="flex items-center gap-3 min-w-0">

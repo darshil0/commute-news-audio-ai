@@ -1,6 +1,6 @@
 # CommuteBrief: Smart Commute Audio Briefings
 
-CommuteBrief is a polished, single-page application (SPA) with full-stack capabilities designed to optimize your morning and evening commute. It transforms long articles, news, and technical papers into concise, structured summaries and reads them aloud using high-quality Text-to-Speech (TTS) narrators.
+CommuteBrief is a highly polished, single-page application (SPA) with full-stack capabilities designed to optimize your morning and evening commute. It transforms long articles, news, and technical papers into concise, structured summaries and reads them aloud using high-quality Text-to-Speech (TTS) narrators.
 
 ---
 
@@ -13,20 +13,20 @@ CommuteBrief is a polished, single-page application (SPA) with full-stack capabi
 
 ### 🔊 AI Narrator Voice Settings (Profile Panel)
 * **Voice Customization**: Choose between five distinct voice styles tailored for different genres of information:
-  * **Calm Narrator (Zephyr)**: Deep, professional, and reassuring — ideal for complex analysis, tech, and political journals.
+  * **Calm Narrator (Zephyr)**: Deep, professional, and reassuring—ideal for complex analysis, tech, and political journals.
   * **Energetic Host (Kore)**: Warm, bright, and highly enthusiastic, matching the style of an engaging morning commute podcast.
-  * **Mellow Storyteller (Charon)**: Calm, slow, and relaxing — perfect for human interest stories and casual summaries.
-  * **Crisp Newsreader (Puck)**: Sharp, rapid-fire, and crystal clear — suited for fast-paced daily briefs and headlines.
-  * **Bold Anchor (Fenrir)**: Grounded, authoritative, and powerful — suited for editorial opinions and critical reporting.
+  * **Mellow Storyteller (Charon)**: Calm, slow, and relaxing—perfect for human interest stories and casual summaries.
+  * **Crisp Newsreader (Puck)**: Sharp, rapid-fire, and crystal clear—suited for fast-paced daily briefs and headlines.
+  * **Bold Anchor (Fenrir)**: Grounded, authoritative, and powerful—suited for editorial opinions and critical reporting.
 * **Real-time Live Preview**: Generate and play live voice previews directly from the settings panel to audition each voice profile before compiling.
 
 ### 📳 Tactile Haptic Feedback (System-Wide)
-* Custom haptic pulses are triggered via `navigator.vibrate` (when supported by the device and browser) to enrich tactile feedback:
+* Custom haptic pulses trigger over `navigator.vibrate` (when supported by hardware/browser) to enrich tactile feedback:
   * **Tab Navigation**: Light tap (`15ms`) on shifting screens or swiping.
   * **Audio Playing / Loading**: Snappy confirmation pulse (`30ms`).
   * **Playback Pauses & Seeks**: Soft pulses (`20ms` and `15ms`).
   * **Track Navigation**: Balanced skip pulses (`25ms`).
-  * **Article Completed**: A triple-pulse heartbeat pattern (`[40ms, 80ms, 40ms]`) announcing successful summary playback completion.
+  * **Article Completed**: A triple-pulse heartbeat pattern (`[40ms, 80ms, 40ms]`) announcing successful summary play completion.
 
 ---
 
@@ -47,7 +47,7 @@ CommuteBrief is a polished, single-page application (SPA) with full-stack capabi
 ## ⚙️ Setup & Installation
 
 ### 1. Configure Secrets
-Ensure your environment contains the required Gemini API key on the server side. Create a `.env` file in the root based on `.env.example`:
+Ensure your environment contains the required Gemini API Key on the server side. Create a `.env` file in the root based on `.env.example`:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -65,30 +65,3 @@ Compile both the client-side single page app and the self-contained backend bund
 npm run build
 npm run start
 ```
-
-### 4. Running Security Verification Tests
-Verify security controls, helper functions, and protection logic locally by running the test suite with `NODE_ENV=test`:
-```bash
-NODE_ENV=test npx tsx tests/security.test.ts
-```
-
----
-
-## 🔒 Security Infrastructure & Verification Suite
-
-CommuteBrief incorporates a rigorous backend security layer exposed for modular verification. The security suite in `tests/security.test.ts` exercises key system defenses:
-
-* **SSRF Mitigation & IP Blocklisting**: Protects internal resources by blocking loopback, link-local, private, and multicast IPv4 and IPv6 addresses.
-* **Username Safety Sanitization**: Implements a strict alphanumeric and length pattern (`USERNAME_PATTERN`) to prevent execution injection or identity spoofing.
-* **Path-Traversal Protection**: Standardizes directory path extraction (`safeSyncFilePath`) and rejects inputs attempting directory traversal.
-* **Secure Token Signature & Expiry Validation**: Employs cryptographic SHA-256 HMAC tokens with exact signature matching, lifetime validation, and rejection of legacy signatures or missing claims.
-
----
-
-## 📚 System Documentation
-
-For detailed information on design patterns, engineering metrics, and core API setups, see the project's internal guide directories (add these files to the repo root if they don't already exist):
-
-* **Design and Architecture Mapping (`Design.md`)**: System component layout, offline database schema setups, state flow mappings, and core design choices.
-* **Technical Skills Profile (`Skills.md`)**: Breakdown of technical expertise, frameworks, haptic utilities, and library layers utilized.
-* **Prompt Engineering Specifications (`PROMPTS.md`)**: Details on the prompt models, JSON compilers, and inline audio tag configuration parameters.

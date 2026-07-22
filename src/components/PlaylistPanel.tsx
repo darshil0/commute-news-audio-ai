@@ -59,10 +59,6 @@ export const PlaylistPanel: React.FC = () => {
     e.preventDefault();
   };
 
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-  };
-
   const handleDrop = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === targetIndex || !activePlaylistId) return;
@@ -211,7 +207,6 @@ export const PlaylistPanel: React.FC = () => {
                         onDragStart={(e) => handleDragStart(e, index)}
                         onDragOver={(e) => handleDragOver(e, index)}
                         onDrop={(e) => handleDrop(e, index)}
-                        onDragEnd={handleDragEnd}
                         className={`bg-zinc-900/30 border border-zinc-900 rounded-xl p-3 flex items-center justify-between transition-all ${draggedIndex === index ? 'opacity-40 border-dashed border-zinc-700 bg-zinc-800/20' : 'hover:bg-zinc-900/60'}`}
                       >
                         <div className="flex items-center gap-3 min-w-0">

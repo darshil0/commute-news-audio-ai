@@ -182,8 +182,8 @@ function CommuteAppContent() {
       <PodcastPlayer />
 
       <nav
-        className={`md:hidden fixed bottom-14 left-0 right-0 z-30 border-t flex items-center justify-around py-2.5 px-2 backdrop-blur-md transition-colors ${
-          isDark ? "bg-zinc-950/95 border-zinc-900 text-white" : "bg-white/95 border-zinc-150 text-zinc-900"
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t flex items-center justify-around py-2.5 px-2 backdrop-blur-md transition-colors ${
+          isDark ? "bg-zinc-950/95 border-zinc-900 text-white" : "bg-white/95 border-zinc-200 text-zinc-900"
         }`}
         aria-label="Mobile navigation"
       >

@@ -68,7 +68,7 @@ export const PodcastPlayer: React.FC = () => {
       {/* Mini Player Bar (Persistent at bottom of screens) */}
       <div 
         id="player-mini-bar"
-        className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-900/95 border-t border-zinc-800 text-white backdrop-blur-md px-4 py-3 flex items-center justify-between cursor-pointer md:px-8"
+        className="fixed bottom-14 md:bottom-0 left-0 right-0 z-30 bg-zinc-900/95 border-t border-zinc-800 text-white backdrop-blur-md px-4 py-3 flex items-center justify-between cursor-pointer md:px-8"
         onClick={() => setIsExpanded(true)}
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">

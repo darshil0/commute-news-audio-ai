@@ -25,11 +25,11 @@ export function tokenize(str: string): string[] {
 export function scoreArticle(article: Article, tokens: readonly string[]): number {
   if (tokens.length === 0) return 0;
 
-  const titleTokens = article.title ? tokenize(article.title) : [];
+  const titleTokens = tokenize(article.title);
   const authorTokens = article.author ? tokenize(article.author) : [];
-  const summaryTokens = article.summary ? tokenize(article.summary) : [];
-  const categoryTokens = article.category ? tokenize(article.category) : [];
-  const tagsTokens = Array.isArray(article.tags) ? article.tags.flatMap((t) => t ? tokenize(t) : []) : [];
+  const summaryTokens = tokenize(article.summary);
+  const categoryTokens = tokenize(article.category);
+  const tagsTokens = article.tags.flatMap(tokenize);
 
   let score = 0;
   let matchesAll = true;
