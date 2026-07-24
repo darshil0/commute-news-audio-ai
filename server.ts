@@ -296,7 +296,7 @@ Return strict JSON:
 
       const ai = getAI();
       const result = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -361,7 +361,7 @@ ${text}`;
 
       const ai = getAI();
       const result = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
         config: { responseMimeType: "application/json" },
       });
@@ -373,6 +373,83 @@ ${text}`;
       res.json({
         title: parsed.title || safeTitle,
         summary: parsed.summary || text.slice(0, 300),
+      });
+    })
+  );
+
+  app.post(
+    "/api/articles/search-news",
+    asyncHandler(async (req, res) => {
+      const { query, preferences } = req.body as {
+        query?: unknown;
+        preferences?: Preferences;
+      };
+
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(400).json({ error: "Search query is required." });
+        return;
+      }
+
+      const safeQuery = query.trim();
+      const lengthText =
+        preferences?.summaryLength === "detailed"
+          ? "detailed, structured summary (around 300-400 words) with key takeaways"
+          : preferences?.summaryLength === "short"
+            ? "very concise brief (around 100 words)"
+            : "standard executive brief (around 200 words)";
+
+      const toneText =
+        preferences?.summaryTone === "professional"
+          ? "formal, objective, professional corporate news brief"
+          : preferences?.summaryTone === "engaging"
+            ? "engaging, storytelling podcast style, using conversational speech patterns"
+            : "straight-to-the-point, highly concise facts-only";
+
+      const prompt = `Search for the latest real-time news, updates, and developments regarding "${safeQuery}".
+Summarize the most recent and relevant information into an audio-first commute news briefing.
+
+Requirements:
+- ${lengthText}.
+- ${toneText} tone.
+- Rely on fresh live search results.
+- Do not include markdown code block formatting or stage directions in the summary text.
+
+Return strict JSON:
+{"title":"Headline describing the news summary","category":"Topic Category","summary":"Clear narrative text ready for audio narration"}`;
+
+      const ai = getAI();
+      const result = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          tools: [{ googleSearch: {} }],
+        },
+      });
+
+      const text = result.text?.trim() ?? "{}";
+      const parsed = cleanAndParseJson<{ title?: string; category?: string; summary?: string }>(text, {
+        title: `Latest News: ${safeQuery}`,
+        category: "Search Grounding",
+        summary: "Summary generated from live search.",
+      });
+
+      const groundingChunks = result.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const sources: Array<{ title: string; url: string }> = [];
+      for (const chunk of groundingChunks as any[]) {
+        if (chunk?.web?.uri) {
+          sources.push({
+            title: chunk.web.title || chunk.web.uri,
+            url: chunk.web.uri,
+          });
+        }
+      }
+
+      res.json({
+        title: parsed.title || `Latest News: ${safeQuery}`,
+        category: parsed.category || "Search Grounding",
+        summary: parsed.summary || "Summary generated from live web search.",
+        sources,
       });
     })
   );

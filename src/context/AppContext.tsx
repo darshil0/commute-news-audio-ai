@@ -42,6 +42,7 @@ interface AppContextProps {
 
   addArticleText: (title: string, text: string) => Promise<void>;
   importArticleUrl: (url: string) => Promise<void>;
+  addGroundedArticle: (title: string, category: string, summary: string, sourceUrl?: string) => Promise<Article>;
   deleteArticle: (id: string) => Promise<void>;
   downloadArticleAudio: (id: string) => Promise<void>;
   toggleSaveArticle: (id: string) => Promise<void>;
@@ -472,6 +473,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsLoading(false);
     }
   }, [analyticsEvent, scheduleSync]);
+
+  const addGroundedArticle = useCallback(
+    async (title: string, category: string, summary: string, sourceUrl?: string): Promise<Article> => {
+      setIsLoading(true);
+      try {
+        const newArticle: Article = {
+          id: `art-${Date.now()}`,
+          title: title || "Grounded News Brief",
+          summary,
+          category: category || "News Search",
+          tags: ["Search Grounding", "Live News"],
+          url: sourceUrl,
+          voiceName: preferencesRef.current.voiceName,
+          isDownloaded: false,
+          isSaved: true,
+          createdAt: new Date().toISOString(),
+          playCount: 0,
+        };
+
+        await localDB.saveArticle(newArticle);
+        setArticles((prev) => [newArticle, ...prev]);
+        analyticsEvent("Article", "AddGrounded", newArticle.title);
+        scheduleSync();
+        return newArticle;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [analyticsEvent, scheduleSync]
+  );
 
   const deleteArticle = useCallback(async (id: string) => {
     await localDB.deleteArticle(id);
@@ -998,6 +1029,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     logoutUser,
     addArticleText,
     importArticleUrl,
+    addGroundedArticle,
     deleteArticle,
     downloadArticleAudio,
     toggleSaveArticle,
@@ -1037,6 +1069,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     logoutUser,
     addArticleText,
     importArticleUrl,
+    addGroundedArticle,
     deleteArticle,
     downloadArticleAudio,
     toggleSaveArticle,

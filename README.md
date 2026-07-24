@@ -1,92 +1,69 @@
 # CommuteBrief: Smart Commute Audio Briefings
 
-CommuteBrief is a highly polished, single-page application (SPA) with full-stack capabilities designed to optimize your morning and evening commute. It transforms long articles, news, and technical papers into concise, structured summaries and reads them aloud using high-quality Text-to-Speech (TTS) narrators or client-side Web Speech fallbacks.
-
----
-
-## 📐 Spec-Driven Development (SDD) Workflow
-
-This repository adheres strictly to a **Spec-Driven Development (SDD)** process. Documentation and specification files are treated as the single source of truth for all software design, features, bug fixes, and agent execution.
-
-### Key SDD Assets
-- **`AGENTS.md`**: Master instructions and protocol for AI coding agents working in this repository.
-- **`specs/SYSTEM_SPEC.md`**: Core system specification defining purpose, scope, assumptions, user stories, acceptance criteria, non-goals, and open questions (`[NEEDS CLARIFICATION]`).
-- **`specs/IMPLEMENTATION_PLAN.md`**: Codebase architecture mapping, completed phases, and upcoming roadmap items.
-- **`specs/VALIDATION_CHECKLIST.md`**: Verification protocol and testing checklist for developers and automated tools.
-
-### SDD Process for Contributors & Agents
-1. **Spec First**: Review `specs/SYSTEM_SPEC.md` before making changes. If adding features or altering behavior, update the spec document first.
-2. **Implementation Plan**: Map changes to specific acceptance criteria in `specs/IMPLEMENTATION_PLAN.md`.
-3. **Surgical Changes**: Make minimal, reviewable code modifications.
-4. **Validation**: Verify changes against `specs/VALIDATION_CHECKLIST.md` using `npm run lint` and `npm run build`.
-5. **Handoff**: Document all updates in `CHANGELOG.md` and `specs/IMPLEMENTATION_PLAN.md` to maintain async handoff clarity.
+CommuteBrief is a full-stack web application designed to optimize daily commutes. It transforms real-time news search queries, web articles, and custom text into structured, audio-first briefings narrated by customizable AI voice profiles or client-side speech fallbacks.
 
 ---
 
 ## 🚀 Key Features
 
+### 📡 Real-Time News Search (Gemini Search Grounding)
+* **Live Web Grounding**: Search real-time news topics using Gemini Search Grounding (`gemini-3.6-flash`).
+* **Source Citations**: Preview live web citations and original source links alongside the generated summary.
+* **Instant Brief Creation**: One-tap action to save grounded briefings to your queue or stream audio immediately.
+
+### 📰 Web URL & Text Intake
+* **URL Extraction**: Import news articles and blog posts directly via URL.
+* **Text Summarization**: Paste custom text or notes to generate structured commute audio briefs.
+
 ### 🎧 Adaptive Audio Player & Playback Speed
-* **Custom Playback Controls**: Easily play, pause, seek, and skip between briefings.
-* **Speed Slider (0.5x to 2.0x)**: Seamlessly adjust narrator speed using a fluid slider (`no-swipe` protected for gesture handling).
-* **Speed Presets**: Quick-tap preset buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`) for rapid tempo tuning.
-* **Sleep Timer**: Configurable countdown timer (5m to 60m) that automatically pauses playback upon expiry.
+* **Custom Audio Controls**: Play, pause, seek, and skip between queued briefings.
+* **Fluid Speed Control**: Adjustable speed slider (`0.5x` to `2.0x`) and quick preset buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`).
+* **Sleep Timer**: Configurable countdown timer (5m to 60m) that automatically pauses playback when expired.
 
-### 🔊 AI Narrator Voice Settings (Profile Panel)
-* **Voice Customization**: Choose between five distinct voice styles tailored for different information genres:
-  * **Calm Narrator (Zephyr)**: Deep, professional, and reassuring—ideal for complex analysis, tech, and political journals.
-  * **Energetic Host (Kore)**: Warm, bright, and highly enthusiastic, matching the style of an engaging morning commute podcast.
-  * **Mellow Storyteller (Charon)**: Calm, slow, and relaxing—perfect for human interest stories and casual summaries.
-  * **Crisp Newsreader (Puck)**: Sharp, rapid-fire, and crystal clear—suited for fast-paced daily briefs and headlines.
-  * **Bold Anchor (Fenrir)**: Grounded, authoritative, and powerful—suited for editorial opinions and critical reporting.
-* **Real-time Live Preview**: Generate and play live voice previews directly from the settings panel to audition each voice profile before compiling.
+### 🔊 AI Narrator Voice Profiles
+* **5 Distinct Voice Profiles**: Tailored styles including Zephyr (Calm Narrator), Kore (Energetic Host), Charon (Mellow Storyteller), Puck (Crisp Newsreader), and Fenrir (Bold Anchor).
+* **Live Audition Preview**: Audition and test each voice profile directly in the settings panel before generating briefs.
 
-### 🔍 Tokenized Fuzzy Search & Category Filters
-* **High-Performance Search**: Filter briefs in real-time across titles, categories, summaries, authors, and tags in `HomeDashboard` and `PlaylistPanel`.
-* **Category Chips**: Filter by "All", "Saved", "Downloaded", or specific domain categories.
-
-### 📳 Tactile Haptic Feedback (System-Wide)
-* Custom haptic pulses trigger over `navigator.vibrate` (when supported by hardware/browser) to enrich tactile feedback:
-  * **Tab Navigation**: Light tap (`15ms`) on shifting screens or swiping.
-  * **Audio Playing / Loading**: Snappy confirmation pulse (`30ms`).
-  * **Playback Pauses & Seeks**: Soft pulses (`20ms` and `15ms`).
-  * **Track Navigation**: Balanced skip pulses (`25ms`).
-  * **Article Completed**: A triple-pulse heartbeat pattern (`[40ms, 80ms, 40ms]`) announcing successful summary play completion.
+### 📴 Offline Persistence & Haptic Feedback
+* **IndexedDB Local Engine**: Save articles, playlists, and listening history locally for offline playback.
+* **Tactile Haptics**: Snappy vibration feedback on tap, skip, and playback completion.
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## 🛠️ Tech Stack & Architecture
 
-### Client-Side (React, TypeScript, Tailwind CSS)
-* **Framework**: React 19 with Vite as the build engine.
-* **State Management**: Context-driven architecture (`AppContext`) with durable synchronization to client-side IndexedDB storage (`src/lib/db.ts`).
-* **Animations**: Framer Motion (`motion/react`) driving route transitions and fluid controls.
-* **Icons**: Vector icon sets from `lucide-react`.
-
-### Server-Side (Node.js, Express)
-* **Express API Engine**: Acts as a proxy handling Gemini summarization and Text-to-Speech (TTS) audio synthesis safely on the backend.
-* **Vite Dev Middleware**: Integrated inside `server.ts` to coordinate hot assets and SPA fallback handling on port `3000`.
+* **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Framer Motion (`motion/react`), Lucide Icons.
+* **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, and Text-to-Speech proxying.
+* **AI Engine**: `@google/genai` TypeScript SDK utilizing `gemini-3.6-flash` with Google Search Grounding tools.
 
 ---
 
-## ⚙️ Setup & Installation
+## 📐 Spec-Driven Development (SDD) Workflow
 
-### 1. Configure Secrets
-Ensure your environment contains the required Gemini API Key on the server side. Create a `.env` file in the root based on `.env.example`:
+This repository follows **Spec-Driven Development (SDD)**:
+- **`AGENTS.md`**: Master guidelines for AI tools and contributors.
+- **`specs/SYSTEM_SPEC.md`**: System requirements, user stories, and acceptance criteria.
+- **`specs/IMPLEMENTATION_PLAN.md`**: Architecture breakdown and completed phase tracking.
+- **`specs/VALIDATION_CHECKLIST.md`**: Quality assurance and testing protocol.
 
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
+---
 
-### 2. Local Development
-Start the application dev server (monitored on port `3000`):
+## ⚙️ Development & Build Commands
+
 ```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-```
 
-### 3. Verification & Build
-Verify type safety and compile production bundles:
-```bash
+# Run TypeScript linting check
 npm run lint
+
+# Build for production
 npm run build
+
+# Start production server
 npm run start
 ```
+

@@ -15,6 +15,18 @@ interface SummarizeResponse {
   summary: string;
 }
 
+export interface GroundedSource {
+  title: string;
+  url: string;
+}
+
+export interface SearchNewsResponse {
+  title: string;
+  category: string;
+  summary: string;
+  sources: GroundedSource[];
+}
+
 interface TTSResponse {
   audioBase64: string;
 }
@@ -175,6 +187,25 @@ export class ApiService {
         body: JSON.stringify({ text, title, preferences }),
       },
       "Summarization failed."
+    );
+  }
+
+  static async searchNews(
+    query: string,
+    preferences: UserPreferences
+  ): Promise<SearchNewsResponse> {
+    if (!isLikelyOnline()) {
+      throw new Error("Internet connection required to search real-time news.");
+    }
+
+    return requestJson<SearchNewsResponse>(
+      "/api/articles/search-news",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ query, preferences }),
+      },
+      "Search grounding failed."
     );
   }
 

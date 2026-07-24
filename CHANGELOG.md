@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-24
+
+### Added
+- **Gemini Search Grounding Integration in IntakePanel**:
+  - Integrated `@google/genai` real-time Google Search Grounding (`{ tools: [{ googleSearch: {} }] }`) with model `gemini-3.6-flash`.
+  - Created Express backend endpoint `/api/articles/search-news` returning real-time news summaries grounded by live web sources and citations.
+  - Added "Live Search" tab to `IntakePanel` allowing users to query topics (e.g. SpaceX launches, EV battery breakthroughs, AI industry news) before generating audio summaries.
+  - Displayed grounded search result cards with live web citations, source links, and instant "Add & Play Audio Now" / "Save to Briefs" actions.
+  - Extended `AppContext` with `addGroundedArticle` helper method for saving grounded briefs with tags (`["Search Grounding", "Live News"]`) and source links.
+
 ## [1.2.0] - 2026-07-24
 
 ### Added

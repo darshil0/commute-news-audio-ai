@@ -8,8 +8,10 @@
 ## 2. Scope
 
 ### In-Scope Capabilities
-1. **Article & Link Intake**:
+1. **Article, Link & Live Search Intake**:
    - URL extraction and text summarization via Express `/api/extract` and `/api/summarize` proxy routes.
+   - Real-time Gemini Search Grounding via Express `/api/articles/search-news` proxy route, allowing users to search real-time news articles or topics before generating audio summaries.
+   - Grounded web sources / citations extraction and display.
    - Voice profile customization (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities.
 2. **Audio Synthesis & Playback**:
    - Server-side TTS synthesis via Gemini / `@google/genai` API (`/api/tts`).

@@ -13,7 +13,7 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 | `src/components/PodcastPlayer.tsx` | Persistent audio player panel with expanded view, speed slider (`0.5x`-`2.0x`), quick presets, sleep timer, seek bar, and voice badge. | AC-3.1, AC-3.2 |
 | `src/components/HomeDashboard.tsx` | Main briefing feed with tokenized search bar, category filter chips ("All", "Saved", "Downloaded"), audio card interactions, and queue management. | AC-5.1, AC-5.2 |
 | `src/components/PlaylistPanel.tsx` | Playlist manager featuring creation, track reordering (HTML5 drag-and-drop), and inline search across playlists and briefs. | AC-4.1, AC-4.2, AC-5.1 |
-| `src/components/IntakePanel.tsx` | Article submission interface supporting URL extraction, raw text input, and voice/summary customization. | AC-1.1, AC-1.2 |
+| `src/components/IntakePanel.tsx` | Article submission interface supporting URL extraction, raw text input, Gemini Search Grounding real-time news search, grounded web sources preview, and voice/summary customization. | AC-1.1, AC-1.2, AC-1.3 |
 | `src/components/ProfilePanel.tsx` | Settings & voice profile selector (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities. | AC-2.1, AC-2.2 |
 | `src/utils/search.ts` | High-performance tokenized fuzzy search utility scoring article titles, categories, authors, tags, and summaries. | AC-5.1, AC-5.2 |
 | `src/lib/db.ts` | IndexedDB client wrapper managing durable local persistence for articles, playlists, listening history, and playback progress. | AC-6.1 |
@@ -44,10 +44,16 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Create `/scripts/verify_and_prepare_push.sh` executable asset for automated verification and Git setup.
 - [x] Update `/README.md` to explain the SDD workflow to human developers and AI tools.
 
-### Phase 4: Cloud Cross-Device Synchronization Architecture (Current Phase)
+### Phase 4: Cloud Cross-Device Synchronization Architecture (Completed)
 - [x] Formally define Firestore data models (`UserBrief`, `UserPlaylist`, `UserSettings`) in `/specs/SYSTEM_SPEC.md`.
 - [x] Define Firestore ABAC Security Rules & access model in `/specs/SYSTEM_SPEC.md` for `/users/{userId}` path scope.
 - [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + Firestore `onSnapshot` listener reconciliation).
+
+### Phase 5: Gemini Search Grounding Integration (Completed)
+- [x] Integrate `@google/genai` Search Grounding (`{ tools: [{ googleSearch: {} }] }`) with model `gemini-3.6-flash`.
+- [x] Add server API endpoint `/api/articles/search-news` returning grounded news summaries and citations/sources.
+- [x] Extend `IntakePanel` with a dedicated "Live Search" tab for searching real-time news articles and topics.
+- [x] Render grounded search summaries with source URL links and one-click "Add & Play Audio Now" / "Save to Briefs" actions.
 
 ---
 
