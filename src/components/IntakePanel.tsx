@@ -5,11 +5,30 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Globe, FileText, Sparkles, AlertCircle, Search, ExternalLink, Play, Radio, CheckCircle2 } from 'lucide-react';
+import {
+  Globe,
+  FileText,
+  Sparkles,
+  AlertCircle,
+  Search,
+  ExternalLink,
+  Play,
+  Radio,
+  CheckCircle2,
+} from 'lucide-react';
 import { ApiService, SearchNewsResponse } from '../lib/api';
+import { SummaryLength, SummaryTone, VoiceName } from '../types';
 
 export const IntakePanel: React.FC = () => {
-  const { preferences, setPreferences, addArticleText, importArticleUrl, addGroundedArticle, playArticle, isOnline } = useApp();
+  const {
+    preferences,
+    setPreferences,
+    addArticleText,
+    importArticleUrl,
+    addGroundedArticle,
+    playArticle,
+    isOnline,
+  } = useApp();
 
   const [mode, setMode] = useState<'url' | 'text' | 'search'>('url');
   const [url, setUrl] = useState('');
@@ -50,7 +69,7 @@ export const IntakePanel: React.FC = () => {
         setSuccessMsg('News article summarized and compiled successfully!');
         setPastedText('');
         setTitle('');
-      } else if (mode === 'search') {
+      } else {
         if (!searchQuery.trim()) {
           throw new Error('Please enter a news topic or topic search query.');
         }
@@ -58,8 +77,9 @@ export const IntakePanel: React.FC = () => {
         setSearchResult(res);
         setSuccessMsg('Live search grounded news summary generated!');
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Processing failed. Please check the network or try another source.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Processing failed. Please check the network or try another source.';
+      setErrorMsg(message);
     } finally {
       setLocalLoading(false);
     }
@@ -77,8 +97,9 @@ export const IntakePanel: React.FC = () => {
       );
       setSuccessMsg('Grounded news brief saved! Starting playback...');
       await playArticle(article.id);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to play audio brief.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to play audio brief.';
+      setErrorMsg(message);
     } finally {
       setLocalLoading(false);
     }
@@ -97,8 +118,9 @@ export const IntakePanel: React.FC = () => {
       setSuccessMsg('Grounded news brief saved to your library!');
       setSearchResult(null);
       setSearchQuery('');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to save brief.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save brief.';
+      setErrorMsg(message);
     } finally {
       setLocalLoading(false);
     }
@@ -116,34 +138,55 @@ export const IntakePanel: React.FC = () => {
         </p>
       </div>
 
-      {/* Mode Selector */}
       <div className="flex border-b border-zinc-800 mb-6 bg-zinc-900/50 p-1 rounded-lg">
         <button
           id="intake-mode-url"
           type="button"
-          onClick={() => { setMode('url'); setErrorMsg(null); setSearchResult(null); }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === 'url' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
+          onClick={() => {
+            setMode('url');
+            setErrorMsg(null);
+            setSearchResult(null);
+          }}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${
+            mode === 'url' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
         >
           <Globe className="w-4 h-4" />
           <span>Web URL</span>
         </button>
+
         <button
           id="intake-mode-search"
           type="button"
-          onClick={() => { setMode('search'); setErrorMsg(null); setSearchResult(null); }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === 'search' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
+          onClick={() => {
+            setMode('search');
+            setErrorMsg(null);
+            setSearchResult(null);
+          }}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${
+            mode === 'search' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
         >
           <Search className="w-4 h-4" />
           <span className="flex items-center gap-1">
             <span>Live Search</span>
-            <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-1.5 py-0.5 rounded font-mono">Grounding</span>
+            <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-1.5 py-0.5 rounded font-mono">
+              Grounding
+            </span>
           </span>
         </button>
+
         <button
           id="intake-mode-text"
           type="button"
-          onClick={() => { setMode('text'); setErrorMsg(null); setSearchResult(null); }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === 'text' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
+          onClick={() => {
+            setMode('text');
+            setErrorMsg(null);
+            setSearchResult(null);
+          }}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${
+            mode === 'text' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
         >
           <FileText className="w-4 h-4" />
           <span>Paste Text</span>
@@ -151,23 +194,20 @@ export const IntakePanel: React.FC = () => {
       </div>
 
       <form onSubmit={handleProcess} className="space-y-6">
-        {/* Mode Inputs */}
         {mode === 'url' && (
           <div>
             <label htmlFor="url-input" className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
               Article Web Address
             </label>
-            <div className="relative">
-              <input
-                id="url-input"
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://news.ycombinator.com/item?id=..."
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-4 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all"
-                disabled={localLoading}
-              />
-            </div>
+            <input
+              id="url-input"
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://news.ycombinator.com/item?id=..."
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-4 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all"
+              disabled={localLoading}
+            />
             <p className="text-[11px] text-zinc-500 mt-2 italic">
               * Supports most major news websites, blog posts, and text-heavy columns.
             </p>
@@ -235,7 +275,6 @@ export const IntakePanel: React.FC = () => {
           </div>
         )}
 
-        {/* Dynamic Voiceover Preferences Configurator Card */}
         <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-xl p-5 space-y-4">
           <h3 className="text-sm font-semibold text-zinc-200 border-b border-zinc-800 pb-2 flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-emerald-400" />
@@ -243,13 +282,19 @@ export const IntakePanel: React.FC = () => {
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Length Preference */}
             <div>
-              <label htmlFor="pref-length" className="block text-xs text-zinc-400 mb-1.5 font-medium">Summary Length</label>
+              <label htmlFor="pref-length" className="block text-xs text-zinc-400 mb-1.5 font-medium">
+                Summary Length
+              </label>
               <select
                 id="pref-length"
                 value={preferences.summaryLength}
-                onChange={(e: any) => setPreferences({ summaryLength: e.target.value })}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    summaryLength: e.target.value as SummaryLength,
+                  }))
+                }
                 className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
                 disabled={localLoading}
               >
@@ -259,13 +304,19 @@ export const IntakePanel: React.FC = () => {
               </select>
             </div>
 
-            {/* Tone Preference */}
             <div>
-              <label htmlFor="pref-tone" className="block text-xs text-zinc-400 mb-1.5 font-medium">Script Tone / Style</label>
+              <label htmlFor="pref-tone" className="block text-xs text-zinc-400 mb-1.5 font-medium">
+                Script Tone / Style
+              </label>
               <select
                 id="pref-tone"
                 value={preferences.summaryTone}
-                onChange={(e: any) => setPreferences({ summaryTone: e.target.value })}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    summaryTone: e.target.value as SummaryTone,
+                  }))
+                }
                 className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
                 disabled={localLoading}
               >
@@ -275,13 +326,19 @@ export const IntakePanel: React.FC = () => {
               </select>
             </div>
 
-            {/* Voice Preference */}
             <div>
-              <label htmlFor="pref-voice" className="block text-xs text-zinc-400 mb-1.5 font-medium">TTS voice narrator</label>
+              <label htmlFor="pref-voice" className="block text-xs text-zinc-400 mb-1.5 font-medium">
+                TTS voice narrator
+              </label>
               <select
                 id="pref-voice"
                 value={preferences.voiceName}
-                onChange={(e: any) => setPreferences({ voiceName: e.target.value as any })}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    voiceName: e.target.value as VoiceName,
+                  }))
+                }
                 className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
                 disabled={localLoading}
               >
@@ -293,13 +350,19 @@ export const IntakePanel: React.FC = () => {
               </select>
             </div>
 
-            {/* Speeds */}
             <div>
-              <label htmlFor="pref-speed" className="block text-xs text-zinc-400 mb-1.5 font-medium">Default Narrator Speed</label>
+              <label htmlFor="pref-speed" className="block text-xs text-zinc-400 mb-1.5 font-medium">
+                Default Narrator Speed
+              </label>
               <select
                 id="pref-speed"
                 value={preferences.playbackSpeed}
-                onChange={(e) => setPreferences({ playbackSpeed: parseFloat(e.target.value) })}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    playbackSpeed: parseFloat(e.target.value),
+                  }))
+                }
                 className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
                 disabled={localLoading}
               >
@@ -313,7 +376,6 @@ export const IntakePanel: React.FC = () => {
           </div>
         </div>
 
-        {/* Error / Success Notifications */}
         {errorMsg && (
           <div className="bg-red-950/40 border border-red-900/50 rounded-lg p-4 flex items-start gap-3 text-sm text-red-400">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -334,7 +396,6 @@ export const IntakePanel: React.FC = () => {
           </div>
         )}
 
-        {/* Submit Button */}
         <button
           id="intake-submit-btn"
           type="submit"
@@ -345,7 +406,11 @@ export const IntakePanel: React.FC = () => {
             <>
               <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               <span>{mode === 'search' ? 'Grounding Real-Time Search...' : 'Generating Audio Brief...'}</span>
             </>
@@ -358,7 +423,6 @@ export const IntakePanel: React.FC = () => {
         </button>
       </form>
 
-      {/* Grounded Search Result Preview Card */}
       {searchResult && (
         <div id="grounded-search-result-card" className="mt-8 bg-zinc-900 border border-emerald-900/60 rounded-xl p-5 space-y-4 shadow-xl">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -380,8 +444,7 @@ export const IntakePanel: React.FC = () => {
             {searchResult.summary}
           </div>
 
-          {/* Sources / Grounding Citations */}
-          {searchResult.sources && searchResult.sources.length > 0 && (
+          {searchResult.sources?.length ? (
             <div className="space-y-2">
               <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-emerald-400" />
@@ -402,9 +465,8 @@ export const IntakePanel: React.FC = () => {
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               id="add-play-grounded-btn"
@@ -432,4 +494,3 @@ export const IntakePanel: React.FC = () => {
     </div>
   );
 };
-
