@@ -97,3 +97,26 @@ To support offline listening, CommuteBrief leverages IndexedDB on the client thr
 - **`POST /api/articles/tts`**:
   - Inputs: `text`, `voiceName`, `speed`.
   - Behavior: Generates high-quality base64 wav narration using the `gemini-3.1-flash-tts-preview` model.
+
+---
+
+## 5. Architectural Bug Fixes & Refinements
+
+The following system design updates have been introduced to solve edge cases and polish the overall user experience:
+
+1. **Deterministic Playback Speed Persistence**:
+   - Web browsers (Chrome, Safari) frequently reset `audioElement.playbackRate` to `1.0` during audio resource initialization or inside `.play()` promises.
+   - We address this by listening to `onplay` and `onplaying` events on the HTML Audio instance and reapplying the user's preferred speed rate.
+
+2. **Haptic Pulse Sync & Overlap Prevention**:
+   - Replaced duplicate haptic pulses during skips with coordinate handlers. When dragging tracks, we issue `25ms` haptic signals and suppress the standard `30ms` playback haptics during skip-driven triggers.
+   - Restructured pause/resume triggers under `togglePlayPause` to issue exact specified vibrations (`20ms` for pause, `30ms` for resume) to conform to system specs.
+
+3. **Cloud Sync Reconciliation Upgrade**:
+   - Extended backend data merge handlers to properly reconcile `progress` tracking items and `queue` arrays without deleting or dropping bookmarks or current listening progress states.
+
+4. **Interactive Scrubbing / Slider Seeking Stability**:
+   - Introduced a local React `scrubValue` state inside `PodcastPlayer` to isolate current playback progress times while active dragging is occurring. This prevents the slider from jumping during audio playback and avoids rapid, continuous haptic triggers.
+
+5. **Audio play() Interruption Protection**:
+   - Silenced `AbortError` triggers in `playArticle` to prevent browser interrupt issues (caused by rapid pause/skips) from raising confusing error toasts to commuters.

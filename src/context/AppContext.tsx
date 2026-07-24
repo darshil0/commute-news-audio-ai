@@ -228,6 +228,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
         setPlaylists(mergedPlaylists);
 
+        const mergedProgress = [...progressRef.current];
+        for (const remoteProg of remoteData.progress || []) {
+          const index = mergedProgress.findIndex((p) => p.articleId === remoteProg.articleId);
+          if (index === -1) {
+            mergedProgress.push(remoteProg);
+            await localDB.saveProgress(remoteProg);
+          } else if (new Date(remoteProg.lastPlayed).getTime() > new Date(mergedProgress[index].lastPlayed).getTime()) {
+            mergedProgress[index] = remoteProg;
+            await localDB.saveProgress(remoteProg);
+          }
+        }
+        setProgress(mergedProgress);
+
+        if (remoteData.queue && remoteData.queue.length > 0) {
+          setPlaybackState((prev) => {
+            if (prev.queue.length === 0) {
+              return { ...prev, queue: remoteData.queue };
+            }
+            return prev;
+          });
+        }
+
         if (remoteData.preferences) {
           setLocalPreferences(remoteData.preferences);
           await localDB.savePreferences(remoteData.preferences);
@@ -609,7 +631,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, 1000);
   }, [triggerHaptic]);
 
-  const playArticle = useCallback(async (id: string) => {
+  const playArticle = useCallback(async (id: string, skipHaptic = false) => {
     const article = articlesRef.current.find((a) => a.id === id);
     if (!article) return;
 
@@ -617,7 +639,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     try {
       completedTriggeredRef.current[id] = false;
-      triggerHaptic(30);
+      if (!skipHaptic) {
+        triggerHaptic(30);
+      }
       setPlaybackState((prev) => ({ ...prev, currentArticleId: id, isPlaying: true, playbackError: null }));
       analyticsEvent("Player", "PlayTrack", article.title);
 
@@ -640,7 +664,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         audioElementsCache[id] = audioObj;
       }
 
-      audioObj.onended = () => playNextInQueueRef.current();
+      // Robustly handle playback speed across browser rate-reset events
+      audioObj.onplay = () => {
+        audioObj.playbackRate = playbackStateRef.current.speed;
+      };
+      audioObj.onplaying = () => {
+        audioObj.playbackRate = playbackStateRef.current.speed;
+      };
+
+      audioObj.onended = () => {
+        if (!completedTriggeredRef.current[id]) {
+          completedTriggeredRef.current[id] = true;
+          triggerHaptic([40, 80, 40]);
+        }
+
+        const dur = Number.isFinite(audioObj.duration) && audioObj.duration > 0 ? audioObj.duration : 60;
+        const newProg: PlaybackProgress = {
+          articleId: id,
+          position: dur,
+          duration: dur,
+          completed: true,
+          lastPlayed: new Date().toISOString(),
+        };
+        setProgress((prev) => {
+          const filtered = prev.filter((p) => p.articleId !== id);
+          return [...filtered, newProg];
+        });
+        void localDB.saveProgress(newProg);
+
+        playNextInQueueRef.current();
+      };
+
       currentAudioRef.current = audioObj;
       audioObj.playbackRate = playbackStateRef.current.speed;
 
@@ -650,6 +704,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       await audioObj.play();
+      audioObj.playbackRate = playbackStateRef.current.speed; // Re-apply speed after play starts
 
       setArticles((prev) =>
         prev.map((a) => (a.id === id ? { ...a, playCount: a.playCount + 1 } : a))
@@ -658,6 +713,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       startTrackingProgress(id);
     } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") {
+        return; // Ignore normal play interruption abort errors
+      }
       const msg = err instanceof Error ? err.message : "Could not play audio. Please check network.";
       setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: msg }));
       clearPlaybackErrorLater(msg);
@@ -677,7 +735,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (nextId) {
       triggerHaptic(25);
-      void playArticle(nextId);
+      void playArticle(nextId, true);
       return;
     }
 
@@ -695,7 +753,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const idx = queue.indexOf(currentArticleId);
     if (idx > 0) {
       triggerHaptic(25);
-      void playArticle(queue[idx - 1]);
+      void playArticle(queue[idx - 1], true);
     } else if (currentAudioRef.current) {
       currentAudioRef.current.currentTime = 0;
     }
@@ -708,17 +766,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
 
-    triggerHaptic(20);
     if (playbackStateRef.current.isPlaying) {
+      triggerHaptic(20);
       audio.pause();
       setPlaybackState((prev) => ({ ...prev, isPlaying: false }));
       analyticsEvent("Player", "Pause");
     } else {
+      triggerHaptic(30);
       audio.playbackRate = playbackStateRef.current.speed;
       void audio.play().then(() => {
         setPlaybackState((prev) => ({ ...prev, isPlaying: true }));
         const currentId = playbackStateRef.current.currentArticleId;
         if (currentId) startTrackingProgress(currentId);
+      }).catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Play failed:", err);
+        }
       });
       analyticsEvent("Player", "Resume");
     }

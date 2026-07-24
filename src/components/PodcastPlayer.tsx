@@ -30,6 +30,7 @@ export const PodcastPlayer: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSleepMenu, setShowSleepMenu] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [scrubValue, setScrubValue] = useState<number | null>(null);
 
   const { currentArticleId, isPlaying, speed, sleepTimerDuration, sleepTimerEndTimestamp } = playbackState;
   const currentArticle = articles.find(a => a.id === currentArticleId);
@@ -202,13 +203,27 @@ export const PodcastPlayer: React.FC = () => {
                   min="0"
                   max={dur}
                   step="0.1"
-                  value={pos}
-                  onChange={handleProgressChange}
+                  value={scrubValue !== null ? scrubValue : pos}
+                  onChange={(e) => {
+                    setScrubValue(parseFloat(e.target.value));
+                  }}
+                  onMouseUp={() => {
+                    if (scrubValue !== null) {
+                      updatePlaybackPosition(scrubValue);
+                      setScrubValue(null);
+                    }
+                  }}
+                  onTouchEnd={() => {
+                    if (scrubValue !== null) {
+                      updatePlaybackPosition(scrubValue);
+                      setScrubValue(null);
+                    }
+                  }}
                   className="w-full accent-emerald-500 cursor-pointer bg-zinc-800 h-1.5 rounded-lg appearance-none"
                 />
                 <div className="flex justify-between text-xs font-mono text-zinc-400 mt-2">
-                  <span>{formatTime(pos)}</span>
-                  <span>-{formatTime(Math.max(0, dur - pos))}</span>
+                  <span>{formatTime(scrubValue !== null ? scrubValue : pos)}</span>
+                  <span>-{formatTime(Math.max(0, dur - (scrubValue !== null ? scrubValue : pos)))}</span>
                 </div>
               </div>
 
