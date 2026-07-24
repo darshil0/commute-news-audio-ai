@@ -164,6 +164,8 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 | **AC-8.3** | Security | URL extraction (`/api/articles/extract`) enforces HTTP/HTTPS scheme check and blocks private IP, loopback, and link-local ranges against SSRF. |
 | **AC-8.4** | Data Integrity | Articles and playlists generate collision-resistant UUIDs (`crypto.randomUUID()`) to preserve IndexedDB key safety. |
 | **AC-8.5** | Data Integrity | Diagnostic tests purge temporary progress records and test entries to prevent cloud sync pollution. |
+| **AC-8.6** | UX / Safety | Permanent deletion of briefs and playlists requires user confirmation to prevent accidental loss. |
+| **AC-8.7** | Performance | Search filtering precomputes relevance scores once per item rather than recomputing inside sorting comparators. |
 
 ---
 

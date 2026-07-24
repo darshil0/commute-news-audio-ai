@@ -61,6 +61,9 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Implement SSRF guard in `/api/articles/extract` blocking non-HTTP/HTTPS schemes, private RFC 1918/4193 IP ranges, loopback, and link-local addresses.
 - [x] Upgrade article and playlist creation in `AppContext.tsx` to use collision-resistant UUIDs (`crypto.randomUUID()`).
 - [x] Add `deleteProgress` in `db.ts` and clean up diagnostic test entries in `ProfilePanel.tsx` to prevent cloud sync pollution.
+- [x] Add user confirmation prompts on brief and playlist deletion in `HomeDashboard.tsx` and `PlaylistPanel.tsx`.
+- [x] Optimize search scoring in `src/utils/search.ts` by precomputing scores once per item prior to sorting.
+- [x] Harden external link attributes in `IntakePanel.tsx` with `rel="noopener noreferrer"`.
 
 ---
 

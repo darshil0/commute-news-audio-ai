@@ -112,9 +112,9 @@ export function searchAndFilterArticles(
   const isSavedQuery = normalizedQuery === "saved";
   const isDownloadedQuery = normalizedQuery === "downloaded";
 
-  const tokens = (isSavedQuery || isDownloadedQuery) ? [] : tokenize(normalizedQuery);
+  const tokens = isSavedQuery || isDownloadedQuery ? [] : tokenize(normalizedQuery);
 
-  return articles
+  const scoredArticles = articles
     .filter((art) => {
       // 1. Category Filter
       if (selectedCategory === "Saved") {
@@ -129,23 +129,20 @@ export function searchAndFilterArticles(
       if (isSavedQuery) return art.isSaved;
       if (isDownloadedQuery) return art.isDownloaded;
 
-      // 3. No search query -> pass all items
-      if (tokens.length === 0) return true;
-
-      // 4. Compute matching score. Must match at least some tokens
-      return scoreArticle(art, tokens) > 0;
+      return true;
     })
-    .sort((a, b) => {
-      if (tokens.length === 0) {
-        // Default sort: newest first
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-      // Search result sort: highest match score first, with date as tie-breaker
-      const scoreA = scoreArticle(a, tokens);
-      const scoreB = scoreArticle(b, tokens);
-      if (scoreA !== scoreB) {
-        return scoreB - scoreA;
-      }
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+    .map((art) => ({
+      article: art,
+      score: tokens.length > 0 ? scoreArticle(art, tokens) : 0,
+    }))
+    .filter((item) => tokens.length === 0 || item.score > 0);
+
+  scoredArticles.sort((a, b) => {
+    if (tokens.length > 0 && a.score !== b.score) {
+      return b.score - a.score;
+    }
+    return new Date(b.article.createdAt).getTime() - new Date(a.article.createdAt).getTime();
+  });
+
+  return scoredArticles.map((item) => item.article);
 }

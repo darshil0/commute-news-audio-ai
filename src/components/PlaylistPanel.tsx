@@ -285,9 +285,11 @@ export const PlaylistPanel: React.FC = () => {
                 <button
                   id="delete-playlist-btn"
                   onClick={() => {
-                    deletePlaylist(activePlaylist.id);
-                    setActivePlaylistId(null);
-                    setSearchQuery('');
+                    if (window.confirm(`Are you sure you want to delete "${activePlaylist.name}" playlist?`)) {
+                      deletePlaylist(activePlaylist.id);
+                      setActivePlaylistId(null);
+                      setSearchQuery('');
+                    }
                   }}
                   className="p-1.5 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-red-950/20 transition-all cursor-pointer"
                   title="Delete playlist"

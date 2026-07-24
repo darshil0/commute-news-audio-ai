@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Upgraded article and playlist ID generation in `AppContext.tsx` from `Date.now()` to collision-resistant `crypto.randomUUID()`.
 - **Diagnostic Cloud Sync Pollution Fix**:
   - Added `deleteProgress` method in `src/lib/db.ts` and updated `runDiagnostics` in `ProfilePanel.tsx` to purge temporary test articles and progress entries in a guaranteed `finally` block before cloud sync runs.
+- **Destructive Action Safety**:
+  - Added user confirmation prompts before deleting briefs in `HomeDashboard.tsx` and playlists in `PlaylistPanel.tsx`.
+- **Search Scoring Performance Optimization**:
+  - Optimized `searchAndFilterArticles` in `src/utils/search.ts` to compute relevance scores once per item prior to sorting, eliminating O(N log N) redundant tokenization cycles.
+- **External Link Defense-in-Depth**:
+  - Updated web citation links in `IntakePanel.tsx` to include `rel="noopener noreferrer"`.
 
 ## [1.3.0] - 2026-07-24
 

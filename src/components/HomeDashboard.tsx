@@ -351,7 +351,11 @@ export const HomeDashboard: React.FC = () => {
                     <button
                       type="button"
                       id={`delete-feed-item-${art.id}`}
-                      onClick={() => deleteArticle(art.id)}
+                      onClick={() => {
+                        if (window.confirm("Are you sure you want to delete this news brief?")) {
+                          deleteArticle(art.id);
+                        }
+                      }}
                       className="p-1.5 hover:bg-red-950/20 text-zinc-500 hover:text-red-400 rounded-lg transition-colors"
                       title="Delete brief"
                     >

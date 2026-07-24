@@ -393,7 +393,7 @@ export const IntakePanel: React.FC = () => {
                     key={idx}
                     href={src.url}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="flex items-center justify-between gap-2 p-2 bg-zinc-800/50 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-emerald-400 rounded border border-zinc-700/40 transition-all truncate"
                   >
                     <span className="truncate">{src.title}</span>
