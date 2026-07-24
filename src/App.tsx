@@ -22,6 +22,14 @@ function CommuteAppContent() {
 
   const isDark = preferences.theme === "dark";
 
+  React.useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
+
   const toggleTheme = useCallback(() => {
     setPreferences({ theme: isDark ? "light" : "dark" });
   }, [isDark, setPreferences]);

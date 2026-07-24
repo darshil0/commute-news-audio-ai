@@ -93,7 +93,7 @@ export const ProfilePanel: React.FC = () => {
 
       // Generate TTS base64
       const base64 = await ApiService.generateTTS(greetText, voice, 1.0);
-      const audioUrl = `data:audio/wav;base64,${base64}`;
+      const audioUrl = `data:audio/mp3;base64,${base64}`;
       const audio = new Audio(audioUrl);
       
       setCurrentPreviewAudio(audio);
@@ -103,7 +103,7 @@ export const ProfilePanel: React.FC = () => {
         setPlayingPreviewVoice(null);
         setCurrentPreviewAudio(null);
       };
-      
+
       audio.onerror = () => {
         setPlayingPreviewVoice(null);
         setCurrentPreviewAudio(null);

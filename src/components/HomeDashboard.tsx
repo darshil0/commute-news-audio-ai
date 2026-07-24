@@ -54,10 +54,7 @@ export const HomeDashboard: React.FC = () => {
     const totalBriefs = articles.length;
     const completedBriefs = progress.filter((p) => p.completed).length;
     const downloadedBriefs = articles.filter((a) => a.isDownloaded).length;
-    const totalSecondsListen = progress.reduce(
-      (acc, curr) => acc + Math.max(0, Math.round(curr.position)),
-      0
-    );
+    const totalSecondsListen = progress.reduce((acc, curr) => acc + Math.max(0, Math.round(curr.position)), 0);
 
     return {
       totalBriefs,
@@ -176,10 +173,7 @@ export const HomeDashboard: React.FC = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {inProgressBriefs.map(({ art, progress }) => {
-              const percent =
-                progress.duration > 0
-                  ? Math.min(100, Math.round((progress.position / progress.duration) * 100))
-                  : 0;
+              const percent = progress.duration > 0 ? Math.min(100, Math.round((progress.position / progress.duration) * 100)) : 0;
 
               return (
                 <div
