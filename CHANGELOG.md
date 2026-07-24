@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-24
+
+### Refactored & Code Quality Hardening
+- **Strict Typing & Elimination of `any` Casts**:
+  - Replaced raw `any` casts in `server.ts` with explicit internal types (`GroundingChunk`, `VoiceName`, `PartWithInlineData`).
+  - Replaced `any` event handlers and preference casts in `IntakePanel.tsx` and `ProfilePanel.tsx` with strict TypeScript types (`SummaryLength`, `SummaryTone`, `VoiceName`).
+  - Standardized error catching across async operations using `unknown` and a centralized `getErrorMessage` helper function.
+- **Playback Error Auto-Dismissal Fix**:
+  - Wired up `clearPlaybackErrorLater` in `AppContext.tsx` so audio playback and speech synthesis error banners auto-dismiss after 6 seconds and clean up active timers on unmount.
+- **Refactoring & Execution Safety in AppContext**:
+  - Introduced `playArticleRef` in `AppContext.tsx` to resolve circular execution dependencies between `togglePlayPause` and `playArticle`.
+- **Dead Code & Unused Import Removal**:
+  - Removed unused destructured parameters and variables in `server.ts` (`c`, `d`).
+  - Cleaned up unused imports and state variables across `PodcastPlayer.tsx`, `PlaylistPanel.tsx`, `ProfilePanel.tsx`, `QueuePanel.tsx`, and `db.ts`.
+  - Fixed regex escape syntax in `src/utils/search.ts`.
+
 ## [1.4.0] - 2026-07-24
 
 ### Fixed & Security Hardening
@@ -111,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/aistudio-build/commutenews/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/aistudio-build/commutenews/compare/v1.1.0...v1.2.0

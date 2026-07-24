@@ -65,6 +65,14 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Optimize search scoring in `src/utils/search.ts` by precomputing scores once per item prior to sorting.
 - [x] Harden external link attributes in `IntakePanel.tsx` with `rel="noopener noreferrer"`.
 
+### Phase 7: Code Quality, Refactoring & Strict Typing Hardening (Completed)
+- [x] Eliminate raw `any` types across `server.ts`, `IntakePanel.tsx`, and `ProfilePanel.tsx` with explicit domain interfaces (`SummaryLength`, `SummaryTone`, `VoiceName`, `GroundingChunk`, `PartWithInlineData`).
+- [x] Standardize error handling in UI panels using `unknown` and `getErrorMessage` helper function.
+- [x] Wire up `clearPlaybackErrorLater` in `AppContext.tsx` for 6-second auto-dismissal of playback error banners.
+- [x] Refactor `AppContext.tsx` using `playArticleRef` to break circular dependency and hoisting fragility between `togglePlayPause` and `playArticle`.
+- [x] Clean up unused imports, dead code, and unused function arguments across `server.ts`, `PodcastPlayer.tsx`, `PlaylistPanel.tsx`, `ProfilePanel.tsx`, `QueuePanel.tsx`, and `db.ts`.
+- [x] Fix character class regex escape syntax in `src/utils/search.ts`.
+
 ---
 
 ## 🔄 Agent Handoff Protocol
