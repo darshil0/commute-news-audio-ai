@@ -38,6 +38,7 @@ When working on this repository, all AI agents and human contributors **MUST** f
   - **Audio Fallback**: When offline or if Gemini API requests fail, the client gracefully falls back to browser-native `window.speechSynthesis`.
 - **Type Safety & Immutability**:
   - Maintain strict TypeScript type definitions in `src/types.ts`.
+  - Avoid raw `any` types; use explicit domain types/unions (`SummaryLength`, `SummaryTone`, `VoiceName`) and handle caught errors with `unknown` and type guards.
   - Use read-only arrays (`readonly string[]`) and immutable state patterns where appropriate.
 
 ---
