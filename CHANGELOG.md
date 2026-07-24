@@ -90,5 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.3.0]: https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/aistudio-build/commutenews/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/aistudio-build/commutenews/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/aistudio-build/commutenews/releases/tag/v1.0.0
