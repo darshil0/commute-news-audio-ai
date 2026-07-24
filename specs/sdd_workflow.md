@@ -60,7 +60,7 @@ When a new feature, improvement, or bug fix is requested:
 ## 3. Core Developer Guardrails
 
 1. **Specs before Code**: Never write source code until your corresponding specification inside `specs/` is fully written and approved.
-2. **Handle Ambiguity Safely**: If any requirement or design detail is missing, do not make guesses. Mark the file or section with a bold **`[NEEDS CLARIFICATION]`** tag and request clarification immediately.
+2. **Handle Ambiguity Safely**: If any requirement or design detail is missing, do not make guesses. Mark the file or section with a bold **`[NEEDS-CLARIFICATION]`** tag and request clarification immediately.
 3. **Minimize Diffs**: Write the smallest possible diff that satisfies the specification. Refactoring unrelated files, adding unrelated features, or rewriting large blocks of code unnecessarily is strictly prohibited.
 4. **Edit Source, Not Artifacts**: Never directly edit built assets (e.g. inside `dist/`). Always edit files under `src/` or `server.ts` and regenerate artifacts by running `npm run build`.
 5. **No Blind Dependency Installs**: Never install or uninstall npm packages without first analyzing package constraints or receiving explicit authorization from the specification.
