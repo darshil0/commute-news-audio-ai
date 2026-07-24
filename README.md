@@ -30,6 +30,20 @@ CommuteBrief is a highly polished, single-page application (SPA) with full-stack
 
 ---
 
+## 📐 Spec-Driven Development (SDD) Workflow
+
+This repository strictly adopts a Spec-Driven Development flow.
+
+All technical specs, implementation designs, and checklists are located in the [specs/](specs/) folder:
+* **Product Specifications**: Review the full [CommuteBrief Spec](specs/commute_brief_spec.md) for details on expected features and behaviors.
+* **Workflow Guidelines**: Learn about our SDD methodology in the [SDD Workflow Guide](specs/sdd_workflow.md).
+* **Technical Layouts**: Explore code layouts, databases, and APIs in the [Technical & Implementation Notes](specs/implementation_notes.md).
+* **Validation & Testing**: Run the deterministic verification steps listed in the [Validation & Verification Checklist](specs/validation_checklist.md).
+
+For AI agents and automated tools, review the developer guidelines in [AGENTS.md](AGENTS.md).
+
+---
+
 ## 🛠️ Architecture & Tech Stack
 
 ### Client-Side (React, TypeScript, Tailwind CSS)
