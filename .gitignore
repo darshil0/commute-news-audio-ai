@@ -1,8 +1,43 @@
+# Dependencies
 node_modules/
-build/
+.pnpm-store/
+
+# Build & Output
 dist/
+dist-ssr/
+build/
 coverage/
-.DS_Store
-*.log
-.env*
+*.tsbuildinfo
+
+# Local Environment & Secrets
+.env
+.env.local
+.env.*.local
 !.env.example
+
+# Development & Cache
+.vite/
+.cache/
+tmp/
+
+# IDEs & Editors
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# System & OS Files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
