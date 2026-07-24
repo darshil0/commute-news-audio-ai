@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 export type SummaryLength = "short" | "medium" | "detailed";
 export type SummaryTone = "professional" | "engaging" | "concise";
 export type VoiceName = "Kore" | "Puck" | "Charon" | "Fenrir" | "Zephyr";
