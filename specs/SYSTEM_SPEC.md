@@ -1,7 +1,7 @@
 # SYSTEM_SPEC.md - CommuteBrief System Specification
 
 ## 1. Purpose
-**CommuteBrief (CommuteNews)** is a full-stack, audio-first single-page web application (SPA) designed to optimize daily commutes. It accepts pasted text articles or web news URLs, converts them into concise, structured summaries using server-side Gemini AI models, and synthesizes natural-sounding audio briefings using AI voice models or browser-native Text-to-Speech (TTS) fallbacks.
+**CommuteBrief (CommuteNews)** is a full-stack, audio-first single-page web application (SPA) designed to optimize daily commutes. It accepts pasted text articles or web news URLs, converts them into concise, structured summaries using server-side Gemini AI models, synthesizes natural-sounding audio briefings using AI voice models or browser-native Text-to-Speech (TTS) fallbacks, and provides **cloud-based cross-device synchronization** for playlists and user briefs powered by Firebase Firestore and Authentication.
 
 ---
 
@@ -21,19 +21,80 @@
 4. **Search & Category Filtering**:
    - Tokenized fuzzy search utility (`src/utils/search.ts`) filtering articles across titles, summaries, authors, categories, tags, and saved/downloaded states in `HomeDashboard` and `PlaylistPanel`.
 5. **Persistence & Offline Support**:
-   - Client-side IndexedDB persistence (`src/lib/db.ts`) for articles, playlists, listening history, voice preferences, and audio progress tracking.
-   - Offline detection and state indicators.
-6. **Haptic Feedback**:
+   - Client-side IndexedDB persistence (`src/lib/db.ts`) for local audio caching, articles, playlists, listening history, voice preferences, and audio progress tracking.
+   - Offline detection and seamless state fallback.
+6. **Cloud Cross-Device Synchronization (Firestore Integration)**:
+   - Real-time cloud sync across devices for user briefs, custom playlists, listening history, and playback progress.
+   - Firebase Authentication anchoring user isolation scope at `/users/{userId}`.
+   - Real-time document listeners (`onSnapshot`) ensuring multi-device updates propagate in real time.
+   - Offline-first architecture where local IndexedDB operations sync to Firestore upon network reconnection.
+7. **Haptic Feedback**:
    - Hardware/browser `navigator.vibrate` haptic pulses for tab switches, playback actions, track skips, speed changes, and track completion.
 
 ---
 
-## 3. Assumptions
+## 3. Cloud Architecture & Firestore Integration Spec
 
-1. **Environment & Server**: Runs in a Cloud Run / Node.js container behind an Nginx proxy routing traffic exclusively to port `3000`.
-2. **API Access**: `GEMINI_API_KEY` is provided in the server environment (or injected via AI Studio secrets).
-3. **Client Standards**: Modern web browser supporting HTML5 Web Audio API, IndexedDB, and optional Web Speech API (`window.speechSynthesis`).
-4. **Offline Mode**: Browsers without network connectivity can still play cached audio or utilize client-side Web Speech TTS synthesis.
+### 3.1 Data Hierarchy & Schema (`firebase-blueprint.json`)
+Data is structured hierarchically under the user's isolated subcollection scope `/users/{userId}/`:
+
+#### Entity: `UserBrief`
+- **Path**: `/users/{userId}/briefs/{briefId}`
+- **Properties**:
+  - `id` (`string`, required): Unique identifier (UUID).
+  - `title` (`string`, required, max 256 chars): Title of the article or news brief.
+  - `summary` (`string`, required, max 4096 chars): Gemini-generated concise summary text.
+  - `originalText` (`string`, optional, max 32768 chars): Extracted raw article text.
+  - `sourceUrl` (`string`, optional, max 1024 chars): Original source website URL.
+  - `category` (`string`, required, max 64 chars): News category (e.g. Technology, Business, Science, World).
+  - `tags` (`array` of `string`, max 10 items): Topic search tags.
+  - `duration` (`number`, required): Audio duration in seconds.
+  - `progress` (`number`, required): Saved playback offset in seconds.
+  - `voice` (`string`, required, max 32 chars): Selected TTS voice profile (Zephyr, Kore, Charon, Puck, Fenrir).
+  - `createdAt` (`string` or `ServerTimestamp`, required): Document creation ISO timestamp.
+  - `updatedAt` (`string` or `ServerTimestamp`, required): Document last modification ISO timestamp.
+  - `userId` (`string`, required): Owner Firebase auth UID.
+
+#### Entity: `UserPlaylist`
+- **Path**: `/users/{userId}/playlists/{playlistId}`
+- **Properties**:
+  - `id` (`string`, required): Unique playlist identifier.
+  - `name` (`string`, required, max 128 chars): User-defined playlist title.
+  - `description` (`string`, optional, max 512 chars): Optional playlist overview.
+  - `briefIds` (`array` of `string`, max 100 items): Ordered list of `UserBrief` IDs in the playlist.
+  - `createdAt` (`string` or `ServerTimestamp`, required): Creation ISO timestamp.
+  - `updatedAt` (`string` or `ServerTimestamp`, required): Last updated ISO timestamp.
+  - `userId` (`string`, required): Owner Firebase auth UID.
+
+#### Entity: `UserSettings`
+- **Path**: `/users/{userId}/settings/config`
+- **Properties**:
+  - `preferredVoice` (`string`, required): Default voice profile ID.
+  - `playbackSpeed` (`number`, required): Preferred speed factor (`0.5` to `2.0`).
+  - `hapticsEnabled` (`boolean`, required): Haptic vibration toggle state.
+  - `updatedAt` (`string` or `ServerTimestamp`, required): Settings sync timestamp.
+
+---
+
+### 3.2 Firestore Security Model (`firestore.rules`)
+Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC):
+
+1. **User Scope Isolation**: All reads and writes enforce `request.auth != null && request.auth.uid == userId`.
+2. **Schema & Boundary Validation**:
+   - Inputs are validated using helper functions (`isValidBrief()`, `isValidPlaylist()`).
+   - String length boundaries and array size caps (e.g., `briefIds.size() <= 100`) prevent wallet denial-of-service or payload bloat.
+3. **Immutable Field Locks**: Fields such as `createdAt` and `userId` are immutable upon creation (`incoming().userId == existing().userId`).
+4. **Server Timestamp Verification**: `updatedAt` field mutations must align with `request.time`.
+
+---
+
+### 3.3 Synchronization Logic & Conflict Resolution
+1. **Offline-First Local Writes**: Client mutations immediately write to local IndexedDB (`src/lib/db.ts`) for zero-latency UI reactivity.
+2. **Bi-Directional Cloud Sync**:
+   - `onSnapshot` listeners maintain real-time sync with `/users/{userId}/briefs` and `/users/{userId}/playlists`.
+   - When online, mutations flush to Firestore via `setDoc` / `updateDoc`.
+3. **Conflict Resolution Strategy**: Last-Write-Wins (LWW) based on server/ISO `updatedAt` timestamps.
+4. **Audio Binary Handling**: Raw synthesized audio buffers or audio blobs are stored locally in IndexedDB / Web Audio cache, keeping Firestore documents lean (< 50 KB per document) and well under the 1MB document limit.
 
 ---
 
@@ -69,6 +130,11 @@
 - **I want** audio playback to continue seamlessly using local storage or browser Web Speech synthesis,
 - **So that** my commute stream is never interrupted.
 
+### US-7: Cloud Cross-Device Synchronization
+- **As a** multi-device commuter (e.g. laptop at work, phone on train),
+- **I want** my briefs, playlists, and listening progress to synchronize automatically via Firestore,
+- **So that** I can seamlessly switch devices and pick up playback right where I stopped.
+
 ---
 
 ## 5. Acceptance Criteria
@@ -87,25 +153,22 @@
 | **AC-5.2** | Search | Category filters include "All", "Saved", "Downloaded", and topic categories. |
 | **AC-6.1** | Fallback | If the server TTS endpoint fails or the device is offline, playback automatically falls back to browser `window.speechSynthesis`. |
 | **AC-6.2** | Haptics | Supported actions (tab changes, play/pause, track completion) trigger distinct haptic vibration patterns via `navigator.vibrate`. |
+| **AC-7.1** | Cloud Sync | User authentication anchors Firestore collection paths `/users/{userId}/briefs` and `/users/{userId}/playlists`. |
+| **AC-7.2** | Cloud Sync | Creating, updating, or deleting briefs/playlists on one device updates Firestore and triggers `onSnapshot` listeners across authenticated secondary devices within 2 seconds. |
+| **AC-7.3** | Cloud Sync | Playback progress offsets are saved to Firestore and synchronized to allow cross-device resume. |
+| **AC-7.4** | Cloud Sync | Firestore security rules strictly restrict document access to `request.auth.uid == userId` and enforce property type/length validation. |
 
 ---
 
 ## 6. Non-Goals
 
 - **External RSS Feed Crawler**: Background automatic crawling of arbitrary third-party RSS feeds is out of scope.
-- **Multi-Tenant User Accounts**: Remote multi-user database authentication (e.g. Firebase Auth / OAuth) is out of scope for the current single-user client-side storage model.
-- **Social Feed Sharing**: Native social networking or direct peer-to-peer sharing feeds are not included in this release.
+- **Public Community Brief Sharing**: Public brief social feeds or uncontrolled cross-user document reads are excluded; data access is strictly locked to the authenticated owner (`/users/{userId}`).
+- **Binary Audio Storage in Firestore**: Raw audio blob binaries are NOT stored inside Firestore fields; audio streams and local audio files are cached in IndexedDB or Web Audio memory to preserve document performance limits.
 
 ---
 
-## 7. Open Items & `[NEEDS CLARIFICATION]`
-
-1. **`[NEEDS CLARIFICATION]` Cloud Storage Synchronization**: Currently, all briefs, playlists, and playback progress are stored locally in IndexedDB. If cloud multi-device sync is requested in future specs, backend database integration (such as Firestore) will need to be specified.
-2. **`[NEEDS CLARIFICATION]` Custom Voice Model Fine-Tuning**: Custom user-uploaded voice cloning models are not currently supported; voice selection is restricted to the defined 5 standard preset voice profiles.
-
----
-
-## 8. Validation Protocol
+## 7. Verification Protocol
 
 1. **Type Safety**: Run `npm run lint` (`tsc --noEmit`) to confirm zero compilation or type errors.
 2. **Production Bundle**: Run `npm run build` to verify Vite and esbuild server bundler success.

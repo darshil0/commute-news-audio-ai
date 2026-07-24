@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Spec-Driven Development (SDD) Framework**:
   - Introduced root `/AGENTS.md` specifying mandatory spec-first development workflows, port constraints, error handling, and agent handoff protocols.
-  - Created `/specs/SYSTEM_SPEC.md` defining system purpose, scope, assumptions, user stories (US-1 to US-6), detailed acceptance criteria (AC-1 to AC-6), non-goals, validation protocols, and open items (`[NEEDS CLARIFICATION]`).
+  - Created `/specs/SYSTEM_SPEC.md` formally defining system purpose, scope, Firestore cloud cross-device sync technical architecture (`UserBrief`, `UserPlaylist`, `UserSettings`), ABAC security model, offline-first sync resolution strategies, acceptance criteria (AC-1 to AC-7), non-goals, and validation protocols.
   - Created `/specs/IMPLEMENTATION_PLAN.md` mapping system architecture components (`server.ts`, `AppContext.tsx`, `PodcastPlayer.tsx`, `search.ts`, `db.ts`) directly to specification criteria and tracking completion phases.
   - Created `/specs/VALIDATION_CHECKLIST.md` establishing a formal verification protocol for linting, compilation, feature acceptance criteria, and documentation consistency.
   - Created `/scripts/verify_and_prepare_push.sh` executable script asset for automated linting, compilation, Git repository initialization, and staging.

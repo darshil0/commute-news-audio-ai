@@ -38,11 +38,16 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 ### Phase 3: SDD Documentation & Verification Assets (Completed)
 - [x] Audit repository documentation and eliminate spec conflicts.
 - [x] Create root `/AGENTS.md` specifying Spec-Driven Development rules.
-- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, acceptance criteria, non-goals, and open questions.
+- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, Firestore cloud sync technical architecture, acceptance criteria, non-goals, and validation protocols.
 - [x] Create `/specs/IMPLEMENTATION_PLAN.md` mapping architecture to spec criteria.
 - [x] Create `/specs/VALIDATION_CHECKLIST.md` providing a verification protocol for future agents.
 - [x] Create `/scripts/verify_and_prepare_push.sh` executable asset for automated verification and Git setup.
 - [x] Update `/README.md` to explain the SDD workflow to human developers and AI tools.
+
+### Phase 4: Cloud Cross-Device Synchronization Architecture (Current Phase)
+- [x] Formally define Firestore data models (`UserBrief`, `UserPlaylist`, `UserSettings`) in `/specs/SYSTEM_SPEC.md`.
+- [x] Define Firestore ABAC Security Rules & access model in `/specs/SYSTEM_SPEC.md` for `/users/{userId}` path scope.
+- [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + Firestore `onSnapshot` listener reconciliation).
 
 ---
 
