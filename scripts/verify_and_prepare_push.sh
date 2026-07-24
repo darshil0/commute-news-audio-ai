@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-set -e
+set -Eeuo pipefail
+
+# Trap errors and report which line/command failed
+trap 'echo "ERROR: Script failed at line $LINENO (last command: $BASH_COMMAND)" >&2' ERR
+
+# --- Preconditions ---
+command -v npm >/dev/null 2>&1 || { echo "ERROR: npm not found in PATH." >&2; exit 1; }
+command -v git >/dev/null 2>&1 || { echo "ERROR: git not found in PATH." >&2; exit 1; }
+[ -f "package.json" ] || { echo "ERROR: package.json not found. Run this from the project root." >&2; exit 1; }
 
 echo "=== 1. Running Lint Check (TypeScript) ==="
 npm run lint
@@ -16,10 +24,10 @@ if [ ! -d ".git" ]; then
 fi
 
 echo "=== 4. Staging Files ==="
-git add .
+git add -A
 
 echo "=== 5. Creating Commit ==="
-if git status --porcelain | grep -q .; then
+if ! git diff --cached --quiet; then
   git commit -m "fix: resolve lint/build issues and prepare repository for GitHub push"
   echo "Commit created successfully."
 else
