@@ -157,6 +157,10 @@ class LocalDatabase {
     await this.withStore("progress", "readwrite", (store) => store.put(progress));
   }
 
+  async deleteProgress(articleId: string): Promise<void> {
+    await this.withStore("progress", "readwrite", (store) => store.delete(articleId));
+  }
+
   async getPreferences(): Promise<UserPreferences | null> {
     try {
       const prefs = await this.withStore<UserPreferences | undefined>(

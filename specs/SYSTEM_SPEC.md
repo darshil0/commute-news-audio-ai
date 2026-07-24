@@ -159,6 +159,11 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 | **AC-7.2** | Cloud Sync | Creating, updating, or deleting briefs/playlists on one device updates Firestore and triggers `onSnapshot` listeners across authenticated secondary devices within 2 seconds. |
 | **AC-7.3** | Cloud Sync | Playback progress offsets are saved to Firestore and synchronized to allow cross-device resume. |
 | **AC-7.4** | Cloud Sync | Firestore security rules strictly restrict document access to `request.auth.uid == userId` and enforce property type/length validation. |
+| **AC-8.1** | Security | Registration enforces username character allowlist (`/^[a-z0-9_-]{3,32}$/`) to eliminate path traversal risks in user sync file storage. |
+| **AC-8.2** | Security | `TOKEN_SECRET` environment variable is documented in `.env.example` and validated for token signature security. |
+| **AC-8.3** | Security | URL extraction (`/api/articles/extract`) enforces HTTP/HTTPS scheme check and blocks private IP, loopback, and link-local ranges against SSRF. |
+| **AC-8.4** | Data Integrity | Articles and playlists generate collision-resistant UUIDs (`crypto.randomUUID()`) to preserve IndexedDB key safety. |
+| **AC-8.5** | Data Integrity | Diagnostic tests purge temporary progress records and test entries to prevent cloud sync pollution. |
 
 ---
 

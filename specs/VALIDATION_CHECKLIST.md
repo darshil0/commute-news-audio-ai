@@ -59,3 +59,23 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
   - `/README.md` accurately reflects project architecture and SDD workflow.
   - `/AGENTS.md` provides clear guidance for future AI agents.
   - `CHANGELOG.md` records all major additions, changes, and fixes.
+
+---
+
+## 4. Security & Data Integrity Verification
+
+- [ ] **AC-8.1 (Username Character Allowlist)**:
+  - User registration rejects usernames with illegal characters or path traversal sequences (`../`).
+  - Allowed username pattern: `/^[a-z0-9_-]{3,32}$/`.
+
+- [ ] **AC-8.2 (Token Secret Security)**:
+  - `TOKEN_SECRET` documented in `.env.example` and verified on server initialization.
+
+- [ ] **AC-8.3 (SSRF Defense)**:
+  - Article URL extractor rejects non-HTTP/HTTPS protocols and private RFC 1918/4193 / loopback / link-local addresses.
+
+- [ ] **AC-8.4 (Collision-Resistant IDs)**:
+  - Articles and playlists use `crypto.randomUUID()` to prevent key collision overwrites in IndexedDB.
+
+- [ ] **AC-8.5 (Diagnostic Data Isolation)**:
+  - Diagnostic test runner purges temporary test articles and progress entries to prevent cloud sync pollution.

@@ -55,6 +55,13 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Extend `IntakePanel` with a dedicated "Live Search" tab for searching real-time news articles and topics.
 - [x] Render grounded search summaries with source URL links and one-click "Add & Play Audio Now" / "Save to Briefs" actions.
 
+### Phase 6: Security, SSRF, & Data Integrity Hardening (Completed)
+- [x] Enforce strict username allowlist (`/^[a-z0-9_-]{3,32}$/`) in registration and sync handlers to eliminate path traversal vulnerabilities.
+- [x] Enforce and document `TOKEN_SECRET` in `.env.example` and server startup checks for token signature security.
+- [x] Implement SSRF guard in `/api/articles/extract` blocking non-HTTP/HTTPS schemes, private RFC 1918/4193 IP ranges, loopback, and link-local addresses.
+- [x] Upgrade article and playlist creation in `AppContext.tsx` to use collision-resistant UUIDs (`crypto.randomUUID()`).
+- [x] Add `deleteProgress` in `db.ts` and clean up diagnostic test entries in `ProfilePanel.tsx` to prevent cloud sync pollution.
+
 ---
 
 ## 🔄 Agent Handoff Protocol

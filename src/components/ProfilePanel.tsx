@@ -243,7 +243,8 @@ export const ProfilePanel: React.FC = () => {
       if (!progRetrieved || progRetrieved.position !== 45.5) {
         throw new Error('Position Tracking storage failed');
       }
-      addLog('✅ Test 3: Playback position resuming invariants verified.');
+      await localDB.deleteProgress('test-article-prog'); // cleanup test progress
+      addLog('✅ Test 3: Playback position resuming invariants verified and cleaned up.');
 
       // Test 4: Cloud Sync Connection
       addLog('🧪 Test 4: Verifying secure Cloud Sync Backup reconciliation...');
@@ -262,6 +263,8 @@ export const ProfilePanel: React.FC = () => {
     } catch (err: any) {
       addLog(`❌ Test failed: ${err.message || err}`);
     } finally {
+      await localDB.deleteArticle('diag-test-id').catch(() => {});
+      await localDB.deleteProgress('test-article-prog').catch(() => {});
       setTesting(false);
     }
   };

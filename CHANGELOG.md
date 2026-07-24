@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-07-24
+
+### Fixed & Security Hardening
+- **Path Traversal Vulnerability Fix**:
+  - Enforced strict character allowlist (`/^[a-z0-9_-]{3,32}$/`) for username registration in `server.ts`.
+  - Added strict path checking (`path.resolve(syncFile).startsWith(path.resolve(DATA_DIR))`) in `/api/sync/save` and `/api/sync/get` to eliminate path traversal risks.
+- **Session Token Security**:
+  - Documented `TOKEN_SECRET` in `.env.example` and added startup validation in `server.ts`.
+- **SSRF Mitigation**:
+  - Added URL scheme check (`http:`, `https:`) and host inspection (`isPrivateOrInternalHost`) to `/api/articles/extract` to block SSRF attempts against loopback, link-local, and RFC 1918/4193 private ranges.
+- **IndexedDB Key Collision Fix**:
+  - Upgraded article and playlist ID generation in `AppContext.tsx` from `Date.now()` to collision-resistant `crypto.randomUUID()`.
+- **Diagnostic Cloud Sync Pollution Fix**:
+  - Added `deleteProgress` method in `src/lib/db.ts` and updated `runDiagnostics` in `ProfilePanel.tsx` to purge temporary test articles and progress entries in a guaranteed `finally` block before cloud sync runs.
+
 ## [1.3.0] - 2026-07-24
 
 ### Added
@@ -90,6 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.4.0]: https://github.com/aistudio-build/commutenews/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/aistudio-build/commutenews/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/aistudio-build/commutenews/compare/v1.0.0...v1.1.0

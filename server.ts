@@ -17,7 +17,39 @@ dotenv.config();
 const PORT = Number(process.env.PORT) || 3000;
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
+
+if (process.env.NODE_ENV === "production" && !process.env.TOKEN_SECRET) {
+  console.warn("WARNING: TOKEN_SECRET environment variable is not set! Using default secret.");
+}
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "dev-only-change-me";
+
+const USERNAME_REGEX = /^[a-z0-9_-]{3,32}$/;
+
+function isPrivateOrInternalHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().trim();
+  if (
+    host === "localhost" ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host.endsWith(".lan") ||
+    host === "::1" ||
+    host === "0.0.0.0"
+  ) {
+    return true;
+  }
+
+  const ipMatch = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipMatch) {
+    const [, a, b, c, d] = ipMatch.map(Number);
+    if (a === 127) return true; // 127.0.0.0/8 (loopback)
+    if (a === 10) return true; // 10.0.0.0/8 (private)
+    if (a === 172 && b >= 16 && b <= 31) return true; // 172.16.0.0/12 (private)
+    if (a === 192 && b === 168) return true; // 192.168.0.0/16 (private)
+    if (a === 169 && b === 254) return true; // 169.254.0.0/16 (link-local)
+    if (a === 0) return true; // 0.0.0.0/8
+  }
+  return false;
+}
 
 type UserRecord = {
   passwordHash: string;
@@ -178,8 +210,10 @@ async function startServer() {
       }
 
       const uClean = username.trim().toLowerCase();
-      if (uClean.length < 3 || password.length < 8) {
-        res.status(400).json({ error: "Username must be at least 3 chars; password at least 8 chars." });
+      if (!USERNAME_REGEX.test(uClean) || password.length < 8) {
+        res.status(400).json({
+          error: "Username must be 3-32 alphanumeric characters, underscores, or hyphens; password at least 8 chars.",
+        });
         return;
       }
 
@@ -224,7 +258,16 @@ async function startServer() {
     "/api/sync/save",
     authenticateToken,
     asyncHandler(async (req: AuthRequest, res) => {
+      if (!req.username || !USERNAME_REGEX.test(req.username)) {
+        res.status(400).json({ error: "Invalid username format." });
+        return;
+      }
       const syncFile = path.join(DATA_DIR, `sync_${req.username}.json`);
+      if (!path.resolve(syncFile).startsWith(path.resolve(DATA_DIR))) {
+        res.status(403).json({ error: "Forbidden file path access." });
+        return;
+      }
+
       await fs.writeFile(syncFile, JSON.stringify(req.body, null, 2), "utf-8");
       res.json({ success: true, timestamp: Date.now() });
     })
@@ -234,7 +277,16 @@ async function startServer() {
     "/api/sync/get",
     authenticateToken,
     asyncHandler(async (req: AuthRequest, res) => {
+      if (!req.username || !USERNAME_REGEX.test(req.username)) {
+        res.status(400).json({ error: "Invalid username format." });
+        return;
+      }
       const syncFile = path.join(DATA_DIR, `sync_${req.username}.json`);
+      if (!path.resolve(syncFile).startsWith(path.resolve(DATA_DIR))) {
+        res.status(403).json({ error: "Forbidden file path access." });
+        return;
+      }
+
       try {
         const data = JSON.parse(await fs.readFile(syncFile, "utf-8"));
         res.json(data);
@@ -254,9 +306,27 @@ async function startServer() {
         return;
       }
 
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(url.trim());
+      } catch {
+        res.status(400).json({ error: "Invalid URL format." });
+        return;
+      }
+
+      if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+        res.status(400).json({ error: "Only http and https protocols are supported." });
+        return;
+      }
+
+      if (isPrivateOrInternalHost(parsedUrl.hostname)) {
+        res.status(400).json({ error: "Access to internal or private addresses is forbidden." });
+        return;
+      }
+
       let html = "";
       try {
-        const response = await fetch(url, {
+        const response = await fetch(parsedUrl.href, {
           headers: { "User-Agent": "Mozilla/5.0" },
           signal: AbortSignal.timeout(6000),
         });

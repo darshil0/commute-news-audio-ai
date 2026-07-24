@@ -425,7 +425,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const summaryResult = await ApiService.summarizeText(text, title, preferencesRef.current);
       const newArticle: Article = {
-        id: `art-${Date.now()}`,
+        id: `art-${crypto.randomUUID()}`,
         title: summaryResult.title || title || "Direct paste summary",
         originalText: text,
         summary: summaryResult.summary,
@@ -452,7 +452,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const extractResult = await ApiService.extractUrl(url, preferencesRef.current);
       const newArticle: Article = {
-        id: `art-${Date.now()}`,
+        id: `art-${crypto.randomUUID()}`,
         title: extractResult.title || "Extracted Article",
         summary: extractResult.summary,
         url,
@@ -479,7 +479,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsLoading(true);
       try {
         const newArticle: Article = {
-          id: `art-${Date.now()}`,
+          id: `art-${crypto.randomUUID()}`,
           title: title || "Grounded News Brief",
           summary,
           category: category || "News Search",
@@ -556,7 +556,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const createPlaylist = useCallback(async (name: string, description?: string) => {
     const newPlaylist: Playlist = {
-      id: `play-${Date.now()}`,
+      id: `play-${crypto.randomUUID()}`,
       name,
       description,
       articleIds: [],
