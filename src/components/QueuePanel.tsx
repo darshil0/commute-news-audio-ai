@@ -89,7 +89,7 @@ export const QueuePanel: React.FC = () => {
                     <h4 className={`font-semibold text-sm truncate mt-1.5 ${isCurrent ? 'text-emerald-400' : 'text-zinc-200'}`}>
                       {art.title}
                     </h4>
-                    <p className="text-[10px] text-zinc-500 truncate mt-0.5">{art.author || 'AI Voiceover'}</p>
+                    <p className="text-[10px] text-zinc-500 truncate mt-0.5">{art.author || 'Audio Brief'}</p>
                   </div>
                 </div>
 
@@ -98,7 +98,7 @@ export const QueuePanel: React.FC = () => {
                     onClick={() => playArticle(art.id)}
                     className={`p-2 rounded-lg text-xs transition-colors cursor-pointer ${isCurrent ? 'bg-emerald-950 text-emerald-400 font-bold' : 'bg-zinc-800 hover:bg-emerald-500 hover:text-black text-zinc-200'}`}
                   >
-                    {isCurrent ? 'Listening' : 'Play'}
+                    {isCurrent ? (playbackState.isPlaying ? 'Pause' : 'Play') : 'Play'}
                   </button>
                   <button
                     onClick={() => removeFromQueue(art.id)}

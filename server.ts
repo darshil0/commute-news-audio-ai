@@ -450,9 +450,7 @@ ${text}`;
   });
 }
 
-if (process.env.NODE_ENV !== "test") {
-  startServer().catch((err) => {
-    console.error("Failed to start server:", toError(err, "Failed to start server"));
-    process.exit(1);
-  });
-}
+startServer().catch((err) => {
+  console.error("Failed to start server:", toError(err, "Failed to start server"));
+  process.exit(1);
+});

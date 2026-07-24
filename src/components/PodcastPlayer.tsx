@@ -30,7 +30,6 @@ export const PodcastPlayer: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSleepMenu, setShowSleepMenu] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
-  const [scrubValue, setScrubValue] = useState<number | null>(null);
 
   const { currentArticleId, isPlaying, speed, sleepTimerDuration, sleepTimerEndTimestamp } = playbackState;
   const currentArticle = articles.find(a => a.id === currentArticleId);
@@ -90,7 +89,7 @@ export const PodcastPlayer: React.FC = () => {
           <div className="min-w-0 flex-1">
             <h4 className="text-sm font-semibold truncate text-zinc-100">{currentArticle.title}</h4>
             <p className="text-xs text-zinc-400 truncate flex items-center gap-1.5">
-              <span>{currentArticle.author || 'AI Voiceover'}</span>
+              <span>{currentArticle.author || 'Audio Brief'}</span>
               <span className="w-1 h-1 bg-zinc-600 rounded-full"></span>
               <span className="font-mono bg-zinc-800 text-emerald-400 text-[10px] px-1 rounded uppercase">
                 {currentArticle.category}
@@ -156,7 +155,7 @@ export const PodcastPlayer: React.FC = () => {
                 <ChevronDown className="w-6 h-6" />
               </button>
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 font-mono">
-                Now Playing Summary
+                Now Playing
               </span>
               <div className="flex items-center gap-2">
                 {currentArticle.isDownloaded ? (
@@ -185,7 +184,7 @@ export const PodcastPlayer: React.FC = () => {
                   <Volume2 className="w-8 h-8" />
                 </div>
                 <h3 className="font-bold text-lg leading-snug truncate w-full text-zinc-100">{currentArticle.title}</h3>
-                <p className="text-zinc-400 text-sm mt-1">{currentArticle.author || 'AI Voiceover Studio'}</p>
+                <p className="text-zinc-400 text-sm mt-1">{currentArticle.author || 'Audio Studio'}</p>
                 <span className="text-[10px] font-mono mt-4 tracking-widest text-emerald-400 bg-zinc-800/80 px-2 py-1 rounded-full uppercase">
                   Voice: {currentArticle.voiceName}
                 </span>
@@ -203,27 +202,13 @@ export const PodcastPlayer: React.FC = () => {
                   min="0"
                   max={dur}
                   step="0.1"
-                  value={scrubValue !== null ? scrubValue : pos}
-                  onChange={(e) => {
-                    setScrubValue(parseFloat(e.target.value));
-                  }}
-                  onMouseUp={() => {
-                    if (scrubValue !== null) {
-                      updatePlaybackPosition(scrubValue);
-                      setScrubValue(null);
-                    }
-                  }}
-                  onTouchEnd={() => {
-                    if (scrubValue !== null) {
-                      updatePlaybackPosition(scrubValue);
-                      setScrubValue(null);
-                    }
-                  }}
+                  value={pos}
+                  onChange={handleProgressChange}
                   className="w-full accent-emerald-500 cursor-pointer bg-zinc-800 h-1.5 rounded-lg appearance-none"
                 />
                 <div className="flex justify-between text-xs font-mono text-zinc-400 mt-2">
-                  <span>{formatTime(scrubValue !== null ? scrubValue : pos)}</span>
-                  <span>-{formatTime(Math.max(0, dur - (scrubValue !== null ? scrubValue : pos)))}</span>
+                  <span>{formatTime(pos)}</span>
+                  <span>-{formatTime(Math.max(0, dur - pos))}</span>
                 </div>
               </div>
 

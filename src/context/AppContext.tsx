@@ -106,6 +106,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const isSpeechSynthesisActiveRef = useRef(false);
+  const currentSpeechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const playNextInQueueRef = useRef<() => void>(() => {});
   const sleepTimerIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioProgressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -227,28 +229,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         }
         setPlaylists(mergedPlaylists);
-
-        const mergedProgress = [...progressRef.current];
-        for (const remoteProg of remoteData.progress || []) {
-          const index = mergedProgress.findIndex((p) => p.articleId === remoteProg.articleId);
-          if (index === -1) {
-            mergedProgress.push(remoteProg);
-            await localDB.saveProgress(remoteProg);
-          } else if (new Date(remoteProg.lastPlayed).getTime() > new Date(mergedProgress[index].lastPlayed).getTime()) {
-            mergedProgress[index] = remoteProg;
-            await localDB.saveProgress(remoteProg);
-          }
-        }
-        setProgress(mergedProgress);
-
-        if (remoteData.queue && remoteData.queue.length > 0) {
-          setPlaybackState((prev) => {
-            if (prev.queue.length === 0) {
-              return { ...prev, queue: remoteData.queue };
-            }
-            return prev;
-          });
-        }
 
         if (remoteData.preferences) {
           setLocalPreferences(remoteData.preferences);
@@ -631,17 +611,158 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, 1000);
   }, [triggerHaptic]);
 
-  const playArticle = useCallback(async (id: string, skipHaptic = false) => {
+  const playWithSpeechSynthesis = useCallback((article: Article) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: "Audio playback unavailable." }));
+      return;
+    }
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(article.summary);
+      utterance.rate = playbackStateRef.current.speed || 1.0;
+
+      const words = article.summary.split(/\s+/).length;
+      const estimatedDuration = Math.max(15, Math.round((words / 150) * 60));
+      let elapsedSeconds = 0;
+
+      if (audioProgressIntervalRef.current) clearInterval(audioProgressIntervalRef.current);
+
+      audioProgressIntervalRef.current = setInterval(() => {
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          elapsedSeconds += 1;
+          const pos = elapsedSeconds;
+          const dur = estimatedDuration;
+          const completed = pos >= dur - 2;
+
+          if (completed && !completedTriggeredRef.current[article.id]) {
+            completedTriggeredRef.current[article.id] = true;
+            triggerHaptic([40, 80, 40]);
+          }
+
+          const newProg: PlaybackProgress = {
+            articleId: article.id,
+            position: pos,
+            duration: dur,
+            completed,
+            lastPlayed: new Date().toISOString(),
+          };
+
+          setProgress((prev) => {
+            const filtered = prev.filter((p) => p.articleId !== article.id);
+            return [...filtered, newProg];
+          });
+          void localDB.saveProgress(newProg);
+        }
+      }, 1000);
+
+      utterance.onend = () => {
+        if (audioProgressIntervalRef.current) clearInterval(audioProgressIntervalRef.current);
+        isSpeechSynthesisActiveRef.current = false;
+        playNextInQueueRef.current();
+      };
+
+      utterance.onerror = () => {
+        if (audioProgressIntervalRef.current) clearInterval(audioProgressIntervalRef.current);
+        isSpeechSynthesisActiveRef.current = false;
+        setPlaybackState((prev) => ({ ...prev, isPlaying: false }));
+      };
+
+      isSpeechSynthesisActiveRef.current = true;
+      currentSpeechUtteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+
+      setPlaybackState((prev) => ({
+        ...prev,
+        currentArticleId: article.id,
+        isPlaying: true,
+        playbackError: null,
+      }));
+      triggerHaptic(30);
+    } catch {
+      setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: "Audio speech synthesis failed." }));
+    }
+  }, [triggerHaptic]);
+
+  const togglePlayPause = useCallback(() => {
+    if (isSpeechSynthesisActiveRef.current && typeof window !== "undefined" && "speechSynthesis" in window) {
+      triggerHaptic(20);
+      if (playbackStateRef.current.isPlaying) {
+        window.speechSynthesis.pause();
+        setPlaybackState((prev) => ({ ...prev, isPlaying: false }));
+        analyticsEvent("Player", "Pause");
+      } else {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+          setPlaybackState((prev) => ({ ...prev, isPlaying: true }));
+        } else {
+          const currentId = playbackStateRef.current.currentArticleId;
+          if (currentId) {
+            const article = articlesRef.current.find((a) => a.id === currentId);
+            if (article) playWithSpeechSynthesis(article);
+          }
+        }
+        analyticsEvent("Player", "Resume");
+      }
+      return;
+    }
+
+    const audio = currentAudioRef.current;
+    if (!audio) {
+      if (articlesRef.current.length > 0) {
+        const id = articlesRef.current[0].id;
+        const article = articlesRef.current[0];
+        if (article) {
+          playArticle(id);
+        }
+      }
+      return;
+    }
+
+    triggerHaptic(20);
+    if (playbackStateRef.current.isPlaying) {
+      audio.pause();
+      setPlaybackState((prev) => ({ ...prev, isPlaying: false }));
+      analyticsEvent("Player", "Pause");
+    } else {
+      audio.playbackRate = playbackStateRef.current.speed;
+      void audio.play().then(() => {
+        setPlaybackState((prev) => ({ ...prev, isPlaying: true }));
+        const currentId = playbackStateRef.current.currentArticleId;
+        if (currentId) startTrackingProgress(currentId);
+      }).catch(() => {
+        const currentId = playbackStateRef.current.currentArticleId;
+        if (currentId) {
+          const article = articlesRef.current.find((a) => a.id === currentId);
+          if (article) playWithSpeechSynthesis(article);
+        }
+      });
+      analyticsEvent("Player", "Resume");
+    }
+  }, [analyticsEvent, playWithSpeechSynthesis, startTrackingProgress, triggerHaptic]);
+
+  const playArticle = useCallback(async (id: string) => {
     const article = articlesRef.current.find((a) => a.id === id);
     if (!article) return;
 
-    currentAudioRef.current?.pause();
+    if (playbackStateRef.current.currentArticleId === id) {
+      togglePlayPause();
+      return;
+    }
+
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    isSpeechSynthesisActiveRef.current = false;
 
     try {
       completedTriggeredRef.current[id] = false;
-      if (!skipHaptic) {
-        triggerHaptic(30);
-      }
+      triggerHaptic(30);
       setPlaybackState((prev) => ({ ...prev, currentArticleId: id, isPlaying: true, playbackError: null }));
       analyticsEvent("Player", "PlayTrack", article.title);
 
@@ -654,47 +775,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           audioSrc = `data:audio/mp3;base64,${cachedBase64}`;
         } else {
           if (!isOnlineRef.current) {
-            throw new Error("This brief is not downloaded for offline listening. Reconnect to generate audio.");
+            playWithSpeechSynthesis(article);
+            return;
           }
-          const liveBase64 = await ApiService.generateTTS(article.summary, article.voiceName, 1.0);
-          audioSrc = `data:audio/mp3;base64,${liveBase64}`;
+          try {
+            const liveBase64 = await ApiService.generateTTS(article.summary, article.voiceName, 1.0);
+            audioSrc = `data:audio/mp3;base64,${liveBase64}`;
+          } catch {
+            playWithSpeechSynthesis(article);
+            return;
+          }
         }
 
         audioObj = new Audio(audioSrc);
         audioElementsCache[id] = audioObj;
       }
 
-      // Robustly handle playback speed across browser rate-reset events
-      audioObj.onplay = () => {
-        audioObj.playbackRate = playbackStateRef.current.speed;
-      };
-      audioObj.onplaying = () => {
-        audioObj.playbackRate = playbackStateRef.current.speed;
-      };
-
-      audioObj.onended = () => {
-        if (!completedTriggeredRef.current[id]) {
-          completedTriggeredRef.current[id] = true;
-          triggerHaptic([40, 80, 40]);
-        }
-
-        const dur = Number.isFinite(audioObj.duration) && audioObj.duration > 0 ? audioObj.duration : 60;
-        const newProg: PlaybackProgress = {
-          articleId: id,
-          position: dur,
-          duration: dur,
-          completed: true,
-          lastPlayed: new Date().toISOString(),
-        };
-        setProgress((prev) => {
-          const filtered = prev.filter((p) => p.articleId !== id);
-          return [...filtered, newProg];
-        });
-        void localDB.saveProgress(newProg);
-
-        playNextInQueueRef.current();
-      };
-
+      audioObj.onended = () => playNextInQueueRef.current();
       currentAudioRef.current = audioObj;
       audioObj.playbackRate = playbackStateRef.current.speed;
 
@@ -704,7 +801,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       await audioObj.play();
-      audioObj.playbackRate = playbackStateRef.current.speed; // Re-apply speed after play starts
 
       setArticles((prev) =>
         prev.map((a) => (a.id === id ? { ...a, playCount: a.playCount + 1 } : a))
@@ -712,15 +808,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await localDB.saveArticle({ ...article, playCount: article.playCount + 1 });
 
       startTrackingProgress(id);
-    } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") {
-        return; // Ignore normal play interruption abort errors
-      }
-      const msg = err instanceof Error ? err.message : "Could not play audio. Please check network.";
-      setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: msg }));
-      clearPlaybackErrorLater(msg);
+    } catch {
+      playWithSpeechSynthesis(article);
     }
-  }, [analyticsEvent, clearPlaybackErrorLater, startTrackingProgress, triggerHaptic]);
+  }, [analyticsEvent, playWithSpeechSynthesis, startTrackingProgress, togglePlayPause, triggerHaptic]);
 
   const playNextInQueue = useCallback(() => {
     const { queue, currentArticleId } = playbackStateRef.current;
@@ -735,11 +826,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (nextId) {
       triggerHaptic(25);
-      void playArticle(nextId, true);
+      void playArticle(nextId);
       return;
     }
 
     currentAudioRef.current?.pause();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    isSpeechSynthesisActiveRef.current = false;
     setPlaybackState((prev) => ({ ...prev, isPlaying: false, currentArticleId: null }));
     analyticsEvent("Player", "QueueCompleted");
   }, [analyticsEvent, playArticle, triggerHaptic]);
@@ -753,39 +848,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const idx = queue.indexOf(currentArticleId);
     if (idx > 0) {
       triggerHaptic(25);
-      void playArticle(queue[idx - 1], true);
+      void playArticle(queue[idx - 1]);
     } else if (currentAudioRef.current) {
       currentAudioRef.current.currentTime = 0;
     }
   }, [playArticle, triggerHaptic]);
-
-  const togglePlayPause = useCallback(() => {
-    const audio = currentAudioRef.current;
-    if (!audio) {
-      if (articlesRef.current.length > 0) void playArticle(articlesRef.current[0].id);
-      return;
-    }
-
-    if (playbackStateRef.current.isPlaying) {
-      triggerHaptic(20);
-      audio.pause();
-      setPlaybackState((prev) => ({ ...prev, isPlaying: false }));
-      analyticsEvent("Player", "Pause");
-    } else {
-      triggerHaptic(30);
-      audio.playbackRate = playbackStateRef.current.speed;
-      void audio.play().then(() => {
-        setPlaybackState((prev) => ({ ...prev, isPlaying: true }));
-        const currentId = playbackStateRef.current.currentArticleId;
-        if (currentId) startTrackingProgress(currentId);
-      }).catch((err) => {
-        if (err.name !== "AbortError") {
-          console.error("Play failed:", err);
-        }
-      });
-      analyticsEvent("Player", "Resume");
-    }
-  }, [analyticsEvent, playArticle, startTrackingProgress, triggerHaptic]);
 
   const setPlaybackSpeed = useCallback((speed: number) => {
     triggerHaptic(15);

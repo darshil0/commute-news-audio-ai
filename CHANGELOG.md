@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-24
+
+### Added
+- **Spec-Driven Development (SDD) Framework**:
+  - Introduced root `/AGENTS.md` specifying mandatory spec-first development workflows, port constraints, error handling, and agent handoff protocols.
+  - Created `/specs/SYSTEM_SPEC.md` defining system purpose, scope, assumptions, user stories (US-1 to US-6), detailed acceptance criteria (AC-1 to AC-6), non-goals, validation protocols, and open items (`[NEEDS CLARIFICATION]`).
+  - Created `/specs/IMPLEMENTATION_PLAN.md` mapping system architecture components (`server.ts`, `AppContext.tsx`, `PodcastPlayer.tsx`, `search.ts`, `db.ts`) directly to specification criteria and tracking completion phases.
+  - Created `/specs/VALIDATION_CHECKLIST.md` establishing a formal verification protocol for linting, compilation, feature acceptance criteria, and documentation consistency.
+  - Created `/scripts/verify_and_prepare_push.sh` executable script asset for automated linting, compilation, Git repository initialization, and staging.
+  - Updated `/README.md` with a dedicated SDD section explaining the workflow and referencing primary spec files.
+
 ## [1.1.0] - 2026-07-10
 
 ### Added

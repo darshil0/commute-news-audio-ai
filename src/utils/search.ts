@@ -117,7 +117,11 @@ export function searchAndFilterArticles(
   return articles
     .filter((art) => {
       // 1. Category Filter
-      if (selectedCategory !== "All" && art.category !== selectedCategory) {
+      if (selectedCategory === "Saved") {
+        if (!art.isSaved) return false;
+      } else if (selectedCategory === "Downloaded") {
+        if (!art.isDownloaded) return false;
+      } else if (selectedCategory !== "All" && art.category !== selectedCategory) {
         return false;
       }
 

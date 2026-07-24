@@ -17,6 +17,7 @@ import {
   History,
   Headphones,
   Download,
+  X,
 } from "lucide-react";
 import { Article } from "../types";
 import { searchAndFilterArticles } from "../utils/search";
@@ -65,7 +66,7 @@ export const HomeDashboard: React.FC = () => {
 
   const categories = useMemo(() => {
     const list = new Set(articles.map((a) => a.category).filter(Boolean));
-    return ["All", ...Array.from(list).sort()];
+    return ["All", "Saved", "Downloaded", ...Array.from(list).sort()];
   }, [articles]);
 
   const filteredArticles = useMemo(() => {
@@ -131,8 +132,19 @@ export const HomeDashboard: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by title, author, keyword, tags, or saved/downloaded..."
           aria-label="Search articles"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-11 pr-4 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all shadow-md"
+          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-11 pr-10 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all shadow-md"
         />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer"
+            title="Clear search"
+            aria-label="Clear search query"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar" aria-label="Category filters">
@@ -276,7 +288,7 @@ export const HomeDashboard: React.FC = () => {
                       <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">{art.summary}</p>
 
                       <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-zinc-500 font-mono">
-                        <span>{art.author || "AI Voiceover"}</span>
+                        <span>{art.author || "Audio Brief"}</span>
                         <span className="w-1 h-1 bg-zinc-750 rounded-full" />
                         <span>{new Date(art.createdAt).toLocaleDateString()}</span>
                         {art.playCount > 0 && (
