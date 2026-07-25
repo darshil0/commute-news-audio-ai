@@ -8,7 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Pending changes will be listed here.
+- None.
+
+## [1.6.0] - 2026-07-25
+
+### Fixed & Stabilized (Core Player & Synchronization)
+- **Audio Playback Rate Resilience**: Resolved a browser-specific behavior where the HTML5 `Audio` element reset its `playbackRate` to `1.0` during track transitions by listening to `onplay` and `onplaying` events to dynamically re-apply the user's selected speed settings.
+- **Haptic Feedback Overlaps & Timing Alignments**:
+  - Eliminated haptic feedback overlapping on rapid skip actions.
+  - Aligned pause and resume haptic vibration timings exactly with spec requirements.
+- **Vibration Noise Prevention on Scrubbing**: Introduced a local `scrubValue` state in the `PodcastPlayer` range slider to prevent layout jump and completely eliminate haptic vibration flooding during active drag gestures.
+- **Seamless Cloud Backup Progress & Queue Reconciliations**: Ensured cloud progress records and active queue states are fully reconciled and updated on server sync backups.
+- **Safe-to-Ignore Audio Interruption Handling**: Silenced benign `AbortError` play interruption triggers from the browser console log.
+- **Robust Multi-Environment Server Booting**: Wrapped server initialization `startServer()` to conditionally execute only when `process.env.NODE_ENV !== "test"`, preventing test suites from hanging on bound ports.
+
+### Changed & Documentation Improvements
+- **Backend Sync Documentation Alignment**: Updated `specs/SYSTEM_SPEC.md` to replace outdated Firebase/Firestore references with actual custom Node/Express file-backup endpoints (`/api/sync/save` and `/api/sync/get`) and PBKDF2 authentication protocols.
+- **Spec-Driven Development Tracking**: Mapped all system components and validation checks to correct criteria in `specs/IMPLEMENTATION_PLAN.md` and `specs/VALIDATION_CHECKLIST.md`.
+- **Validation Rule Placeholder Guardrails**: Aligned placeholders in `AGENTS.md` and `specs/sdd_workflow.md` to use the hyphenated `[NEEDS-CLARIFICATION]` form, preventing false positives with the active `[NEEDS-CLARIFICATION]` validation rule checker.
+- **Automated Verification**: Implemented custom documentation and changelog validation scripts (`doc_validator.py` and `changelog_validator.py`) to continuously verify reference links, syntax errors, and placeholders.
+- **MIT License Integration**: Added MIT License reference and links in `README.md` referencing the repository's `LICENSE` file.
 
 ## [1.5.0] - 2026-07-24
 
@@ -116,7 +135,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
-[Unreleased]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/aistudio-build/commutenews/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0
