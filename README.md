@@ -1053,9 +1053,9 @@ Network: 2G/3G (< 256 kbps)
 
 | Version | Date | Changes |
 |---|---|---|
-| **1.0.0** | 2024-06-09 | Initial release: Search Grounding, Audio Player, 5 Voice Profiles, Offline Mode |
-| **0.9.0** | 2024-06-01 | Beta: Core features, React 19 + Vite |
-| **0.1.0** | 2024-05-01 | Alpha: Proof of concept |
+| **1.0.0** | 2026-07-09 | Initial release: Search Grounding, Audio Player, 5 Voice Profiles, Offline Mode |
+| **0.9.0** | 2026-07-02 | Beta: Core features, React 19 + Vite |
+| **0.1.0** | 2026-06-21 | Alpha: Proof of concept |
 
 ---
 
