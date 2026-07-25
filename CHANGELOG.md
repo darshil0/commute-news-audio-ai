@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.5.0] - 2026-07-24
 
 ### Refactored & Code Quality Hardening
-- **Strict Typing & Elimination of `any` Casts`**:
+- **Strict Typing & Elimination of `any` Casts**:
   - Replaced raw `any` casts in `server.ts` with explicit internal types (`GroundingChunk`, `VoiceName`, `PartWithInlineData`).
   - Replaced `any` event handlers and preference casts in `IntakePanel.tsx` and `ProfilePanel.tsx` with strict TypeScript types (`SummaryLength`, `SummaryTone`, `VoiceName`).
   - Standardized error catching across async operations using `unknown` and a centralized `getErrorMessage` helper function.
@@ -116,9 +116,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
-[1.5.0]: [https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0](https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0)
-[1.4.0]: [https://github.com/aistudio-build/commutenews/compare/v1.3.0...v1.4.0](https://github.com/aistudio-build/commutenews/compare/v1.3.0...v1.4.0)
-[1.3.0]: [https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0](https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0)
-[1.2.0]: [https://github.com/aistudio-build/commutenews/compare/v1.1.0...v1.2.0](https://github.com/aistudio-build/commutenews/compare/v1.1.0...v1.2.0)
-[1.1.0]: [https://github.com/aistudio-build/commutenews/compare/v1.0.0...v1.1.0](https://github.com/aistudio-build/commutenews/compare/v1.0.0...v1.1.0)
-[1.0.0]: [https://github.com/aistudio-build/commutenews/releases/tag/v1.0.0](https://github.com/aistudio-build/commutenews/releases/tag/v1.0.0)
+[Unreleased]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/aistudio-build/commutenews/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/aistudio-build/commutenews/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/aistudio-build/commutenews/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/aistudio-build/commutenews/releases/tag/v1.0.0
