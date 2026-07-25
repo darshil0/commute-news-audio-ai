@@ -17,6 +17,7 @@ Transform real-time news, web articles, and custom text into structured, AI-narr
 - [Troubleshooting](#troubleshooting)
 - [Edge Cases & Known Limitations](#edge-cases--known-limitations)
 - [Contributing](#contributing)
+- [License](#license)
 
 ---
 
@@ -367,3 +368,9 @@ npm run build
 
 1. **Spec-First Development**: Always check the specifications in `/specs/SYSTEM_SPEC.md` and `/specs/IMPLEMENTATION_PLAN.md` before coding. Document changes in the spec first if introducing new features.
 2. **Quality Hardening**: Enforce strict type safety. Avoid using `any` types. Ensure all changes pass `npm run lint` and `npm run build`.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
