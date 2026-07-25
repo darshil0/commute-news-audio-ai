@@ -1,7 +1,7 @@
 # SYSTEM_SPEC.md - CommuteBrief System Specification
 
 ## 1. Purpose
-**CommuteBrief (CommuteNews)** is a full-stack, audio-first single-page web application (SPA) designed to optimize daily commutes. It accepts pasted text articles or web news URLs, converts them into concise, structured summaries using server-side Gemini AI models, synthesizes natural-sounding audio briefings using AI voice models or browser-native Text-to-Speech (TTS) fallbacks, and provides **cloud-based cross-device synchronization** for playlists and user briefs powered by Firebase Firestore and Authentication.
+**CommuteBrief (CommuteNews)** is a full-stack, audio-first single-page web application (SPA) designed to optimize daily commutes. It accepts pasted text articles or web news URLs, converts them into concise, structured summaries using server-side Gemini AI models, synthesizes natural-sounding audio briefings using AI voice models or browser-native Text-to-Speech (TTS) fallbacks, and provides **secure, token-authenticated backend-driven cross-device synchronization** for playlists and user briefs powered by our custom Express server and JSON-file database.
 
 ---
 
@@ -9,12 +9,12 @@
 
 ### In-Scope Capabilities
 1. **Article, Link & Live Search Intake**:
-   - URL extraction and text summarization via Express `/api/extract` and `/api/summarize` proxy routes.
+   - URL extraction and text summarization via Express `/api/articles/extract` and `/api/articles/summarize` proxy routes.
    - Real-time Gemini Search Grounding via Express `/api/articles/search-news` proxy route, allowing users to search real-time news articles or topics before generating audio summaries.
    - Grounded web sources / citations extraction and display.
    - Voice profile customization (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities.
 2. **Audio Synthesis & Playback**:
-   - Server-side TTS synthesis via Gemini / `@google/genai` API (`/api/tts`).
+   - Server-side TTS synthesis via Gemini / `@google/genai` API (`/api/articles/tts`).
    - Browser-native `window.speechSynthesis` graceful fallback when offline or when API limits/errors occur.
    - Custom audio player controls: Play/Pause, Seek Bar, Volume, Skip Next/Previous, Sleep Timer, and Speed Control (`0.5x` to `2.0x` with quick presets).
 3. **Queue & Playlist Management**:
@@ -25,78 +25,75 @@
 5. **Persistence & Offline Support**:
    - Client-side IndexedDB persistence (`src/lib/db.ts`) for local audio caching, articles, playlists, listening history, voice preferences, and audio progress tracking.
    - Offline detection and seamless state fallback.
-6. **Cloud Cross-Device Synchronization (Firestore Integration)**:
-   - Real-time cloud sync across devices for user briefs, custom playlists, listening history, and playback progress.
-   - Firebase Authentication anchoring user isolation scope at `/users/{userId}`.
-   - Real-time document listeners (`onSnapshot`) ensuring multi-device updates propagate in real time.
-   - Offline-first architecture where local IndexedDB operations sync to Firestore upon network reconnection.
+6. **Cross-Device Synchronization (Backend Sync Integration)**:
+   - Token-authenticated cloud sync across devices for user briefs, custom playlists, listening history, and playback progress.
+   - Node/Express auth layer anchoring user isolation scope using salt-and-hash credentials in `data/users.json` and session-based JWT-style tokens.
+   - Bi-directional sync endpoints (`/api/sync/save` and `/api/sync/get`) backing up data to isolated files in the `data/` directory.
+   - Offline-first architecture where local IndexedDB operations sync to the Express backend upon network reconnection.
 7. **Haptic Feedback**:
    - Hardware/browser `navigator.vibrate` haptic pulses for tab switches, playback actions, track skips, speed changes, and track completion.
 
 ---
 
-## 3. Cloud Architecture & Firestore Integration Spec
+## 3. Cloud Architecture & Synchronization Spec
 
-### 3.1 Data Hierarchy & Schema (`firebase-blueprint.json`)
-Data is structured hierarchically under the user's isolated subcollection scope `/users/{userId}/`:
+### 3.1 Data Hierarchy & Schema
+Data is structured and stored per user under isolated user-specific JSON files `data/sync_{username}.json` on the server:
 
-#### Entity: `UserBrief`
-- **Path**: `/users/{userId}/briefs/{briefId}`
+#### Entity: `Article` (User Brief Metadata)
 - **Properties**:
-  - `id` (`string`, required): Unique identifier (UUID).
-  - `title` (`string`, required, max 256 chars): Title of the article or news brief.
-  - `summary` (`string`, required, max 4096 chars): Gemini-generated concise summary text.
-  - `originalText` (`string`, optional, max 32768 chars): Extracted raw article text.
-  - `sourceUrl` (`string`, optional, max 1024 chars): Original source website URL.
-  - `category` (`string`, required, max 64 chars): News category (e.g. Technology, Business, Science, World).
-  - `tags` (`array` of `string`, max 10 items): Topic search tags.
-  - `duration` (`number`, required): Audio duration in seconds.
-  - `progress` (`number`, required): Saved playback offset in seconds.
-  - `voice` (`string`, required, max 32 chars): Selected TTS voice profile (Zephyr, Kore, Charon, Puck, Fenrir).
-  - `createdAt` (`string` or `ServerTimestamp`, required): Document creation ISO timestamp.
-  - `updatedAt` (`string` or `ServerTimestamp`, required): Document last modification ISO timestamp.
-  - `userId` (`string`, required): Owner Firebase auth UID.
+  - `id` (`string`, required): Unique identifier (collision-resistant UUID).
+  - `title` (`string`, required): Title of the article or news brief.
+  - `summary` (`string`, required): Gemini-generated concise summary text.
+  - `originalText` (`string`, optional): Extracted raw article text.
+  - `url` (`string`, optional): Original source website URL.
+  - `category` (`string`, required): News category (e.g. Technology, Business, Science, World).
+  - `tags` (`array` of `string`, required): Topic search tags.
+  - `voiceName` (`string`, required): Selected TTS voice profile (Zephyr, Kore, Charon, Puck, Fenrir).
+  - `isDownloaded` (`boolean`, required): Downloaded state indicator.
+  - `isSaved` (`boolean`, required): Saved state indicator.
+  - `createdAt` (`string`, required): Document creation ISO timestamp.
+  - `playCount` (`number`, required): Tracks how many times the track was played.
 
-#### Entity: `UserPlaylist`
-- **Path**: `/users/{userId}/playlists/{playlistId}`
+#### Entity: `Playlist`
 - **Properties**:
-  - `id` (`string`, required): Unique playlist identifier.
-  - `name` (`string`, required, max 128 chars): User-defined playlist title.
-  - `description` (`string`, optional, max 512 chars): Optional playlist overview.
-  - `briefIds` (`array` of `string`, max 100 items): Ordered list of `UserBrief` IDs in the playlist.
-  - `createdAt` (`string` or `ServerTimestamp`, required): Creation ISO timestamp.
-  - `updatedAt` (`string` or `ServerTimestamp`, required): Last updated ISO timestamp.
-  - `userId` (`string`, required): Owner Firebase auth UID.
+  - `id` (`string`, required): Unique playlist identifier (UUID).
+  - `name` (`string`, required): User-defined playlist title.
+  - `description` (`string`, optional): Optional playlist overview.
+  - `articleIds` (`array` of `string`, required): Ordered list of `Article` IDs in the playlist.
+  - `tags` (`array` of `string`, optional): Topic tags for playlist category.
+  - `createdAt` (`string`, required): Creation ISO timestamp.
 
-#### Entity: `UserSettings`
-- **Path**: `/users/{userId}/settings/config`
+#### Entity: `UserPreferences`
 - **Properties**:
-  - `preferredVoice` (`string`, required): Default voice profile ID.
+  - `summaryLength` (`string`, required): Default summary length ("short" | "medium" | "detailed").
+  - `summaryTone` (`string`, required): Default summary tone ("professional" | "engaging" | "concise").
+  - `voiceName` (`string`, required): Default voice profile ID.
   - `playbackSpeed` (`number`, required): Preferred speed factor (`0.5` to `2.0`).
-  - `hapticsEnabled` (`boolean`, required): Haptic vibration toggle state.
-  - `updatedAt` (`string` or `ServerTimestamp`, required): Settings sync timestamp.
+  - `theme` (`string`, required): Theme selection ("light" | "dark").
 
 ---
 
-### 3.2 Firestore Security Model (`firestore.rules`)
-Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC):
+### 3.2 Security Model & Isolation
+Authentication and session verification enforce strict boundaries:
 
-1. **User Scope Isolation**: All reads and writes enforce `request.auth != null && request.auth.uid == userId`.
+1. **User Scope Isolation**: All synchronized reads and writes require token validation against the JWT-style authentication header. Only the authenticated user can access `data/sync_${username}.json`.
 2. **Schema & Boundary Validation**:
-   - Inputs are validated using helper functions (`isValidBrief()`, `isValidPlaylist()`).
-   - String length boundaries and array size caps (e.g., `briefIds.size() <= 100`) prevent wallet denial-of-service or payload bloat.
-3. **Immutable Field Locks**: Fields such as `createdAt` and `userId` are immutable upon creation (`incoming().userId == existing().userId`).
-4. **Server Timestamp Verification**: `updatedAt` field mutations must align with `request.time`.
+   - User registration requires passwords to be at least 8 characters.
+   - Username inputs are validated against `/^[a-z0-9_-]{3,32}$/` to eliminate path traversal risks.
+   - Server-side path sanitization (`path.resolve(syncFile).startsWith(path.resolve(DATA_DIR))`) blocks access to files outside of the authorized directory.
+3. **Password Security**: Credentials in `data/users.json` are hashed using PBKDF2 with SHA-256 and a unique 16-byte salt across 100,000 iterations.
+4. **Signature Authenticity**: Session tokens are signed using HMAC-SHA256 using the server's `TOKEN_SECRET` environment variable and verified using a constant-time comparison `crypto.timingSafeEqual` to mitigate timing attacks.
+5. **SSRF Defense**: The article extractor (`/api/articles/extract`) checks that target URL protocols are strictly `http:` or `https:`, and blocks calls targeting private IP addresses (RFC 1918/4193), loopback addresses, or link-local ranges.
 
 ---
 
 ### 3.3 Synchronization Logic & Conflict Resolution
 1. **Offline-First Local Writes**: Client mutations immediately write to local IndexedDB (`src/lib/db.ts`) for zero-latency UI reactivity.
 2. **Bi-Directional Cloud Sync**:
-   - `onSnapshot` listeners maintain real-time sync with `/users/{userId}/briefs` and `/users/{userId}/playlists`.
-   - When online, mutations flush to Firestore via `setDoc` / `updateDoc`.
-3. **Conflict Resolution Strategy**: Last-Write-Wins (LWW) based on server/ISO `updatedAt` timestamps.
-4. **Audio Binary Handling**: Raw synthesized audio buffers or audio blobs are stored locally in IndexedDB / Web Audio cache, keeping Firestore documents lean (< 50 KB per document) and well under the 1MB document limit.
+   - The React context monitors client network status. Upon going online or executing user actions, it fires backup reconciliation requests to `/api/sync/get` and `/api/sync/save`.
+3. **Conflict Resolution Strategy**: Last-Write-Wins (LWW) based on server-side comparison of UTC creation/modification timestamps.
+4. **Audio Binary Handling**: Raw synthesized audio base64 or blob buffers are stored locally in IndexedDB, keeping sync data payload sizes lean (under 100 KB per backup file) and maximizing backend throughput.
 
 ---
 
@@ -109,7 +106,7 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 
 ### US-2: Personalized Voice Selection & Auditioning
 - **As a** listener,
-- **I want to** preview and select different AI narrator voice profiles (Calm, Energetic, Mellow, Crisp, Bold),
+- **I want to** preview and select different AI narrator voice profiles,
 - **So that** my audio briefings match my preferred listening tone.
 
 ### US-3: Adaptive Audio Playback & Speed Controls
@@ -134,7 +131,7 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 
 ### US-7: Cloud Cross-Device Synchronization
 - **As a** multi-device commuter (e.g. laptop at work, phone on train),
-- **I want** my briefs, playlists, and listening progress to synchronize automatically via Firestore,
+- **I want** my briefs, playlists, and listening progress to synchronize automatically via the backend,
 - **So that** I can seamlessly switch devices and pick up playback right where I stopped.
 
 ---
@@ -143,22 +140,22 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 
 | ID | Category | Acceptance Criteria |
 |---|---|---|
-| **AC-1.1** | Intake | Submitting a valid text or URL invokes server endpoints `/api/extract` or `/api/summarize` and returns a structured brief title and summary. |
+| **AC-1.1** | Intake | Submitting a valid text or URL invokes server endpoints `/api/articles/extract` or `/api/articles/summarize` and returns a structured brief title and summary. |
 | **AC-1.2** | Intake | Missing or invalid URLs present user-friendly error feedback without crashing the application. |
 | **AC-2.1** | Voice | The Profile panel displays 5 distinct voice profiles (Zephyr, Kore, Charon, Puck, Fenrir) with tone descriptions. |
-| **AC-2.2** | Voice | Clicking "Audition" generates and plays a short audio preview clip from `/api/tts-preview`. |
+| **AC-2.2** | Voice | Clicking "Audition" generates and plays a voice preview clip via `/api/articles/tts`. |
 | **AC-3.1** | Playback | The podcast player supports Play/Pause, Seek, Volume, 15s Skip Forward/Backward, and Sleep Timer. |
 | **AC-3.2** | Playback | The speed slider allows smooth adjustments from `0.5x` to `2.0x` in `0.05x` steps, alongside quick preset buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`). |
-| **AC-4.1** | Playlist | Users can create, rename, and delete custom playlists. |
+| **AC-4.1** | Playlist | Users can create, view, and delete custom playlists. |
 | **AC-4.2** | Playlist | Tracks inside a playlist can be reordered using HTML5 drag-and-drop handles. |
 | **AC-5.1** | Search | The search input in `HomeDashboard` and `PlaylistPanel` filters articles in real-time across titles, categories, authors, summaries, and tags. |
 | **AC-5.2** | Search | Category filters include "All", "Saved", "Downloaded", and topic categories. |
 | **AC-6.1** | Fallback | If the server TTS endpoint fails or the device is offline, playback automatically falls back to browser `window.speechSynthesis`. |
 | **AC-6.2** | Haptics | Supported actions (tab changes, play/pause, track completion) trigger distinct haptic vibration patterns via `navigator.vibrate`. |
-| **AC-7.1** | Cloud Sync | User authentication anchors Firestore collection paths `/users/{userId}/briefs` and `/users/{userId}/playlists`. |
-| **AC-7.2** | Cloud Sync | Creating, updating, or deleting briefs/playlists on one device updates Firestore and triggers `onSnapshot` listeners across authenticated secondary devices within 2 seconds. |
-| **AC-7.3** | Cloud Sync | Playback progress offsets are saved to Firestore and synchronized to allow cross-device resume. |
-| **AC-7.4** | Cloud Sync | Firestore security rules strictly restrict document access to `request.auth.uid == userId` and enforce property type/length validation. |
+| **AC-7.1** | Cloud Sync | User authentication anchors registration and sync paths isolated by secure token checks. |
+| **AC-7.2** | Cloud Sync | Creating, updating, or deleting briefs/playlists on one device backs up to the Express server and synchronizes across secondary devices upon user session login within 2 seconds. |
+| **AC-7.3** | Cloud Sync | Playback progress offsets are saved and synchronized to allow cross-device resume. |
+| **AC-7.4** | Cloud Sync | The security rules strictly restrict file-sync folder access to path boundaries and validate registration credentials. |
 | **AC-8.1** | Security | Registration enforces username character allowlist (`/^[a-z0-9_-]{3,32}$/`) to eliminate path traversal risks in user sync file storage. |
 | **AC-8.2** | Security | `TOKEN_SECRET` environment variable is documented in `.env.example` and validated for token signature security. |
 | **AC-8.3** | Security | URL extraction (`/api/articles/extract`) enforces HTTP/HTTPS scheme check and blocks private IP, loopback, and link-local ranges against SSRF. |
@@ -172,8 +169,8 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 ## 6. Non-Goals
 
 - **External RSS Feed Crawler**: Background automatic crawling of arbitrary third-party RSS feeds is out of scope.
-- **Public Community Brief Sharing**: Public brief social feeds or uncontrolled cross-user document reads are excluded; data access is strictly locked to the authenticated owner (`/users/{userId}`).
-- **Binary Audio Storage in Firestore**: Raw audio blob binaries are NOT stored inside Firestore fields; audio streams and local audio files are cached in IndexedDB or Web Audio memory to preserve document performance limits.
+- **Public Community Brief Sharing**: Public brief social feeds or uncontrolled cross-user document reads are excluded; data access is strictly locked to the authenticated owner.
+- **Binary Audio Storage in Backup Files**: Raw audio blob binaries are NOT stored inside synchronized backups; audio streams and local audio files are cached locally in IndexedDB to preserve performance.
 
 ---
 

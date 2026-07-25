@@ -8,15 +8,15 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 
 | Component / File | Purpose | Corresponding Spec Criteria |
 |---|---|---|
-| `server.ts` | Express backend proxy handling Gemini API summarization (`/api/summarize`, `/api/extract`) and TTS synthesis (`/api/tts`, `/api/tts-preview`). Handles robust JSON cleaning (`cleanAndParseJson`). | AC-1.1, AC-1.2, AC-2.2 |
-| `src/context/AppContext.tsx` | Centralized React state management for articles, playback state, queue, playlists, user profile settings, and haptic triggers. Includes automatic fallback to `window.speechSynthesis`. | AC-3.1, AC-3.2, AC-4.1, AC-6.1, AC-6.2 |
+| `server.ts` | Express backend proxy handling Gemini API summarization (`/api/articles/summarize`, `/api/articles/extract`), live news grounding (`/api/articles/search-news`), and TTS synthesis (`/api/articles/tts`). Handles robust JSON cleaning (`cleanAndParseJson`). Manages PBKDF2 authentication database (`data/users.json`), JWT-style token signing, and file synchronization backups (`/api/sync/*`). | AC-1.1, AC-1.2, AC-2.2, AC-7.1, AC-7.4, AC-8.1, AC-8.2, AC-8.3 |
+| `src/context/AppContext.tsx` | Centralized React state management for articles, playback state, queue, playlists, user profile settings, and haptic triggers. Coordinates bi-directional server synchronization reconciliations with fallback to `window.speechSynthesis`. | AC-3.1, AC-3.2, AC-4.1, AC-6.1, AC-6.2, AC-7.2, AC-7.3, AC-8.4 |
 | `src/components/PodcastPlayer.tsx` | Persistent audio player panel with expanded view, speed slider (`0.5x`-`2.0x`), quick presets, sleep timer, seek bar, and voice badge. | AC-3.1, AC-3.2 |
-| `src/components/HomeDashboard.tsx` | Main briefing feed with tokenized search bar, category filter chips ("All", "Saved", "Downloaded"), audio card interactions, and queue management. | AC-5.1, AC-5.2 |
-| `src/components/PlaylistPanel.tsx` | Playlist manager featuring creation, track reordering (HTML5 drag-and-drop), and inline search across playlists and briefs. | AC-4.1, AC-4.2, AC-5.1 |
-| `src/components/IntakePanel.tsx` | Article submission interface supporting URL extraction, raw text input, Gemini Search Grounding real-time news search, grounded web sources preview, and voice/summary customization. | AC-1.1, AC-1.2, AC-1.3 |
-| `src/components/ProfilePanel.tsx` | Settings & voice profile selector (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities. | AC-2.1, AC-2.2 |
-| `src/utils/search.ts` | High-performance tokenized fuzzy search utility scoring article titles, categories, authors, tags, and summaries. | AC-5.1, AC-5.2 |
-| `src/lib/db.ts` | IndexedDB client wrapper managing durable local persistence for articles, playlists, listening history, and playback progress. | AC-6.1 |
+| `src/components/HomeDashboard.tsx` | Main briefing feed with tokenized search bar, category filter chips ("All", "Saved", "Downloaded"), audio card interactions, and queue management. | AC-5.1, AC-5.2, AC-8.6 |
+| `src/components/PlaylistPanel.tsx` | Playlist manager featuring creation, track reordering (HTML5 drag-and-drop), and inline search across playlists and briefs. | AC-4.1, AC-4.2, AC-5.1, AC-8.6 |
+| `src/components/IntakePanel.tsx` | Article submission interface supporting URL extraction, raw text input, Gemini Search Grounding real-time news search, grounded web sources preview, and voice/summary customization. | AC-1.1, AC-1.2, AC-1.3, AC-8.8 |
+| `src/components/ProfilePanel.tsx` | Settings & voice profile selector (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities, and diagnostic tools. | AC-2.1, AC-2.2, AC-8.5 |
+| `src/utils/search.ts` | High-performance tokenized fuzzy search utility scoring article titles, categories, authors, tags, and summaries with precomputed relevance caching. | AC-5.1, AC-5.2, AC-8.7 |
+| `src/lib/db.ts` | IndexedDB client wrapper managing durable local persistence for articles, playlists, listening history, and playback progress. | AC-6.1, AC-8.5 |
 | `scripts/verify_and_prepare_push.sh` | Automated verification and Git push preparation script executing linting, compilation, git initialization, and staging. | AC-1 to AC-6 |
 
 ---
@@ -38,19 +38,19 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 ### Phase 3: SDD Documentation & Verification Assets (Completed)
 - [x] Audit repository documentation and eliminate spec conflicts.
 - [x] Create root `/AGENTS.md` specifying Spec-Driven Development rules.
-- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, Firestore cloud sync technical architecture, acceptance criteria, non-goals, and validation protocols.
+- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, synchronization technical architecture, security model, offline-first sync resolution strategies, acceptance criteria (AC-1 to AC-8), non-goals, and validation protocols.
 - [x] Create `/specs/IMPLEMENTATION_PLAN.md` mapping architecture to spec criteria.
 - [x] Create `/specs/VALIDATION_CHECKLIST.md` providing a verification protocol for future agents.
 - [x] Create `/scripts/verify_and_prepare_push.sh` executable asset for automated verification and Git setup.
 - [x] Update `/README.md` to explain the SDD workflow to human developers and AI tools.
 
-### Phase 4: Cloud Cross-Device Synchronization Architecture (Completed)
-- [x] Formally define Firestore data models (`UserBrief`, `UserPlaylist`, `UserSettings`) in `/specs/SYSTEM_SPEC.md`.
-- [x] Define Firestore ABAC Security Rules & access model in `/specs/SYSTEM_SPEC.md` for `/users/{userId}` path scope.
-- [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + Firestore `onSnapshot` listener reconciliation).
+### Phase 4: Custom Cross-Device Synchronization Architecture (Completed)
+- [x] Formally define custom JSON-file schema backups (`Article`, `Playlist`, `UserPreferences`) in `/specs/SYSTEM_SPEC.md`.
+- [x] Define authentication and user isolation scope bounds for `data/sync_${username}.json` file paths.
+- [x] Outline bi-directional sync reconciliations (local IndexedDB cache synced to backend Express `/api/sync/*` endpoints).
 
 ### Phase 5: Gemini Search Grounding Integration (Completed)
-- [x] Integrate `@google/genai` Search Grounding (`{ tools: [{ googleSearch: {} }] }`) with model `gemini-3.6-flash`.
+- [x] Integrate `@google/genai` Search Grounding with model `gemini-3.6-flash`.
 - [x] Add server API endpoint `/api/articles/search-news` returning grounded news summaries and citations/sources.
 - [x] Extend `IntakePanel` with a dedicated "Live Search" tab for searching real-time news articles and topics.
 - [x] Render grounded search summaries with source URL links and one-click "Add & Play Audio Now" / "Save to Briefs" actions.

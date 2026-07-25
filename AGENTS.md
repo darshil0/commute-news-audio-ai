@@ -17,7 +17,7 @@ All AI agents and human contributors **must** follow the SDD cycle outlined belo
 │ 1. Spec Review & Validation                         │
 │  ├─ Locate relevant spec (SYSTEM_SPEC.md)          │
 │  ├─ Verify timestamp ≤7 days old                   │
-│  ├─ Check for [NEEDS CLARIFICATION] tags           │
+│  ├─ Check for [NEEDS-CLARIFICATION] tags           │
 │  ├─ Confirm acceptance criteria (AC) defined       │
 │  └─ If gaps: flag & escalate (see Escalation Gate) │
 └─────────────────────────────────────────────────────┘
@@ -69,7 +69,7 @@ All AI agents and human contributors **must** follow the SDD cycle outlined belo
 Ambiguity exists when:
 - Task description lacks acceptance criteria (ACs)
 - Spec contradicts code or other spec sections
-- [NEEDS CLARIFICATION] tags present in spec
+- [NEEDS-CLARIFICATION] tags present in spec
 - User request differs from current spec
 - Edge cases not addressed
 - Dependencies unclear (which module owns this?)
@@ -81,7 +81,7 @@ Ambiguity exists when:
 │                                                │
 ├─ YES: Does spec have acceptance criteria?   │
 │   ├─ YES: Proceed to Implementation (Phase 2) │
-│   └─ NO: Mark [NEEDS CLARIFICATION]          │
+│   └─ NO: Mark [NEEDS-CLARIFICATION]          │
 │       └─ → ESCALATE (see below)              │
 │                                                │
 └─ NO: Is this a bug fix or new feature?      │
@@ -96,7 +96,7 @@ Ambiguity exists when:
 When escalating, **stop work** and create an issue/message with:
 
 ```markdown
-## [NEEDS CLARIFICATION] - [Feature/Bug Name]
+## [NEEDS-CLARIFICATION] - [Feature/Bug Name]
 
 **Context:** [What you're trying to do]
 
@@ -179,7 +179,7 @@ When escalating, **stop work** and create an issue/message with:
 
 - [ ] Spec reviewed; timestamp ≤7 days old
 - [ ] Acceptance criteria clearly defined
-- [ ] No [NEEDS CLARIFICATION] tags (or escalated + resolved)
+- [ ] No [NEEDS-CLARIFICATION] tags (or escalated + resolved)
 - [ ] IMPLEMENTATION_PLAN.md updated with this task
 - [ ] Dependencies identified (npm packages, modules)
 - [ ] Assumptions documented in task description
@@ -204,7 +204,7 @@ npm run build
 # Expected: dist/ folder created, no errors
 
 # 3. Type safety
-npx tsc --noEmit
+npm run lint
 # Expected: 0 errors
 
 # 4. Run tests (if applicable)
@@ -506,13 +506,13 @@ specs/VALIDATION_CHECKLIST.md (QA Criteria)
 ## 📞 Support & Escalation
 
 **Escalation Path:**
-1. Agent flags [NEEDS CLARIFICATION]
+1. Agent flags [NEEDS-CLARIFICATION]
 2. Message sent to repository owner (Darshil)
 3. Owner responds with spec update + decision within 24 hours
 4. Agent resumes work with updated spec
 
 **Questions:**
-- Spec ambiguity → Add [NEEDS CLARIFICATION] tag
+- Spec ambiguity → Add [NEEDS-CLARIFICATION] tag
 - Code decision → Check IMPLEMENTATION_PLAN.md for architecture docs
 - Test approach → Review VALIDATION_CHECKLIST.md for QA criteria
 - Deployment → See README.md "Running the Application"
