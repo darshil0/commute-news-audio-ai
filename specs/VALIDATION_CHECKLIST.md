@@ -10,20 +10,20 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
   ```bash
   npm run lint
   ```
-  *Pass Criteria*: `tsc --noEmit` completes with zero errors.
+  *Pass Criteria*: TypeScript checks compile with zero errors.
 
 - [ ] **Production Build**:
   ```bash
   npm run build
   ```
-  *Pass Criteria*: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
+  *Pass Criteria*: `vite build` and `esbuild server.ts` complete successfully, generating the production build in `dist/` and server in `dist/server.cjs`.
 
 ---
 
 ## 2. Feature Acceptance Criteria Verification
 
 - [ ] **AC-1 (Intake & Summarization)**:
-  - Submitting article text or URL invokes server proxy (`/api/extract` / `/api/summarize`).
+  - Submitting article text or URL invokes server endpoints (`/api/articles/extract` / `/api/articles/summarize`).
   - Extracted title and summary are accurately displayed in the brief list.
 
 - [ ] **AC-2 (Voice Profiles & Audition)**:
@@ -53,7 +53,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [ ] **SDD Alignment**:
   - Code changes match the definitions in `/specs/SYSTEM_SPEC.md`.
   - Any new behavior or scope change has been documented in `/specs/SYSTEM_SPEC.md` first.
-  - Unclear requirements are flagged with `[NEEDS CLARIFICATION]`.
+  - Unclear requirements are flagged with `[NEEDS-CLARIFICATION]`.
 
 - [ ] **Documentation Updates**:
   - `/README.md` accurately reflects project architecture and SDD workflow.
@@ -64,24 +64,24 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 
 ## 4. Security & Data Integrity Verification
 
-- [x] **AC-8.1 (Username Character Allowlist)**:
+- [ ] **AC-8.1 (Username Character Allowlist)**:
   - User registration rejects usernames with illegal characters or path traversal sequences (`../`).
   - Allowed username pattern: `/^[a-z0-9_-]{3,32}$/`.
 
-- [x] **AC-8.2 (Token Secret Security)**:
+- [ ] **AC-8.2 (Token Secret Security)**:
   - `TOKEN_SECRET` documented in `.env.example` and verified on server initialization.
 
-- [x] **AC-8.3 (SSRF Defense)**:
+- [ ] **AC-8.3 (SSRF Defense)**:
   - Article URL extractor rejects non-HTTP/HTTPS protocols and private RFC 1918/4193 / loopback / link-local addresses.
 
-- [x] **AC-8.4 (Collision-Resistant IDs)**:
+- [ ] **AC-8.4 (Collision-Resistant IDs)**:
   - Articles and playlists use `crypto.randomUUID()` to prevent key collision overwrites in IndexedDB.
 
-- [x] **AC-8.5 (Diagnostic Data Isolation)**:
+- [ ] **AC-8.5 (Diagnostic Data Isolation)**:
   - Diagnostic test runner purges temporary test articles and progress entries to prevent cloud sync pollution.
 
-- [x] **AC-8.6 (Destructive Action Confirmation)**:
+- [ ] **AC-8.6 (Destructive Action Confirmation)**:
   - Deleting briefs in `HomeDashboard` and deleting playlists in `PlaylistPanel` requires explicit user confirmation.
 
-- [x] **AC-8.7 (Optimized Search Scoring)**:
+- [ ] **AC-8.7 (Optimized Search Scoring)**:
   - `searchAndFilterArticles` in `search.ts` precomputes relevance scores once per item to avoid redundant score computation during sorting.
