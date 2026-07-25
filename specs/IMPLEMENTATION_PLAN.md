@@ -73,6 +73,11 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Clean up unused imports, dead code, and unused function arguments across `server.ts`, `PodcastPlayer.tsx`, `PlaylistPanel.tsx`, `ProfilePanel.tsx`, `QueuePanel.tsx`, and `db.ts`.
 - [x] Fix character class regex escape syntax in `src/utils/search.ts`.
 
+### Phase 8: Documentation Alignment & Changelog Updates (Completed)
+- [x] Update `CHANGELOG.md` to release version `1.6.0`, recording the stabilization fixes (core player, haptic alignment, slider scrubbing, server bootstrapping) and doc/licensing additions.
+- [x] Document the SDD state records in a newly created `HANDOFF_LOG.md` file to follow protocol.
+- [x] Audit all specifications and READMEs to verify there are no broken relative links or active `[NEEDS-CLARIFICATION]` tags.
+
 ---
 
 ## 🔄 Agent Handoff Protocol
