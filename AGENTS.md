@@ -520,5 +520,5 @@ specs/VALIDATION_CHECKLIST.md (QA Criteria)
 ---
 
 **Version:** 1.1  
-**Last Updated:** 2024-06-09  
+**Last Updated:** 2026-07-25  
 **Maintainer:** Darshil
