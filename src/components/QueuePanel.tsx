@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Trash, X, Music, GripVertical, PlayCircle } from 'lucide-react';
+import { Trash, X, Music, GripVertical, CirclePlay as PlayCircle } from 'lucide-react';
 import { motion, AnimatePresence, PanInfo } from 'motion/react';
 import { Article } from '../types';
 

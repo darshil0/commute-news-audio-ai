@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Globe, FileText, Sparkles, AlertCircle, Search, ExternalLink, Play, Radio, CheckCircle2 } from 'lucide-react';
+import { Globe, FileText, Sparkles, CircleAlert as AlertCircle, Search, ExternalLink, Play, Radio, CircleCheck as CheckCircle2 } from 'lucide-react';
 import { ApiService, SearchNewsResponse } from '../lib/api';
 import { SummaryLength, SummaryTone, VoiceName } from '../types';
 
