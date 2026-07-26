@@ -7,34 +7,34 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 ## 🚀 Key Features
 
 ### 📡 Real-Time News Search (Gemini Search Grounding)
-* **Live Web Grounding**: Search real-time news topics using Gemini Search Grounding (`gemini-2.5-flash`).
-* **Source Citations**: Preview live web citations and original source links alongside the generated summary.
-* **Instant Brief Creation**: One-tap action to save grounded briefings to your queue or stream audio immediately.
+- **Live Web Grounding**: Search real-time news topics using Gemini Search Grounding (`gemini-2.5-flash`).
+- **Source Citations**: Preview live web citations and original source links alongside the generated summary.
+- **Instant Brief Creation**: One-tap action to save grounded briefings to your queue or stream audio immediately.
 
 ### 📰 Web URL & Text Intake
-* **URL Extraction**: Import news articles and blog posts directly via URL.
-* **Text Summarization**: Paste custom text or notes to generate structured commute audio briefs.
+- **URL Extraction**: Import news articles and blog posts directly via URL.
+- **Text Summarization**: Paste custom text or notes to generate structured commute audio briefs.
 
 ### 🎧 Adaptive Audio Player & Playback Speed
-* **Custom Audio Controls**: Play, pause, seek, and skip between queued briefings.
-* **Fluid Speed Control**: Adjustable speed slider (`0.5x` to `2.0x`) and quick preset buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`).
-* **Sleep Timer**: Configurable countdown timer (5m to 60m) that automatically pauses playback when expired.
+- **Custom Audio Controls**: Play, pause, seek, and skip between queued briefings.
+- **Fluid Speed Control**: Adjustable speed slider (`0.5x` to `2.0x`) and quick preset buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`).
+- **Sleep Timer**: Configurable countdown timer (5m to 60m) that automatically pauses playback when expired.
 
 ### 🔊 AI Narrator Voice Profiles
-* **5 Distinct Voice Profiles**: Tailored styles including Zephyr (Calm Narrator), Kore (Energetic Host), Charon (Mellow Storyteller), Puck (Crisp Newsreader), and Fenrir (Bold Anchor).
-* **Live Audition Preview**: Audition and test each voice profile directly in the settings panel before generating briefs.
+- **5 Distinct Voice Profiles**: Tailored styles including Zephyr (Calm Narrator), Kore (Energetic Host), Charon (Mellow Storyteller), Puck (Crisp Newsreader), and Fenrir (Bold Anchor).
+- **Live Audition Preview**: Audition and test each voice profile directly in the settings panel before generating briefs.
 
 ### 📴 Offline Persistence & Haptic Feedback
-* **IndexedDB Local Engine**: Save articles, playlists, and listening history locally for offline playback.
-* **Tactile Haptics**: Snappy vibration feedback on tap, skip, and playback completion.
+- **IndexedDB Local Engine**: Save articles, playlists, and listening history locally for offline playback.
+- **Tactile Haptics**: Snappy vibration feedback on tap, skip, and playback completion.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-* **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Framer Motion (`motion/react`), Lucide Icons.
-* **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, and Text-to-Speech proxying.
-* **AI Engine**: `@google/genai` TypeScript SDK utilizing `gemini-2.5-flash` with Google Search Grounding tools and `gemini-2.5-flash-preview-tts` for TTS generation.
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Framer Motion (`motion/react`), Lucide Icons.
+- **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, and Text-to-Speech proxying.
+- **AI Engine**: `@google/genai` TypeScript SDK utilizing `gemini-2.5-flash` with Google Search Grounding tools and `gemini-2.5-flash-preview-tts` for TTS generation.
 
 ---
 

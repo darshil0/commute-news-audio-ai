@@ -8,7 +8,7 @@ Welcome to the **CommuteBrief / CommuteNews** repository. This project uses a **
 
 When working on this repository, all AI agents and human contributors **MUST** follow the Spec-Driven Development cycle:
 
-```
+```text
 ┌─────────────────┐     ┌───────────────────────┐     ┌────────────────────────┐
 │ 1. Spec Review  │ ──► │ 2. Implementation     │ ──► │ 3. Code Implementation │
 │    & Update     │     │    Plan (`specs/`)    │     │    & Verification      │
