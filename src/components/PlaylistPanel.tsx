@@ -334,8 +334,9 @@ export const PlaylistPanel: React.FC = () => {
                   }}
                   className="p-1.5 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-red-950/20 transition-all cursor-pointer"
                   title="Delete playlist"
+                  aria-label="Delete playlist"
                 >
-                  <Trash className="w-4.5 h-4.5" />
+                  <Trash className="w-4 h-4" />
                 </button>
               </div>
 
