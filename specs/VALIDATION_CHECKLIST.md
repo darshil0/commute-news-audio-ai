@@ -18,6 +18,26 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
   ```
   *Pass Criteria*: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
 
+### 1.1 Custom Validation & Quality Audits
+
+- [x] **Documentation & Placeholder Audits**:
+  ```bash
+  python3 /home/jules/self_created_tools/doc_validator.py
+  ```
+  *Pass Criteria*: Scan all project markdown documentation files (`.md`). Assures there are no active `[NEEDS-CLARIFICATION]` placeholders and that all internal markdown relative links point to existing target files.
+
+- [x] **Changelog Syntax Validation**:
+  ```bash
+  python3 /home/jules/self_created_tools/changelog_validator.py
+  ```
+  *Pass Criteria*: Scan `CHANGELOG.md` to ensure all backticks are balanced and that all listed version headers have corresponding reference links at the bottom of the document.
+
+- [x] **Diagnostic Build Audits**:
+  ```bash
+  python3 /home/jules/self_created_tools/audit_diagnostics.py
+  ```
+  *Pass Criteria*: Executes both lint check and production build under an automated pipeline wrapper.
+
 ---
 
 ## 2. Feature Acceptance Criteria Verification
@@ -115,11 +135,26 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 
 ## 6. Visual Layout & Theme Verification (Playwright Browser Automation)
 
+### 6.1 Visual Test Environment Specification
+- **Engine**: Headless Playwright (Chromium Browser Wrapper)
+- **Viewport Dimension**: Desktop (`1280px` width by `800px` height)
+- **Target URL**: `http://localhost:3000`
+- **Automation Runner**: `/home/jules/verification/verify_theme_layouts.py`
+
+### 6.2 Visual Validation Checklist Items
+
 - [x] **Light/Dark Mode Theme Check**:
   - Verification script toggles the theme on the HTML root element and ensures components (Dashboard, Player, IntakePanel, Settings, and Playlists) adjust color tokens, contrast, and font visibility seamlessly.
+  - *Artifacts*: `/home/jules/verification/home_dashboard.png` (Dark Theme Feed), `/home/jules/verification/home_dashboard_alt_theme.png` (Light Theme Feed)
+
 - [x] **Expanded Player Layout & Controls Check**:
   - Verified audio player's expanded panel overlays, volume sliders, seek controls, voice profile badges, and buttons remain properly aligned without clipped boundaries.
+  - *Artifacts*: `/home/jules/verification/player_expanded_overlay_dark.png` (Dark Theme Overlay), `/home/jules/verification/player_expanded_overlay_light.png` (Light Theme Overlay)
+
 - [x] **Queue Panel & Playlist Ordering Check**:
   - Queue items and playlists render properly in list format, with correct spacing, drag handles, and no overflowing metadata text.
+  - *Artifacts*: `/home/jules/verification/queue_panel.png` (Queue Structure), `/home/jules/verification/playlists_panel.png` (Playlist Directory)
+
 - [x] **Grounded Source Link Placement Check**:
   - Citations and original source links under "Live Search" are clear, responsive, and legible across both light and dark backgrounds.
+  - *Artifacts*: `/home/jules/verification/intake_panel.png` (Intake Web Form)
