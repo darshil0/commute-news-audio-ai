@@ -124,7 +124,7 @@ export const IntakePanel: React.FC = () => {
         <button
           id="intake-mode-url"
           type="button"
-          onClick={() => { setMode('url'); setErrorMsg(null); setSearchResult(null); }}
+          onClick={() => { setMode('url'); setErrorMsg(null); setSuccessMsg(null); setSearchResult(null); }}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === 'url' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
         >
           <Globe className="w-4 h-4" />
@@ -133,7 +133,7 @@ export const IntakePanel: React.FC = () => {
         <button
           id="intake-mode-search"
           type="button"
-          onClick={() => { setMode('search'); setErrorMsg(null); setSearchResult(null); }}
+          onClick={() => { setMode('search'); setErrorMsg(null); setSuccessMsg(null); setSearchResult(null); }}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === 'search' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
         >
           <Search className="w-4 h-4" />
@@ -145,7 +145,7 @@ export const IntakePanel: React.FC = () => {
         <button
           id="intake-mode-text"
           type="button"
-          onClick={() => { setMode('text'); setErrorMsg(null); setSearchResult(null); }}
+          onClick={() => { setMode('text'); setErrorMsg(null); setSuccessMsg(null); setSearchResult(null); }}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === 'text' ? 'bg-zinc-800 text-emerald-400 shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
         >
           <FileText className="w-4 h-4" />
@@ -384,7 +384,7 @@ export const IntakePanel: React.FC = () => {
           </div>
 
           {/* Sources / Grounding Citations */}
-          {searchResult.sources && searchResult.sources.length > 0 && (
+          {searchResult.sources && searchResult.sources.length > 0 ? (
             <div className="space-y-2">
               <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-emerald-400" />
@@ -405,6 +405,8 @@ export const IntakePanel: React.FC = () => {
                 ))}
               </div>
             </div>
+          ) : (
+            <p className="text-xs text-zinc-500 italic">No explicit web sources returned for this summary.</p>
           )}
 
           {/* Action Buttons */}

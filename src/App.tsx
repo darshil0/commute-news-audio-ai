@@ -130,6 +130,7 @@ function CommuteAppContent() {
           id="theme-toggle-btn"
           onClick={toggleTheme}
           aria-pressed={isDark}
+          aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
           className={`p-2 rounded-xl border transition-all cursor-pointer ${
             isDark
               ? "border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white"
@@ -154,7 +155,7 @@ function CommuteAppContent() {
               type="button"
               id={`aside-nav-${id}`}
               onClick={() => setActiveTab(id)}
-              aria-pressed={activeTab === id}
+              aria-current={activeTab === id ? "page" : undefined}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === id
                   ? "bg-emerald-500 text-black shadow-lg"
@@ -201,7 +202,8 @@ function CommuteAppContent() {
             type="button"
             id={`mobile-nav-${id}`}
             onClick={() => setActiveTab(id)}
-            aria-pressed={activeTab === id}
+            aria-current={activeTab === id ? "page" : undefined}
+            aria-label={label}
             className={`flex flex-col items-center gap-1 cursor-pointer ${
               activeTab === id ? "text-emerald-400 font-bold" : "text-zinc-400 hover:text-zinc-200"
             }`}

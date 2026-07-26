@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   FolderClosed, Plus, Trash, Music, ListMusic, 
@@ -18,17 +18,22 @@ export const PlaylistPanel: React.FC = () => {
     articles, 
     createPlaylist, 
     deletePlaylist, 
+    updatePlaylistDetails,
     addArticleToPlaylist, 
     removeArticleFromPlaylist, 
     reorderPlaylist,
     playArticle,
-    addToQueue
+    addToQueue,
+    clearQueue
   } = useApp();
 
   const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [newPlaylistDesc, setNewPlaylistDesc] = useState('');
+  const [renameName, setRenameName] = useState('');
+  const [renameDesc, setRenameDesc] = useState('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -78,6 +83,18 @@ export const PlaylistPanel: React.FC = () => {
     return searchAndFilterArticles(articles, searchQuery, 'All');
   }, [articles, searchQuery, activePlaylistId]);
 
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowCreateModal(false);
+        setShowRenameModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlaylistName.trim()) return;
@@ -87,26 +104,50 @@ export const PlaylistPanel: React.FC = () => {
     setShowCreateModal(false);
   };
 
-  // HTML5 Drag and Drop event handlers
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
+  const handleRenameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activePlaylist || !renameName.trim()) return;
+    updatePlaylistDetails(activePlaylist.id, renameName.trim(), renameDesc.trim());
+    setShowRenameModal(false);
+  };
+
+  const openRenameModal = () => {
+    if (!activePlaylist) return;
+    setRenameName(activePlaylist.name);
+    setRenameDesc(activePlaylist.description || '');
+    setShowRenameModal(true);
+  };
+
+  // HTML5 Drag and Drop event handlers mapping filtered list to original article indices
+  const handleDragStart = (e: React.DragEvent, filteredIndex: number) => {
+    setDraggedIndex(filteredIndex);
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+  const handleDrop = (e: React.DragEvent, targetFilteredIndex: number) => {
     e.preventDefault();
-    if (draggedIndex === null || draggedIndex === targetIndex || !activePlaylistId) return;
-    reorderPlaylist(activePlaylistId, draggedIndex, targetIndex);
+    if (draggedIndex === null || draggedIndex === targetFilteredIndex || !activePlaylistId) return;
+
+    const draggedArticle = filteredActiveArticles[draggedIndex];
+    const targetArticle = filteredActiveArticles[targetFilteredIndex];
+    if (!draggedArticle || !targetArticle) return;
+
+    const originalStartIndex = activePlaylistArticles.findIndex(a => a.id === draggedArticle.id);
+    const originalEndIndex = activePlaylistArticles.findIndex(a => a.id === targetArticle.id);
+
+    if (originalStartIndex !== -1 && originalEndIndex !== -1) {
+      reorderPlaylist(activePlaylistId, originalStartIndex, originalEndIndex);
+    }
     setDraggedIndex(null);
   };
 
   const handlePlayEntirePlaylist = () => {
     if (!activePlaylist || activePlaylist.articleIds.length === 0) return;
-    // Add all articles to queue and play the first one
+    clearQueue();
     activePlaylist.articleIds.forEach(id => addToQueue(id));
     playArticle(activePlaylist.articleIds[0]);
   };
@@ -304,7 +345,17 @@ export const PlaylistPanel: React.FC = () => {
                   <ListMusic className="w-10 h-10" />
                 </div>
                 <div className="min-w-0 flex-1 text-center sm:text-left">
-                  <h3 className="text-xl font-bold text-zinc-100">{activePlaylist.name}</h3>
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <h3 className="text-xl font-bold text-zinc-100">{activePlaylist.name}</h3>
+                    <button
+                      type="button"
+                      onClick={openRenameModal}
+                      className="text-xs text-zinc-400 hover:text-emerald-400 underline font-medium cursor-pointer"
+                      title="Rename or edit details"
+                    >
+                      Edit
+                    </button>
+                  </div>
                   <p className="text-sm text-zinc-400 mt-1 leading-relaxed">{activePlaylist.description || 'No custom description'}</p>
                   <div className="flex flex-wrap gap-2 items-center justify-center sm:justify-start mt-3.5">
                     <span className="text-[10px] font-mono bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded uppercase">
@@ -361,16 +412,15 @@ export const PlaylistPanel: React.FC = () => {
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {filteredActiveArticles.map((art) => {
-                      const originalIndex = activePlaylistArticles.findIndex(a => a.id === art.id);
+                    {filteredActiveArticles.map((art, idx) => {
                       return (
                         <div
                           key={art.id}
                           draggable
-                          onDragStart={(e) => handleDragStart(e, originalIndex)}
-                          onDragOver={(e) => handleDragOver(e, originalIndex)}
-                          onDrop={(e) => handleDrop(e, originalIndex)}
-                          className={`bg-zinc-900/30 border border-zinc-900 rounded-xl p-3 flex items-center justify-between transition-all ${draggedIndex === originalIndex ? 'opacity-40 border-dashed border-zinc-700 bg-zinc-800/20' : 'hover:bg-zinc-900/60'}`}
+                          onDragStart={(e) => handleDragStart(e, idx)}
+                          onDragOver={(e) => handleDragOver(e)}
+                          onDrop={(e) => handleDrop(e, idx)}
+                          className={`bg-zinc-900/30 border border-zinc-900 rounded-xl p-3 flex items-center justify-between transition-all ${draggedIndex === idx ? 'opacity-40 border-dashed border-zinc-700 bg-zinc-800/20' : 'hover:bg-zinc-900/60'}`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             {/* Drag handle */}
@@ -453,6 +503,9 @@ export const PlaylistPanel: React.FC = () => {
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="create-playlist-title"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -462,11 +515,12 @@ export const PlaylistPanel: React.FC = () => {
                 id="modal-close-btn"
                 onClick={() => setShowCreateModal(false)}
                 className="absolute top-4 right-4 p-1 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors"
+                aria-label="Close dialog"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <h3 id="create-playlist-title" className="text-lg font-bold mb-4 flex items-center gap-2">
                 <FolderClosed className="w-5 h-5 text-emerald-400" />
                 <span>Create Playlist</span>
               </h3>
@@ -512,6 +566,80 @@ export const PlaylistPanel: React.FC = () => {
                     className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-semibold rounded-lg text-sm transition-colors cursor-pointer"
                   >
                     Create Playlist
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Rename Playlist Modal Dialog */}
+      <AnimatePresence>
+        {showRenameModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="rename-playlist-title"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md p-6 relative text-white"
+            >
+              <button
+                id="rename-modal-close-btn"
+                onClick={() => setShowRenameModal(false)}
+                className="absolute top-4 right-4 p-1 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors"
+                aria-label="Close dialog"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <h3 id="rename-playlist-title" className="text-lg font-bold mb-4 flex items-center gap-2">
+                <FolderClosed className="w-5 h-5 text-emerald-400" />
+                <span>Edit Playlist Details</span>
+              </h3>
+
+              <form onSubmit={handleRenameSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="rename-pname" className="block text-xs font-semibold text-zinc-400 mb-1">Playlist Name</label>
+                  <input
+                    id="rename-pname"
+                    type="text"
+                    required
+                    value={renameName}
+                    onChange={(e) => setRenameName(e.target.value)}
+                    placeholder="Playlist name"
+                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-emerald-500 text-zinc-100 placeholder-zinc-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="rename-pdesc" className="block text-xs font-semibold text-zinc-400 mb-1">Description (Optional)</label>
+                  <textarea
+                    id="rename-pdesc"
+                    rows={2.5}
+                    value={renameDesc}
+                    onChange={(e) => setRenameDesc(e.target.value)}
+                    placeholder="Description..."
+                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-emerald-500 text-zinc-100 placeholder-zinc-500 resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowRenameModal(false)}
+                    className="px-4 py-2 hover:bg-zinc-800 rounded-lg text-sm text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!renameName.trim()}
+                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-semibold rounded-lg text-sm transition-colors cursor-pointer"
+                  >
+                    Save Changes
                   </button>
                 </div>
               </form>

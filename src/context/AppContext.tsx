@@ -49,6 +49,7 @@ interface AppContextProps {
 
   createPlaylist: (name: string, description?: string) => Promise<void>;
   deletePlaylist: (id: string) => Promise<void>;
+  updatePlaylistDetails: (playlistId: string, name: string, description?: string) => Promise<void>;
   addArticleToPlaylist: (playlistId: string, articleId: string) => Promise<void>;
   removeArticleFromPlaylist: (playlistId: string, articleId: string) => Promise<void>;
   reorderPlaylist: (playlistId: string, startIndex: number, endIndex: number) => Promise<void>;
@@ -116,6 +117,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const playbackStateRef = useRef(playbackState);
   const articlesRef = useRef(articles);
+  const playlistsRef = useRef(playlists);
   const progressRef = useRef(progress);
   const preferencesRef = useRef(preferences);
   const userProfileRef = useRef(userProfile);
@@ -132,6 +134,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     articlesRef.current = articles;
   }, [articles]);
+
+  useEffect(() => {
+    playlistsRef.current = playlists;
+  }, [playlists]);
 
   useEffect(() => {
     progressRef.current = progress;
@@ -191,18 +197,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     syncInFlightRef.current = true;
     try {
-      const localSnapshot: SyncData = {
-        articles: articlesRef.current,
-        playlists,
-        progress: progressRef.current,
-        preferences: preferencesRef.current,
-        queue: playbackStateRef.current.queue,
-      };
+      let mergedArticles = [...articlesRef.current];
+      let mergedPlaylists = [...playlistsRef.current];
+      let mergedPreferences = { ...preferencesRef.current };
 
       const remoteData = await ApiService.getBackupData(profile.token);
 
       if (remoteData) {
-        const mergedArticles = [...articlesRef.current];
         for (const remoteArt of remoteData.articles) {
           const index = mergedArticles.findIndex((a) => a.id === remoteArt.id);
           if (index === -1) {
@@ -216,9 +217,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             await localDB.saveArticle(mergedArticles[index]);
           }
         }
-        setArticles(mergedArticles);
 
-        const mergedPlaylists = [...playlists];
         for (const remotePl of remoteData.playlists) {
           const index = mergedPlaylists.findIndex((p) => p.id === remotePl.id);
           if (index === -1) {
@@ -229,20 +228,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             await localDB.savePlaylist(remotePl);
           }
         }
-        setPlaylists(mergedPlaylists);
 
         if (remoteData.preferences) {
-          setLocalPreferences(remoteData.preferences);
-          await localDB.savePreferences(remoteData.preferences);
+          mergedPreferences = { ...mergedPreferences, ...remoteData.preferences };
+          setLocalPreferences(mergedPreferences);
+          await localDB.savePreferences(mergedPreferences);
         }
+
+        setArticles(mergedArticles);
+        setPlaylists(mergedPlaylists);
       }
 
       await ApiService.backupData(profile.token, {
-        ...localSnapshot,
-        articles: articlesRef.current,
-        playlists,
+        articles: mergedArticles,
+        playlists: mergedPlaylists,
         progress: progressRef.current,
-        preferences: preferencesRef.current,
+        preferences: mergedPreferences,
         queue: playbackStateRef.current.queue,
       });
     } catch (err) {
@@ -254,7 +255,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         void syncWithServer();
       }
     }
-  }, [playlists]);
+  }, []);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -505,8 +506,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 
   const deleteArticle = useCallback(async (id: string) => {
+    if (audioElementsCache[id]) {
+      audioElementsCache[id].pause();
+      delete audioElementsCache[id];
+    }
+    if (playbackStateRef.current.currentArticleId === id && currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
     await localDB.deleteArticle(id);
     setArticles((prev) => prev.filter((a) => a.id !== id));
+    setPlaylists((prev) =>
+      prev.map((pl) => {
+        if (pl.articleIds.includes(id)) {
+          const updated = { ...pl, articleIds: pl.articleIds.filter((aid) => aid !== id) };
+          void localDB.savePlaylist(updated);
+          return updated;
+        }
+        return pl;
+      })
+    );
     setPlaybackState((prev) => ({
       ...prev,
       queue: prev.queue.filter((qid) => qid !== id),
@@ -572,6 +591,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await localDB.deletePlaylist(id);
     setPlaylists((prev) => prev.filter((p) => p.id !== id));
     analyticsEvent("Playlist", "Delete", id);
+    scheduleSync();
+  }, [analyticsEvent, scheduleSync]);
+
+  const updatePlaylistDetails = useCallback(async (playlistId: string, name: string, description?: string) => {
+    const playlist = playlistsRef.current.find((p) => p.id === playlistId);
+    if (!playlist) return;
+    const updatedPl = { ...playlist, name, description };
+    await localDB.savePlaylist(updatedPl);
+    setPlaylists((prev) => prev.map((p) => (p.id === playlistId ? updatedPl : p)));
+    analyticsEvent("Playlist", "UpdateDetails", playlistId);
     scheduleSync();
   }, [analyticsEvent, scheduleSync]);
 
@@ -882,10 +911,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (idx > 0) {
       triggerHaptic(25);
       void playArticle(queue[idx - 1]);
-    } else if (currentAudioRef.current) {
-      currentAudioRef.current.currentTime = 0;
+    } else {
+      if (currentAudioRef.current) {
+        currentAudioRef.current.currentTime = 0;
+      } else if (isSpeechSynthesisActiveRef.current) {
+        const article = articlesRef.current.find((a) => a.id === currentArticleId);
+        if (article) playWithSpeechSynthesis(article);
+      }
     }
-  }, [playArticle, triggerHaptic]);
+  }, [playArticle, playWithSpeechSynthesis, triggerHaptic]);
 
   const setPlaybackSpeed = useCallback((speed: number) => {
     triggerHaptic(15);
@@ -928,6 +962,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           window.speechSynthesis.cancel();
         }
         isSpeechSynthesisActiveRef.current = false;
+        if (audioProgressIntervalRef.current) {
+          clearInterval(audioProgressIntervalRef.current);
+          audioProgressIntervalRef.current = null;
+        }
         setPlaybackState((prev) => ({
           ...prev,
           isPlaying: false,
@@ -948,16 +986,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [analyticsEvent]);
 
   const updatePlaybackPosition = useCallback((seconds: number) => {
-    if (!currentAudioRef.current) return;
-    currentAudioRef.current.currentTime = seconds;
-    triggerHaptic(15);
-
     const currentId = playbackStateRef.current.currentArticleId;
+    if (currentAudioRef.current) {
+      currentAudioRef.current.currentTime = seconds;
+      triggerHaptic(15);
+    }
+
     if (!currentId) return;
 
-    setProgress((prev) =>
-      prev.map((p) => (p.articleId === currentId ? { ...p, position: seconds } : p))
-    );
+    setProgress((prev) => {
+      const existing = prev.find((p) => p.articleId === currentId);
+      const newProg: PlaybackProgress = {
+        articleId: currentId,
+        position: seconds,
+        duration: existing?.duration || 60,
+        completed: existing ? seconds >= existing.duration - 2 : false,
+        lastPlayed: new Date().toISOString(),
+      };
+      const filtered = prev.filter((p) => p.articleId !== currentId);
+      void localDB.saveProgress(newProg);
+      return [...filtered, newProg];
+    });
   }, [triggerHaptic]);
 
   const addToQueue = useCallback((id: string) => {
@@ -1010,13 +1059,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const setPreferences = useCallback((newPrefs: Partial<UserPreferences>) => {
-    setLocalPreferences((prev) => {
-      const updated = { ...prev, ...newPrefs };
-      void localDB.savePreferences(updated);
-      analyticsEvent("Preferences", "Update", JSON.stringify(newPrefs));
-      scheduleSync();
-      return updated;
-    });
+    const updated = { ...preferencesRef.current, ...newPrefs };
+    setLocalPreferences(updated);
+    void localDB.savePreferences(updated);
+    analyticsEvent("Preferences", "Update", JSON.stringify(newPrefs));
+    scheduleSync();
   }, [analyticsEvent, scheduleSync]);
 
   const value = useMemo<AppContextProps>(() => ({
@@ -1041,6 +1088,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     toggleSaveArticle,
     createPlaylist,
     deletePlaylist,
+    updatePlaylistDetails,
     addArticleToPlaylist,
     removeArticleFromPlaylist,
     reorderPlaylist,
@@ -1081,6 +1129,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     toggleSaveArticle,
     createPlaylist,
     deletePlaylist,
+    updatePlaylistDetails,
     addArticleToPlaylist,
     removeArticleFromPlaylist,
     reorderPlaylist,

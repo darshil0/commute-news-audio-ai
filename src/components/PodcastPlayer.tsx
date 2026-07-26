@@ -30,6 +30,8 @@ export const PodcastPlayer: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSleepMenu, setShowSleepMenu] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [showVolumeMenu, setShowVolumeMenu] = useState(false);
+  const [volume, setVolume] = useState(1.0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragPos, setDragPos] = useState<number | null>(null);
 
@@ -48,14 +50,26 @@ export const PodcastPlayer: React.FC = () => {
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  // Skip handlers
+  // Close expanded overlay on Escape key
+  useEffect(() => {
+    if (!isExpanded) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsExpanded(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isExpanded]);
+
+  // Skip handlers using activePos
   const handleForward15 = () => {
-    const newPos = Math.min(dur, pos + 15);
+    const newPos = Math.min(dur, activePos + 15);
     updatePlaybackPosition(newPos);
   };
 
   const handleBackward15 = () => {
-    const newPos = Math.max(0, pos - 15);
+    const newPos = Math.max(0, activePos - 15);
     updatePlaybackPosition(newPos);
   };
 
@@ -137,6 +151,9 @@ export const PodcastPlayer: React.FC = () => {
         {isExpanded && (
           <motion.div 
             id="player-expanded-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Expanded Audio Player"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -392,6 +409,44 @@ export const PodcastPlayer: React.FC = () => {
                         {sleepTimerDuration === m && <Check className="w-3.5 h-3.5" />}
                       </button>
                     ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Volume Control */}
+              <div className="relative">
+                <button
+                  id="volume-control-trigger"
+                  onClick={() => {
+                    setShowVolumeMenu(!showVolumeMenu);
+                    setShowSpeedMenu(false);
+                    setShowSleepMenu(false);
+                  }}
+                  className="flex items-center gap-1.5 font-mono px-3 py-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 transition-colors"
+                  aria-label="Volume settings"
+                >
+                  <Volume2 className="w-4 h-4 text-emerald-400" />
+                  <span>{Math.round(volume * 100)}%</span>
+                </button>
+
+                {showVolumeMenu && (
+                  <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-4 z-50 flex flex-col gap-2">
+                    <div className="flex justify-between items-center text-xs font-semibold text-zinc-300">
+                      <span>Volume</span>
+                      <span className="font-mono text-emerald-400">{Math.round(volume * 100)}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={volume}
+                      onChange={(e) => {
+                        const v = parseFloat(e.target.value);
+                        setVolume(v);
+                      }}
+                      className="w-full accent-emerald-500 cursor-pointer bg-zinc-800 h-1.5 rounded-lg appearance-none no-swipe"
+                    />
                   </div>
                 )}
               </div>

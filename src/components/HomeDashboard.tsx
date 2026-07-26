@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import { useApp } from "../context/AppContext";
 import {
   Search,
@@ -18,7 +18,10 @@ import {
   Headphones,
   Download,
   X,
+  RefreshCw,
+  ArrowDown,
 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { Article } from "../types";
 import { searchAndFilterArticles } from "../utils/search";
 
@@ -38,17 +41,79 @@ export const HomeDashboard: React.FC = () => {
     articles,
     progress,
     playbackState,
+    isLoading,
     playArticle,
     downloadArticleAudio,
     toggleSaveArticle,
     deleteArticle,
     addToQueue,
+    syncWithServer,
+    triggerHaptic,
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshSuccess, setRefreshSuccess] = useState(false);
+  const touchStartYRef = useRef<number | null>(null);
+  const isPullingRef = useRef(false);
+
   const { currentArticleId, isPlaying } = playbackState;
+
+  const formatSecondsLabel = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
+  const executeRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    triggerHaptic(30);
+    try {
+      await syncWithServer();
+      setRefreshSuccess(true);
+      setTimeout(() => setRefreshSuccess(false), 2500);
+    } catch {
+      // Ignore sync failures
+    } finally {
+      setTimeout(() => {
+        setIsRefreshing(false);
+        setPullDistance(0);
+      }, 500);
+    }
+  }, [syncWithServer, triggerHaptic]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (typeof window !== "undefined" && window.scrollY <= 2) {
+      touchStartYRef.current = e.touches[0].clientY;
+      isPullingRef.current = true;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isPullingRef.current || touchStartYRef.current === null || isRefreshing) return;
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - touchStartYRef.current;
+    if (deltaY > 0 && typeof window !== "undefined" && window.scrollY <= 2) {
+      const dist = Math.min(110, Math.pow(deltaY, 0.85) * 1.4);
+      setPullDistance(dist);
+    } else {
+      setPullDistance(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isPullingRef.current) return;
+    isPullingRef.current = false;
+    touchStartYRef.current = null;
+    if (pullDistance > 55 && !isRefreshing) {
+      executeRefresh();
+    } else {
+      setPullDistance(0);
+    }
+  };
 
   const stats = useMemo(() => {
     const totalBriefs = articles.length;
@@ -91,10 +156,82 @@ export const HomeDashboard: React.FC = () => {
   );
 
   return (
-    <div id="home-dashboard-container" className="max-w-4xl mx-auto p-4 md:p-6 text-zinc-900 dark:text-white pb-32 space-y-6">
+    <div
+      id="home-dashboard-container"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="max-w-4xl mx-auto p-4 md:p-6 text-zinc-900 dark:text-white pb-32 space-y-6 relative"
+    >
+      {/* Animated Pull-To-Refresh Indicator */}
+      <motion.div
+        animate={{
+          height: isRefreshing ? 52 : pullDistance,
+          opacity: pullDistance > 10 || isRefreshing ? 1 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="overflow-hidden flex items-center justify-center -mt-2"
+      >
+        <div className="flex items-center gap-2 bg-white/90 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 shadow-md px-4 py-1.5 rounded-full text-xs font-mono font-medium text-zinc-700 dark:text-zinc-200">
+          <RefreshCw
+            className={`w-3.5 h-3.5 text-emerald-500 transition-transform ${
+              isRefreshing
+                ? "animate-spin"
+                : pullDistance > 55
+                ? "rotate-180 text-emerald-600"
+                : ""
+            }`}
+          />
+          {isRefreshing ? (
+            <span>Refreshing Commuter Feed...</span>
+          ) : pullDistance > 55 ? (
+            <span>Release to refresh</span>
+          ) : (
+            <span>Pull down to refresh</span>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Success notification banner */}
+      <AnimatePresence>
+        {refreshSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs px-3.5 py-2 rounded-xl flex items-center justify-between shadow-sm"
+          >
+            <div className="flex items-center gap-2 font-mono">
+              <Check className="w-4 h-4 text-emerald-500" />
+              <span>Commuter Feed updated successfully!</span>
+            </div>
+            <button
+              onClick={() => setRefreshSuccess(false)}
+              className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+              aria-label="Close notification"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-900 pb-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 font-sans">Commuter Feed</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 font-sans">
+              Commuter Feed
+            </h1>
+            <button
+              onClick={executeRefresh}
+              disabled={isRefreshing}
+              title="Refresh feed"
+              aria-label="Refresh feed"
+              className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-emerald-500" : ""}`} />
+            </button>
+          </div>
           <p className="text-zinc-600 dark:text-zinc-400 text-xs mt-1">
             Seamless summaries formatted into offline-ready morning podcast streams.
           </p>
@@ -153,7 +290,7 @@ export const HomeDashboard: React.FC = () => {
             key={cat}
             type="button"
             onClick={() => setSelectedCategory(cat)}
-            aria-pressed={selectedCategory === cat}
+            aria-current={selectedCategory === cat ? "page" : undefined}
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-all ${
               selectedCategory === cat
                 ? "bg-emerald-500 text-black shadow-md"
@@ -179,15 +316,15 @@ export const HomeDashboard: React.FC = () => {
                 <div
                   key={art.id}
                   id={`resume-card-${art.id}`}
-                  className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between"
+                  className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col justify-between shadow-sm"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="min-w-0">
-                      <span className="text-[9px] font-mono font-bold text-emerald-400 uppercase bg-emerald-950/40 px-1.5 py-0.5 rounded">
+                      <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase bg-emerald-100 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
                         {art.category}
                       </span>
-                      <h4 className="font-semibold text-sm text-zinc-200 truncate mt-1.5">{art.title}</h4>
-                      <p className="text-[10px] text-zinc-500 mt-0.5">Resume from {Math.floor(progress.position)}s</p>
+                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-200 truncate mt-1.5">{art.title}</h4>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Resume from {formatSecondsLabel(progress.position)}</p>
                     </div>
                     <button
                       type="button"
@@ -201,10 +338,10 @@ export const HomeDashboard: React.FC = () => {
                   </div>
 
                   <div className="mt-4">
-                    <div className="w-full bg-zinc-800 h-1 rounded overflow-hidden" aria-hidden="true">
-                      <div className="bg-emerald-400 h-full" style={{ width: `${percent}%` }} />
+                    <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1 rounded overflow-hidden" aria-hidden="true">
+                      <div className="bg-emerald-500 dark:bg-emerald-400 h-full" style={{ width: `${percent}%` }} />
                     </div>
-                    <div className="flex justify-between text-[9px] font-mono text-zinc-500 mt-1">
+                    <div className="flex justify-between text-[9px] font-mono text-zinc-500 dark:text-zinc-400 mt-1">
                       <span>{percent}% listened</span>
                       <span>{Math.round(progress.duration / 60)} min</span>
                     </div>
@@ -222,7 +359,19 @@ export const HomeDashboard: React.FC = () => {
           <span>Commute Summaries ({filteredArticles.length})</span>
         </h3>
 
-        {filteredArticles.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="border border-zinc-200 dark:border-zinc-900 rounded-xl p-4 animate-pulse flex items-center gap-4 bg-white/50 dark:bg-zinc-900/20">
+                <div className="w-11 h-11 bg-zinc-200 dark:bg-zinc-800 rounded-xl flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3" />
+                  <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredArticles.length === 0 ? (
           <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl py-12 px-6 text-center">
             <FileText className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
             <h4 className="font-semibold text-zinc-400">No briefs match criteria</h4>
