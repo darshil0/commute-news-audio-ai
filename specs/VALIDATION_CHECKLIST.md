@@ -53,7 +53,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **SDD Alignment**:
   - Code changes match the definitions in `/specs/SYSTEM_SPEC.md`.
   - Any new behavior or scope change has been documented in `/specs/SYSTEM_SPEC.md` first.
-  - Unclear requirements are flagged with `[NEEDS-CLARIFICATION]`.
+  - Unclear requirements are flagged with `[NEEDS CLARIFICATION]`.
 
 - [x] **Documentation Updates**:
   - `/README.md` accurately reflects project architecture and SDD workflow.
@@ -110,16 +110,3 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-18 (Auth Warning Logging)**: Failed login attempts log server-side security warnings while returning safe generic error responses to clients.
 - [x] **DEF-19 (HTML Title & Meta Tags)**: `index.html` renders `<title>CommuteBrief — Smart Commute Audio Briefings</title>` and OpenGraph description tags.
 - [x] **DEF-20 (Git Ignore Data Protection)**: `.gitignore` includes `data/` and `*.db` rules to prevent user database or secret leaks in repository commits.
-
----
-
-## 6. Visual Layout & Theme Verification (Playwright Browser Automation)
-
-- [x] **Light/Dark Mode Theme Check**:
-  - Verification script toggles the theme on the HTML root element and ensures components (Dashboard, Player, IntakePanel, Settings, and Playlists) adjust color tokens, contrast, and font visibility seamlessly.
-- [x] **Expanded Player Layout & Controls Check**:
-  - Verified audio player's expanded panel overlays, volume sliders, seek controls, voice profile badges, and buttons remain properly aligned without clipped boundaries.
-- [x] **Queue Panel & Playlist Ordering Check**:
-  - Queue items and playlists render properly in list format, with correct spacing, drag handles, and no overflowing metadata text.
-- [x] **Grounded Source Link Placement Check**:
-  - Citations and original source links under "Live Search" are clear, responsive, and legible across both light and dark backgrounds.

@@ -75,6 +75,17 @@ function createRateLimiter(maxRequests: number, windowMs: number) {
 const globalRateLimiter = createRateLimiter(60, 60 * 1000); // 60 req/min
 const aiRouteRateLimiter = createRateLimiter(15, 60 * 1000); // 15 req/min
 
+// Periodic cleanup of stale rate-limit store entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of rateLimitStore.entries()) {
+    entry.timestamps = entry.timestamps.filter((ts) => ts > now - 60000);
+    if (entry.timestamps.length === 0) {
+      rateLimitStore.delete(key);
+    }
+  }
+}, 10 * 60 * 1000);
+
 function logStructured(level: "info" | "warn" | "error", message: string, metadata?: Record<string, unknown>) {
   const payload = {
     timestamp: new Date().toISOString(),
