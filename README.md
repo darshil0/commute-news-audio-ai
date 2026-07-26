@@ -48,6 +48,20 @@ This repository follows **Spec-Driven Development (SDD)**:
 
 ---
 
+## 🐛 Bugs, Errors, and Defects Fixed
+
+- **SSRF Endpoint Safeguards**: Protected `/api/articles/extract` against SSRF by checking schemes (`http:`, `https:`) and blocking private RFC 1918/4193 IP blocks, loopbacks, and link-local ranges.
+- **Model Standardizations**: Aligned Express server AI requests to `@google/genai` models `gemini-2.5-flash` and `gemini-2.5-flash-preview-tts`.
+- **Atomic Cloud Synchronization**: Fixed Firestore data-loss bug in `syncWithServer` by merging IndexedDB and cloud changes atomically.
+- **Memory & Resource Eviction**: Fixed memory leak on article deletion by cleaning up playlist entries and removing cached `HTMLAudioElement` instances.
+- **Audio Slider Scrubbing**: Isolated seek slider drag state (`isDragging`, `dragPos`) in `PodcastPlayer` to prevent audio playback jitter.
+- **Filtered Drag-and-Drop Reordering**: Fixed track reordering in playlists when search query filters are active.
+- **Firefox Drag-and-Drop Fix**: Added `dataTransfer.setData` payload for cross-browser HTML5 drag compatibility.
+- **Null-Safe Fuzzy Search**: Added strict null, array, and string guards to `tokenize`, `scoreArticle`, and `searchAndFilterArticles`.
+- **Theme & Accessibility Polish**: Fixed non-existent Tailwind utility classes (`zinc-750`, `zinc-850`, `w-4.5`) and added `aria-label`, `role="dialog"`, and `aria-current="page"` semantics.
+
+---
+
 ## ⚙️ Development & Build Commands
 
 ```bash

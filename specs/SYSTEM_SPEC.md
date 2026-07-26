@@ -177,7 +177,35 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 
 ---
 
-## 7. Verification Protocol
+## 8. Bugs, Errors, and Defects Fixed
+
+### 8.1 Backend, Server & API Security Defects
+- **Model Alignment & Deprecated API Removal**: Updated `@google/genai` model aliases in `server.ts` to `gemini-2.5-flash` (summarization, extraction, search grounding) and `gemini-2.5-flash-preview-tts` (audio synthesis).
+- **Server Port Isolation in Tests**: Guarded `startServer()` in `server.ts` to prevent automatic port binding on port 3000 during test execution (`NODE_ENV === "test"`).
+- **SSRF Defense Vulnerability Fix**: Implemented strict HTTP/HTTPS protocol checks and blocked private RFC 1918/4193 IP ranges, loopback (`127.0.0.1`), and link-local addresses in `/api/articles/extract`.
+- **JSON Parsing & Prompt Security**: Fixed markdown code block stripping and string escaping in `cleanAndParseJson` to prevent JSON syntax exceptions from LLM responses.
+- **JWT & Auth Security**: Fixed token expiration validation (7-day validity) and sanitized error responses to prevent internal stack trace leakage.
+
+### 8.2 State Engine, Memory Leak & Sync Defects
+- **Firestore Sync Data-Loss Bug**: Resolved data overwrite bug in `syncWithServer` by eliminating premature local snapshotting and implementing atomic bi-directional merges.
+- **Article Deletion Memory Leak**: Purged deleted articles from user playlists and cleared invalid HTML Audio objects in `audioElementsCache`.
+- **Stale Closure Race Conditions**: Converted `setPreferences` to a functional state updater to eliminate race conditions during rapid settings toggles.
+- **Audio Speech Synthesis Fixes**: Fixed speech synthesis seeking, `playPrev` speech synth playback, and cleared sleep timer interval handles cleanly.
+- **Error Banner Auto-Dismissal**: Added 6-second auto-dismissal (`clearPlaybackErrorLater`) for audio playback error banners.
+
+### 8.3 Player, UI & Accessibility Defects
+- **Audio Seek Slider Jitter**: Isolated slider drag state (`isDragging`, `dragPos`) in `PodcastPlayer.tsx` to prevent position jitter and haptic spam during scrubbing.
+- **15-Second Skip Offset Calculation**: Fixed skip backward/forward calculations to evaluate relative to `activePos` rather than stale audio DOM timestamps.
+- **Drag-and-Drop Filter Indexing Defect**: Fixed playlist reordering when search filters are active by mapping filtered indices back to original array indices.
+- **Invalid Tailwind Classes**: Replaced non-existent Tailwind utility classes (`zinc-750`, `zinc-850`, `w-4.5`) with standard dark/light theme utilities across `HomeDashboard.tsx` and `ProfilePanel.tsx`.
+- **Firefox HTML5 Drag Bug**: Added `e.dataTransfer.setData('text/plain', String(index))` in `QueuePanel.tsx` to ensure cross-browser drag support.
+- **Strict Typing Hardening**: Replaced remaining `any` types in `IntakePanel.tsx` and `ProfilePanel.tsx` with explicit domain unions (`SummaryLength`, `SummaryTone`, `VoiceName`).
+- **Null Safety in Search**: Added strict null and array guards to `tokenize`, `scoreArticle`, and `searchAndFilterArticles` in `src/utils/search.ts` to prevent `TypeError` exceptions.
+- **Accessibility & Theme Contrast**: Updated expanded player overlay for seamless light/dark mode contrast and added `aria-label`, `role="dialog"`, and `aria-current="page"` across player buttons and navigation.
+
+---
+
+## 9. Verification Protocol
 
 1. **Type Safety**: Run `npm run lint` (`tsc --noEmit`) to confirm zero compilation or type errors.
 2. **Production Bundle**: Run `npm run build` to verify Vite and esbuild server bundler success.

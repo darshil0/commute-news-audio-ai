@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.0] - 2026-07-25
 
-### Fixed & Enhanced
+### 🐛 Bugs, Errors, and Defects Fixed
 - **Model Alignment & Server Port Isolation**:
   - Standardized backend Gemini API model references in `server.ts` to `gemini-2.5-flash` for article extraction/summarization and `gemini-2.5-flash-preview-tts` for Text-To-Speech synthesis.
   - Guarded `startServer()` in `server.ts` to prevent automatic port binding during automated test suite runs (`NODE_ENV === "test"`).

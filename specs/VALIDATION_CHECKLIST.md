@@ -85,3 +85,20 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 
 - [x] **AC-8.7 (Optimized Search Scoring)**:
   - `searchAndFilterArticles` in `search.ts` precomputes relevance scores once per item to avoid redundant score computation during sorting.
+
+---
+
+## 5. Bugs, Errors, and Defects Verification Checklist
+
+- [x] **DEF-1 (SSRF Protection)**: Extract endpoint rejects non-HTTP protocols, RFC 1918 private IPs (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), RFC 4193 IPv6, loopback (`127.0.0.1`), and link-local (`169.254.0.0/16`).
+- [x] **DEF-2 (Gemini API Models)**: AI endpoints utilize `@google/genai` with `gemini-2.5-flash` for summarization/extraction and `gemini-2.5-flash-preview-tts` for TTS synthesis.
+- [x] **DEF-3 (Port Isolation in Tests)**: `server.ts` checks `NODE_ENV !== "test"` before binding to port 3000 to prevent port conflict errors during automated testing.
+- [x] **DEF-4 (Firestore Sync Safety)**: `syncWithServer` executes atomic bidirectional updates without wiping unsynced local IndexedDB entries.
+- [x] **DEF-5 (Memory Leak Cleanup)**: Deleting an article cleans playlist references and evicts cached `HTMLAudioElement` instances from `audioElementsCache`.
+- [x] **DEF-6 (Audio Slider Scrubbing)**: Scrubbing audio progress bar does not cause UI jitter or haptic vibration spam.
+- [x] **DEF-7 (Relative Skip Timing)**: 15s skip backward/forward operates relative to `activePos` for accurate jumping.
+- [x] **DEF-8 (Filtered Drag-and-Drop)**: Drag-and-drop track reordering in playlists works accurately when a search query filter is active.
+- [x] **DEF-9 (Firefox Drag-and-Drop)**: HTML5 drag-and-drop includes `dataTransfer.setData` payload for Firefox compatibility.
+- [x] **DEF-10 (Tailwind Class Sanity)**: Codebase has zero invalid Tailwind class references (`zinc-750`, `zinc-850`, `w-4.5`).
+- [x] **DEF-11 (Search Null Safety)**: Search tokenization and scoring handle `undefined`, `null`, and empty strings safely without throwing `TypeError`.
+- [x] **DEF-12 (Accessibility Semantics)**: Audio player and navigation controls include comprehensive `aria-label`, `aria-current="page"`, `role="dialog"`, and Escape key handlers.

@@ -75,6 +75,25 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 
 ---
 
+## 🐛 Bugs, Errors, and Defects Fixed Thus Far
+
+| Defect ID | Category | Description & Fix Summary | Impact |
+|---|---|---|---|
+| **DEF-1** | Server / Security | Express extraction endpoint `/api/articles/extract` lacked SSRF safeguards. Added scheme checks (HTTP/HTTPS only) and blocked private IP blocks (RFC 1918/4193), loopback (`127.0.0.1`), and link-local ranges. | High |
+| **DEF-2** | Server / Model | Deprecated model aliases broke Gemini API integration. Updated server endpoints to use `@google/genai` with `gemini-2.5-flash` and `gemini-2.5-flash-preview-tts`. | High |
+| **DEF-3** | Server / Testing | Server auto-bound to port 3000 during test suite execution. Added `NODE_ENV === "test"` guard to `startServer()`. | Medium |
+| **DEF-4** | State / Sync | `syncWithServer` wiped unsynced local data due to premature snapshotting. Implemented atomic bi-directional merges between IndexedDB and Firestore. | High |
+| **DEF-5** | State / Memory | `deleteArticle` failed to purge deleted articles from user playlists and left stale `HTMLAudioElement` objects in `audioElementsCache`. Added automatic playlist cleaning and audio element eviction. | Medium |
+| **DEF-6** | Player / UI | `PodcastPlayer` seek slider scrubbed erratically due to active audio position state updates during drag. Added `isDragging` and `dragPos` state separation. | Medium |
+| **DEF-7** | Player / Logic | 15s skip backward/forward calculated offsets from stale audio element `currentTime`. Updated calculation to evaluate against `activePos`. | Low |
+| **DEF-8** | Playlists / Drag | HTML5 drag-and-drop playlist reordering mapped to wrong items when a search query was active. Mapped filtered drag indices back to original array indices. | Medium |
+| **DEF-9** | Browser / Drag | Drag-and-drop failed in Firefox due to missing dataTransfer payload. Added `e.dataTransfer.setData('text/plain', String(index))`. | Medium |
+| **DEF-10** | Styling / CSS | Invalid non-existent Tailwind CSS utilities (`zinc-750`, `zinc-850`, `w-4.5`) broke light/dark mode contrast. Replaced with standard Tailwind scale classes. | Low |
+| **DEF-11** | Search / Guard | `tokenize`, `scoreArticle`, and `searchAndFilterArticles` crashed on undefined/null input. Added strict null, type, and array guards in `src/utils/search.ts`. | Medium |
+| **DEF-12** | Accessibility | Missing button labels and dialog attributes in player overlay. Added `aria-label`, `role="dialog"`, `aria-current="page"`, and Escape key listener. | Low |
+
+---
+
 ## 🔄 Agent Handoff Protocol
 
 When a new task or issue is assigned:
