@@ -111,8 +111,9 @@ export const ProfilePanel: React.FC = () => {
       };
 
       await audio.play();
-    } catch (err: any) {
-      alert(err.message || "Failed to preview voice.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to preview voice.";
+      alert(msg);
     } finally {
       setPreviewLoading(null);
     }
@@ -175,8 +176,9 @@ export const ProfilePanel: React.FC = () => {
       setAuthSuccess(true);
       setUsername('');
       setPassword('');
-    } catch (err: any) {
-      setAuthError(err.message || 'Authentication action failed. Please try again.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Authentication action failed. Please try again.';
+      setAuthError(msg);
     }
   };
 
@@ -260,8 +262,9 @@ export const ProfilePanel: React.FC = () => {
       }
 
       addLog('🎉 All core application integration tests PASSED successfully!');
-    } catch (err: any) {
-      addLog(`❌ Test failed: ${err.message || err}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      addLog(`❌ Test failed: ${msg}`);
     } finally {
       await localDB.deleteArticle('diag-test-id').catch(() => {});
       await localDB.deleteProgress('test-article-prog').catch(() => {});

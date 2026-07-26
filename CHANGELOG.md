@@ -5,29 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-- None.
-
 ## [1.6.0] - 2026-07-25
 
-### Fixed & Stabilized (Core Player & Synchronization)
-- **Audio Playback Rate Resilience**: Resolved a browser-specific behavior where the HTML5 `Audio` element reset its `playbackRate` to `1.0` during track transitions by listening to `onplay` and `onplaying` events to dynamically re-apply the user's selected speed settings.
-- **Haptic Feedback Overlaps & Timing Alignments**:
-  - Eliminated haptic feedback overlapping on rapid skip actions.
-  - Aligned pause and resume haptic vibration timings exactly with spec requirements.
-- **Vibration Noise Prevention on Scrubbing**: Introduced a local `scrubValue` state in the `PodcastPlayer` range slider to prevent layout jump and completely eliminate haptic vibration flooding during active drag gestures.
-- **Seamless Cloud Backup Progress & Queue Reconciliations**: Ensured cloud progress records and active queue states are fully reconciled and updated on server sync backups.
-- **Safe-to-Ignore Audio Interruption Handling**: Silenced benign `AbortError` play interruption triggers from the browser console log.
-- **Robust Multi-Environment Server Booting**: Wrapped server initialization `startServer()` to conditionally execute only when `process.env.NODE_ENV !== "test"`, preventing test suites from hanging on bound ports.
-
-### Changed & Documentation Improvements
-- **Backend Sync Documentation Alignment**: Updated `specs/SYSTEM_SPEC.md` to replace outdated Firebase/Firestore references with actual custom Node/Express file-backup endpoints (`/api/sync/save` and `/api/sync/get`) and PBKDF2 authentication protocols.
-- **Spec-Driven Development Tracking**: Mapped all system components and validation checks to correct criteria in `specs/IMPLEMENTATION_PLAN.md` and `specs/VALIDATION_CHECKLIST.md`.
-- **Validation Rule Placeholder Guardrails**: Aligned placeholders in `AGENTS.md` and `specs/sdd_workflow.md` to use the hyphenated `[NEEDS-CLARIFICATION]` form, preventing false positives with the active `[NEEDS-CLARIFICATION]` validation rule checker.
-- **Automated Verification**: Implemented custom documentation and changelog validation scripts (`doc_validator.py` and `changelog_validator.py`) to continuously verify reference links, syntax errors, and placeholders.
-- **MIT License Integration**: Added MIT License reference and links in `README.md` referencing the repository's `LICENSE` file.
+### Fixed & Enhanced
+- **Model Alignment & Server Port Isolation**:
+  - Standardized backend Gemini API model references in `server.ts` to `gemini-2.5-flash` for article extraction/summarization and `gemini-2.5-flash-preview-tts` for Text-To-Speech synthesis.
+  - Guarded `startServer()` in `server.ts` to prevent automatic port binding during automated test suite runs (`NODE_ENV === "test"`).
+- **Audio State & Sleep Timer Reliability**:
+  - Enhanced `AppContext.tsx` audio error handling: calls `clearPlaybackErrorLater` when audio playback or speech synthesis fails, ensuring playback error banners auto-dismiss.
+  - Fixed sleep timer expiry: explicitly triggers `window.speechSynthesis.cancel()` when sleep timer triggers to guarantee background speech synthesis ceases immediately.
+- **Player Slider Scrubbing & Haptic Optimization**:
+  - Refactored progress seek slider in `PodcastPlayer.tsx` with dedicated `isDragging` and `dragPos` states to prevent playback jitter or haptic spam while dragging.
+- **Theme-Aware UI & Dark/Light Mode Adaptability**:
+  - Added theme-aware dark/light utility classes (`dark:text-white`, `dark:bg-zinc-900`, `dark:border-zinc-800`, etc.) across `HomeDashboard.tsx` and `PodcastPlayer.tsx`.
+- **Strict Typing & Spec Compliance Verification**:
+  - Verified 100% type safety (`tsc --noEmit`) and production bundling (`vite build && esbuild server.ts`).
 
 ## [1.5.0] - 2026-07-24
 
@@ -72,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Gemini Search Grounding Integration in IntakePanel**:
   - Integrated `@google/genai` real-time Google Search Grounding (`{ tools: [{ googleSearch: {} }] }`) with model `gemini-3.6-flash`.
   - Created Express backend endpoint `/api/articles/search-news` returning real-time news summaries grounded by live web sources and citations.
-  - Added "Live Search" tab to `IntakePanel` allowing users to query topics before generating audio summaries.
+  - Added "Live Search" tab to `IntakePanel` allowing users to query topics (e.g. SpaceX launches, EV battery breakthroughs, AI industry news) before generating audio summaries.
   - Displayed grounded search result cards with live web citations, source links, and instant "Add & Play Audio Now" / "Save to Briefs" actions.
   - Extended `AppContext` with `addGroundedArticle` helper method for saving grounded briefs with tags (`["Search Grounding", "Live News"]`) and source links.
 
@@ -91,52 +83,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **AI Narrator Voice Customization**:
-  - Implemented 5 distinct voice profiles in the Profile/Settings panel.
-  - Added live voice auditioning from the Profile screen using the server-side TTS engine.
+  - Implemented 5 distinct voice profiles in the Profile/Settings panel:
+    - **Calm Narrator (Zephyr)**: Deep, reassuring, and professional tone.
+    - **Energetic Host (Kore)**: Bright and enthusiastic morning show feel.
+    - **Mellow Storyteller (Charon)**: Relaxing, slow-paced flow.
+    - **Crisp Newsreader (Puck)**: Sharp, articulation-heavy daily updates.
+    - **Bold Anchor (Fenrir)**: Authoritative and powerful editorial voice.
+  - Added **Live Voice Auditioning**: Users can preview each narrator voice live directly from the Profile screen. The system generates real-time audio clips from the server-side TTS engine.
 - **Granular Playback Speed Control**:
-  - Replaced dropdown speed selection with a custom playback speed slider supporting `0.5x` to `2.0x` in `0.05x` increments.
-  - Added quick preset buttons for rapid tempo tuning.
+  - Replaced the simple dropdown speed selection with a custom-styled fluid **Playback Speed Slider** supporting custom speeds ranging from `0.5x` to `2.0x` in fine increments of `0.05x`.
+  - Added a responsive layout wrapper that isolates swipe gesture conflicts using the `.no-swipe` class wrapper.
+  - Introduced **Quick Speed Presets** buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`) for rapid tempo tuning.
 - **Tactile Haptic Feedback Integration**:
-  - Integrated custom vibration triggers via `navigator.vibrate` for page navigation, play/pause, track skips, scrubbing, speed changes, and completion feedback.
+  - Integrated custom tactile haptic vibration triggers via `navigator.vibrate` (with modern fallback checks for browser and device support):
+    - **Page Swipe & Tab Navigation**: Light tap vibration (`15ms`).
+    - **Play / Resume Audio**: Reassuring single vibration (`30ms`).
+    - **Pause Audio**: Snappy halt vibration (`20ms`).
+    - **Track Skips (Previous/Next)**: Fluid double-vibration (`25ms`).
+    - **Scrubbing/Seeking Position**: Immediate click tick (`15ms`).
+    - **Playback Speed Change**: Micro feedback click (`15ms`).
+    - **Audio Article Summary Completion**: Triple-pulse heartbeat rhythm (`[40ms, 80ms, 40ms]`) announcing successful playback completion.
 - **System Documentation**:
-  - Created a detailed `/README.md` clarifying application features, voice guides, haptic behavior specs, setup, and environment variable declarations.
+  - Created a detailed `/README.md` clarifying application features, custom voice guides, haptic behavior specs, full-stack dev setup, and custom environment variable declarations.
 - **Enhanced Fuzzy/Tokenized Search Engine (`src/utils/search.ts`)**:
-  - Decoupled search indexing and fuzzy matching out of the view component into a reusable utility.
-  - Implemented tokenized, scored term matching with exact-match bonuses to improve relevance and scale.
+  - Decoupled search indexing and fuzzy matching out of the view component into a high-performance utility.
+  - Implemented tokenized, scored term matching (weighting titles, categories, tags, and authors higher than summaries) with exact-match multi-term bonuses to keep filtering fast and scale-resilient.
 
 ### Changed
 - **Robust Immutability Design**:
-  - Strengthened `src/types.ts` by replacing mutable properties with deep read-only identifiers and arrays.
+  - Toughened `src/types.ts` data structures by replacing mutable properties with deep read-only identifiers (`readonly tags: readonly string[]`, `readonly articleIds: readonly string[]`, `readonly queue: readonly string[]`, etc.) to guarantee state purity and avoid unintended mutations.
 - **Decoupled API Transport & Client Domain Schemas**:
-  - Separated raw network payloads from persistent frontend business entities.
+  - Separated raw network payload interface shapes (`SummarizeResponse`, `TTSResponse`, `ApiErrorBody`) from persistent, reactive frontend business entities for smoother future-proof updates.
 - **Optimized Theme Styling & CSS Tokens**:
-  - Updated typography, gradients, glassmorphism panels, and custom scrollbars in `src/index.css`.
+  - Configured custom design tokens, Space Grotesk/Inter/JetBrains Mono typography pairings, deep high-contrast backdrop gradients, glassmorphism panel overlays, and thin, custom purple-accented scrollbars inside `src/index.css`.
 - **Context Value Memoization**:
-  - Wrapped core state values in `useMemo` inside `src/context/AppContext.tsx` to reduce unnecessary re-renders.
+  - Wrapped the core state values in a optimized React `useMemo` dependency array inside `src/context/AppContext.tsx` to drastically reduce unnecessary deep re-renders across all consumer panels.
 
 ### Fixed
 - **Hoisting & Temporal Dead Zone Errors**:
-  - Fixed a block-scoped variable reference error in `src/context/AppContext.tsx` by using a persistent functional ref for queue playback.
+  - Fixed a block-scoped variable reference error in `src/context/AppContext.tsx` by setting up a persistent functional ref for `playNextInQueue` to avoid closure errors within audio event listeners before the function is fully initialized.
 - **Centralized API Error & Transport Safety**:
-  - Standardized JSON checking and request parsing into helper functions.
-  - Added network status validation and verified content-type headers to prevent parsing crashes.
+  - Standardized JSON checking and request parsing into secure helper functions (`readJson`, `readMaybeJson`, `readErrorMessage`, `requestJson`).
+  - Added network status validation using `isLikelyOnline` and verified content-type headers to prevent client-side parsing crashes on HTML-based fallback error pages.
+  - Isolated network-level failures from server-side HTTP validation failures.
 - **Stale React Closures & Ref-backed State Access**:
-  - Transitioned critical runtime values to synchronized refs to avoid stale closure states.
+  - Transitioned critical runtime values (e.g. articles list, playback state, connection status, user profile) to synchronized refs to shield callbacks from stale closure states.
 - **Thread-safe Synchronization Locking**:
-  - Implemented async locking inside `AppContext` to queue overlapping backup operations.
-  - Replaced interval polling with a reactive `scheduleSync` model.
+  - Implemented an asynchronous locking mechanism (`syncInFlightRef` and `pendingSyncRef`) inside `AppContext` to queue overlapping backup operations and prevent sync race conditions.
+  - Replaced interval-polling server backup attempts with a reactive, event-driven `scheduleSync` model.
 - **Memory & Resource Leak Cleanups**:
-  - Enforced cleanup on unmount for intervals, timeouts, sleep timers, and paused audio elements.
+  - Enforced rigorous cleanup on component unmount to cancel and clear all active intervals, timeouts, sleep timer instances, and paused audio elements.
+
+---
 
 ## [1.0.0] - Initial Release
 
 ### Added
-- Standard single-page application architecture using an Express backend and Vite bundler on port 3000.
+- Standard single-page application (SPA) architecture utilizing custom Express backend wrapper + Vite asset bundler on Port 3000.
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
-[Unreleased]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...HEAD
-[1.6.0]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/aistudio-build/commutenews/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/aistudio-build/commutenews/compare/v1.2.0...v1.3.0

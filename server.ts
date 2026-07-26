@@ -366,7 +366,7 @@ Return strict JSON:
 
       const ai = getAI();
       const result = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -431,7 +431,7 @@ ${text}`;
 
       const ai = getAI();
       const result = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: { responseMimeType: "application/json" },
       });
@@ -489,7 +489,7 @@ Return strict JSON:
 
       const ai = getAI();
       const result = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -504,9 +504,10 @@ Return strict JSON:
         summary: "Summary generated from live search.",
       });
 
-      const groundingChunks = result.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      type GroundingChunk = { web?: { uri?: string; title?: string } };
+      const groundingChunks = (result.candidates?.[0]?.groundingMetadata?.groundingChunks || []) as GroundingChunk[];
       const sources: Array<{ title: string; url: string }> = [];
-      for (const chunk of groundingChunks as any[]) {
+      for (const chunk of groundingChunks) {
         if (chunk?.web?.uri) {
           sources.push({
             title: chunk.web.title || chunk.web.uri,
@@ -539,13 +540,14 @@ Return strict JSON:
       }
 
       const validVoices = ["Kore", "Puck", "Charon", "Fenrir", "Zephyr"] as const;
-      const voice = validVoices.includes(voiceName as any) ? (voiceName as string) : "Kore";
+      type VoiceName = (typeof validVoices)[number];
+      const voice: VoiceName = validVoices.includes(voiceName as VoiceName) ? (voiceName as VoiceName) : "Kore";
 
       const numericSpeed = typeof speed === "number" && Number.isFinite(speed) ? speed : 1;
 
       const ai = getAI();
       const result = await ai.models.generateContent({
-        model: "gemini-3.1-flash-tts-preview",
+        model: "gemini-2.5-flash-preview-tts",
         contents: [{ role: "user", parts: [{ text }] }],
         config: {
           responseModalities: [Modality.AUDIO],
@@ -558,9 +560,9 @@ Return strict JSON:
         },
       });
 
-      const audioData = result.candidates?.[0]?.content?.parts?.find(
-        (part: any) => part.inlineData?.data
-      )?.inlineData?.data;
+      type PartWithInlineData = { inlineData?: { data?: string } };
+      const parts = (result.candidates?.[0]?.content?.parts || []) as PartWithInlineData[];
+      const audioData = parts.find((part) => part.inlineData?.data)?.inlineData?.data;
 
       if (!audioData) {
         res.status(500).json({ error: "TTS model did not return any audio data." });
@@ -597,7 +599,9 @@ Return strict JSON:
   });
 }
 
-startServer().catch((err) => {
-  console.error("Failed to start server:", toError(err, "Failed to start server"));
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== "test") {
+  startServer().catch((err) => {
+    console.error("Failed to start server:", toError(err, "Failed to start server"));
+    process.exit(1);
+  });
+}

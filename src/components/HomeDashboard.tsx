@@ -91,29 +91,29 @@ export const HomeDashboard: React.FC = () => {
   );
 
   return (
-    <div id="home-dashboard-container" className="max-w-4xl mx-auto p-4 md:p-6 text-white pb-32 space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-5">
+    <div id="home-dashboard-container" className="max-w-4xl mx-auto p-4 md:p-6 text-zinc-900 dark:text-white pb-32 space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-900 pb-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-100 font-sans">Commuter Feed</h1>
-          <p className="text-zinc-400 text-xs mt-1">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 font-sans">Commuter Feed</h1>
+          <p className="text-zinc-600 dark:text-zinc-400 text-xs mt-1">
             Seamless summaries formatted into offline-ready morning podcast streams.
           </p>
         </div>
 
-        <div className="flex items-center gap-4 bg-zinc-900/50 border border-zinc-900 rounded-xl px-4 py-3 text-sm flex-shrink-0">
+        <div className="flex items-center gap-4 bg-white/70 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-900 rounded-xl px-4 py-3 text-sm flex-shrink-0 shadow-sm">
           <div className="flex items-center gap-2">
-            <Headphones className="w-5 h-5 text-emerald-400" />
+            <Headphones className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
             <div>
-              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Listening</p>
-              <p className="font-semibold text-zinc-200">{stats.totalMinListen} min</p>
+              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Listening</p>
+              <p className="font-semibold text-zinc-800 dark:text-zinc-200">{stats.totalMinListen} min</p>
             </div>
           </div>
-          <div className="w-px h-8 bg-zinc-800" />
+          <div className="w-px h-8 bg-zinc-200 dark:bg-zinc-800" />
           <div className="flex items-center gap-2">
-            <Check className="w-5 h-5 text-indigo-400" />
+            <Check className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
             <div>
-              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Completed</p>
-              <p className="font-semibold text-zinc-200">
+              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Completed</p>
+              <p className="font-semibold text-zinc-800 dark:text-zinc-200">
                 {stats.completedBriefs} / {stats.totalBriefs}
               </p>
             </div>
@@ -122,7 +122,7 @@ export const HomeDashboard: React.FC = () => {
       </div>
 
       <div className="relative">
-        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-500 pointer-events-none">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400 dark:text-zinc-500 pointer-events-none">
           <Search className="w-5 h-5" />
         </span>
         <input
@@ -132,13 +132,13 @@ export const HomeDashboard: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by title, author, keyword, tags, or saved/downloaded..."
           aria-label="Search articles"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-11 pr-10 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all shadow-md"
+          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl py-3 pl-11 pr-10 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all shadow-sm dark:shadow-md"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => setSearchQuery("")}
-            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-500 hover:text-zinc-200 transition-colors cursor-pointer"
+            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200 transition-colors cursor-pointer"
             title="Clear search"
             aria-label="Clear search query"
           >
@@ -157,7 +157,7 @@ export const HomeDashboard: React.FC = () => {
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-all ${
               selectedCategory === cat
                 ? "bg-emerald-500 text-black shadow-md"
-                : "bg-zinc-900 text-zinc-400 hover:text-zinc-200"
+                : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
             }`}
           >
             {cat}
@@ -240,10 +240,10 @@ export const HomeDashboard: React.FC = () => {
                 <div
                   key={art.id}
                   id={`article-feed-item-${art.id}`}
-                  className={`border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                  className={`border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all shadow-sm ${
                     isActive
-                      ? "bg-zinc-900 border-emerald-500/30"
-                      : "bg-zinc-900/30 border-zinc-900/80 hover:border-zinc-800/80 hover:bg-zinc-900/50"
+                      ? "bg-white dark:bg-zinc-900 border-emerald-500/50 shadow-md"
+                      : "bg-white/80 dark:bg-zinc-900/30 border-zinc-200 dark:border-zinc-900/80 hover:border-zinc-300 dark:hover:border-zinc-800/80 hover:bg-white dark:hover:bg-zinc-900/50"
                   }`}
                 >
                   <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -255,8 +255,8 @@ export const HomeDashboard: React.FC = () => {
                       aria-pressed={isActive && isPlaying}
                       className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors cursor-pointer ${
                         isActive && isPlaying
-                          ? "bg-zinc-800 text-emerald-400"
-                          : "bg-zinc-800 text-zinc-300 hover:text-emerald-400"
+                          ? "bg-emerald-500 text-black dark:bg-zinc-800 dark:text-emerald-400"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400"
                       }`}
                     >
                       {isActive && isPlaying ? (
@@ -268,24 +268,24 @@ export const HomeDashboard: React.FC = () => {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[9px] font-mono font-bold text-emerald-400 bg-zinc-850 px-2 py-0.5 rounded uppercase">
+                        <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-zinc-850 border border-emerald-200 dark:border-transparent px-2 py-0.5 rounded uppercase">
                           {art.category}
                         </span>
                         {art.isDownloaded && (
-                          <span className="text-[8px] font-mono text-emerald-500 bg-emerald-950/40 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                          <span className="text-[8px] font-mono text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                             <Check className="w-2.5 h-2.5" /> offline
                           </span>
                         )}
                         {isComp && (
-                          <span className="text-[8px] font-mono text-indigo-400 bg-indigo-950/40 px-1.5 py-0.5 rounded">
+                          <span className="text-[8px] font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded">
                             listened
                           </span>
                         )}
                       </div>
 
-                      <h4 className="font-semibold text-sm text-zinc-100 truncate mt-1.5">{art.title}</h4>
+                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100 truncate mt-1.5">{art.title}</h4>
 
-                      <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">{art.summary}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">{art.summary}</p>
 
                       <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-zinc-500 font-mono">
                         <span>{art.author || "Audio Brief"}</span>

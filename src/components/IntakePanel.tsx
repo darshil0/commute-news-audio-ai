@@ -58,8 +58,9 @@ export const IntakePanel: React.FC = () => {
         setSearchResult(res);
         setSuccessMsg('Live search grounded news summary generated!');
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Processing failed. Please check the network or try another source.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Processing failed. Please check the network or try another source.';
+      setErrorMsg(msg);
     } finally {
       setLocalLoading(false);
     }
@@ -77,8 +78,9 @@ export const IntakePanel: React.FC = () => {
       );
       setSuccessMsg('Grounded news brief saved! Starting playback...');
       await playArticle(article.id);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to play audio brief.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to play audio brief.';
+      setErrorMsg(msg);
     } finally {
       setLocalLoading(false);
     }
@@ -97,8 +99,9 @@ export const IntakePanel: React.FC = () => {
       setSuccessMsg('Grounded news brief saved to your library!');
       setSearchResult(null);
       setSearchQuery('');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to save brief.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save brief.';
+      setErrorMsg(msg);
     } finally {
       setLocalLoading(false);
     }

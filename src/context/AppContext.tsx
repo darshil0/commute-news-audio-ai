@@ -645,6 +645,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const playWithSpeechSynthesis = useCallback((article: Article) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: "Audio playback unavailable." }));
+      clearPlaybackErrorLater("Audio playback unavailable.");
       return;
     }
 
@@ -712,8 +713,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       triggerHaptic(30);
     } catch {
       setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: "Audio speech synthesis failed." }));
+      clearPlaybackErrorLater("Audio speech synthesis failed.");
     }
-  }, [triggerHaptic]);
+  }, [clearPlaybackErrorLater, triggerHaptic]);
 
   const togglePlayPause = useCallback(() => {
     if (isSpeechSynthesisActiveRef.current && typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -922,6 +924,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const remainingMs = endMs - Date.now();
       if (remainingMs <= 0) {
         currentAudioRef.current?.pause();
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
+        isSpeechSynthesisActiveRef.current = false;
         setPlaybackState((prev) => ({
           ...prev,
           isPlaying: false,

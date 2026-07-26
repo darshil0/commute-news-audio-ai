@@ -30,14 +30,17 @@ export const PodcastPlayer: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSleepMenu, setShowSleepMenu] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPos, setDragPos] = useState<number | null>(null);
 
-  const { currentArticleId, isPlaying, speed, sleepTimerDuration, sleepTimerEndTimestamp } = playbackState;
+  const { currentArticleId, isPlaying, speed, sleepTimerDuration } = playbackState;
   const currentArticle = articles.find(a => a.id === currentArticleId);
   const currentProgress = progress.find(p => p.articleId === currentArticleId);
 
   // Computed times
   const pos = currentProgress?.position || 0;
   const dur = currentProgress?.duration || currentArticle?.duration || 120;
+  const activePos = isDragging && dragPos !== null ? dragPos : pos;
   
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -56,11 +59,6 @@ export const PodcastPlayer: React.FC = () => {
     updatePlaybackPosition(newPos);
   };
 
-  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPos = parseFloat(e.target.value);
-    updatePlaybackPosition(newPos);
-  };
-
   if (!currentArticle) return null;
 
   return (
@@ -68,30 +66,30 @@ export const PodcastPlayer: React.FC = () => {
       {/* Mini Player Bar (Persistent at bottom of screens) */}
       <div 
         id="player-mini-bar"
-        className="fixed bottom-14 md:bottom-0 left-0 right-0 z-30 bg-zinc-900/95 border-t border-zinc-800 text-white backdrop-blur-md px-4 py-3 flex items-center justify-between cursor-pointer md:px-8"
+        className="fixed bottom-14 md:bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-zinc-900/95 border-t border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white backdrop-blur-md px-4 py-3 flex items-center justify-between cursor-pointer md:px-8 shadow-lg"
         onClick={() => setIsExpanded(true)}
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Animated Waveform when playing */}
-          <div className="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center relative overflow-hidden flex-shrink-0">
+          <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center relative overflow-hidden flex-shrink-0">
             {isPlaying ? (
               <div className="flex items-end gap-[2px] h-5">
-                <span className="w-[3px] bg-emerald-400 animate-[bounce_1.2s_infinite_0s] h-3"></span>
-                <span className="w-[3px] bg-emerald-400 animate-[bounce_1s_infinite_0.2s] h-5"></span>
-                <span className="w-[3px] bg-emerald-400 animate-[bounce_1.4s_infinite_0.4s] h-4"></span>
-                <span className="w-[3px] bg-emerald-400 animate-[bounce_0.8s_infinite_0.1s] h-2"></span>
+                <span className="w-[3px] bg-emerald-500 dark:bg-emerald-400 animate-[bounce_1.2s_infinite_0s] h-3"></span>
+                <span className="w-[3px] bg-emerald-500 dark:bg-emerald-400 animate-[bounce_1s_infinite_0.2s] h-5"></span>
+                <span className="w-[3px] bg-emerald-500 dark:bg-emerald-400 animate-[bounce_1.4s_infinite_0.4s] h-4"></span>
+                <span className="w-[3px] bg-emerald-500 dark:bg-emerald-400 animate-[bounce_0.8s_infinite_0.1s] h-2"></span>
               </div>
             ) : (
-              <Volume2 className="w-5 h-5 text-zinc-400" />
+              <Volume2 className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
             )}
           </div>
           
           <div className="min-w-0 flex-1">
-            <h4 className="text-sm font-semibold truncate text-zinc-100">{currentArticle.title}</h4>
-            <p className="text-xs text-zinc-400 truncate flex items-center gap-1.5">
+            <h4 className="text-sm font-semibold truncate text-zinc-900 dark:text-zinc-100">{currentArticle.title}</h4>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1.5">
               <span>{currentArticle.author || 'Audio Brief'}</span>
-              <span className="w-1 h-1 bg-zinc-600 rounded-full"></span>
-              <span className="font-mono bg-zinc-800 text-emerald-400 text-[10px] px-1 rounded uppercase">
+              <span className="w-1 h-1 bg-zinc-400 dark:bg-zinc-600 rounded-full"></span>
+              <span className="font-mono bg-zinc-100 dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 text-[10px] px-1 rounded uppercase">
                 {currentArticle.category}
               </span>
             </p>
@@ -103,7 +101,7 @@ export const PodcastPlayer: React.FC = () => {
           <button 
             id="mini-prev-btn"
             onClick={playPrev}
-            className="p-1 hover:text-emerald-400 text-zinc-300 transition-colors hidden sm:block"
+            className="p-1 hover:text-emerald-500 dark:hover:text-emerald-400 text-zinc-600 dark:text-zinc-300 transition-colors hidden sm:block"
           >
             <SkipBack className="w-5 h-5" />
           </button>
@@ -119,7 +117,7 @@ export const PodcastPlayer: React.FC = () => {
           <button 
             id="mini-next-btn"
             onClick={playNextInQueue}
-            className="p-1 hover:text-emerald-400 text-zinc-300 transition-colors"
+            className="p-1 hover:text-emerald-500 dark:hover:text-emerald-400 text-zinc-600 dark:text-zinc-300 transition-colors"
           >
             <SkipForward className="w-5 h-5" />
           </button>
@@ -127,7 +125,7 @@ export const PodcastPlayer: React.FC = () => {
           <button 
             id="mini-expand-btn"
             onClick={() => setIsExpanded(true)}
-            className="p-1 text-zinc-400 hover:text-white transition-colors"
+            className="p-1 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
           >
             <ChevronUp className="w-6 h-6" />
           </button>
@@ -202,13 +200,31 @@ export const PodcastPlayer: React.FC = () => {
                   min="0"
                   max={dur}
                   step="0.1"
-                  value={pos}
-                  onChange={handleProgressChange}
-                  className="w-full accent-emerald-500 cursor-pointer bg-zinc-800 h-1.5 rounded-lg appearance-none"
+                  value={activePos}
+                  onMouseDown={() => setIsDragging(true)}
+                  onTouchStart={() => setIsDragging(true)}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    setDragPos(v);
+                  }}
+                  onMouseUp={(e) => {
+                    setIsDragging(false);
+                    const v = parseFloat((e.target as HTMLInputElement).value);
+                    updatePlaybackPosition(v);
+                    setDragPos(null);
+                  }}
+                  onTouchEnd={() => {
+                    setIsDragging(false);
+                    if (dragPos !== null) {
+                      updatePlaybackPosition(dragPos);
+                      setDragPos(null);
+                    }
+                  }}
+                  className="w-full accent-emerald-500 cursor-pointer bg-zinc-800 h-1.5 rounded-lg appearance-none no-swipe"
                 />
                 <div className="flex justify-between text-xs font-mono text-zinc-400 mt-2">
-                  <span>{formatTime(pos)}</span>
-                  <span>-{formatTime(Math.max(0, dur - pos))}</span>
+                  <span>{formatTime(activePos)}</span>
+                  <span>-{formatTime(Math.max(0, dur - activePos))}</span>
                 </div>
               </div>
 
