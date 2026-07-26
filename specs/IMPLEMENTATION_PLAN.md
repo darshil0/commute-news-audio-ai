@@ -73,6 +73,13 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Clean up unused imports, dead code, and unused function arguments across `server.ts`, `PodcastPlayer.tsx`, `PlaylistPanel.tsx`, `ProfilePanel.tsx`, `QueuePanel.tsx`, and `db.ts`.
 - [x] Fix character class regex escape syntax in `src/utils/search.ts`.
 
+### Phase 8: Automated Visual Verification & Theme Testing (Completed)
+- [x] Developed browser automation test suite using Python Playwright.
+- [x] Implemented end-to-end visual tests for theme switching (light/dark mode colors and transitions).
+- [x] Verified expanded player layout controls (seek bars, volume dials, quick presets, and text boundaries).
+- [x] Confirmed queue panel formatting and track list spacing across viewports.
+- [x] Rendered and verified Gemini Search Grounding citation and external source link placement.
+
 ---
 
 ## 🐛 Bugs, Errors, and Defects Fixed Thus Far

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-07-26
+
+### 🎨 Automated Visual Verification & Documentation Hardening
+- **Browser Automation Suite**: Integrated a robust visual validation engine powered by Playwright to simulate desktop user profiles, theme toggles, and UI interactions on the running SPA.
+- **Theme & Layout Auditing**: Verified color tokens, contrast boundaries, volume dials, sleep timers, and seek controls in both light and dark modes.
+- **Custom Compliance Tooling**: Implemented automated python validation scripts in `/home/jules/self_created_tools` to run end-to-end diagnostics and markdown audits.
+- **Specification Correction**: Updated placeholder syntax and aligned `/specs/` with the active full-stack visual checking features.
+
 ## [1.7.0] - 2026-07-25
 
 ### 🛡️ Production Hardening & Audit Resolutions
@@ -181,6 +189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.8.0]: https://github.com/aistudio-build/commutenews/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0
