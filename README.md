@@ -17,7 +17,7 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 - **URL Extraction**: Import news articles and blog posts directly via URL.
 - **Text Summarization**: Paste custom text or notes to generate structured commute audio briefs.
 
-### 🎧 Adaptive Audio Player & Playback Speed
+### 🎧 Adaptive Audio Player & Playback Controls
 
 - **Custom Audio Controls**: Play, pause, seek, and skip between queued briefings.
 - **Fluid Speed Control**: Adjustable speed slider (`0.5x` to `2.0x`) and quick preset buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`).
@@ -43,14 +43,32 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 
 ---
 
-## 📐 Spec-Driven Development (SDD) Workflow
+## 🔑 Environment Variables
 
-This repository follows **Spec-Driven Development (SDD)**:
+The application configures required environment variables in `.env.example`:
 
-- **`AGENTS.md`**: Master guidelines for AI tools and contributors.
-- **`specs/SYSTEM_SPEC.md`**: System requirements, user stories, and acceptance criteria.
-- **`specs/IMPLEMENTATION_PLAN.md`**: Architecture breakdown and completed phase tracking.
-- **`specs/VALIDATION_CHECKLIST.md`**: Quality assurance and testing protocol.
+```env
+# Server Gemini API Key (Required for AI summarization & TTS)
+GEMINI_API_KEY=
+
+# Optional Secret Key for Production Auth Tokens
+TOKEN_SECRET=
+```
+
+---
+
+## 📚 Documentation Map
+
+This repository follows **Spec-Driven Development (SDD)** principles where specs serve as the source of truth. The complete documentation structure is organized as follows:
+
+| Document                                                               | Description                                 | Key Focus Areas                                                                                 |
+| :--------------------------------------------------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------------------------- |
+| **[`AGENTS.md`](./AGENTS.md)**                                         | Spec-Driven Development rules & constraints | SDD lifecycle, ambiguity protocols (`[NEEDS CLARIFICATION]`), system rules                      |
+| **[`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md)**                   | Master System Specification                 | System scope, Firestore schema, ABAC rules, user stories, acceptance criteria                   |
+| **[`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md)**   | Architecture Mapping & Roadmap              | Component mapping, completed roadmap phases (1–7), defect tracking catalog                      |
+| **[`specs/VALIDATION_CHECKLIST.md`](./specs/VALIDATION_CHECKLIST.md)** | Verification & QA Protocol                  | Type safety, production build validation, feature AC checks, defect verifications               |
+| **[`CHANGELOG.md`](./CHANGELOG.md)**                                   | Release & Version History                   | Version release notes following standard [Keep a Changelog](https://keepachangelog.com/) format |
+| **[`HANDOFF_LOG.md`](./HANDOFF_LOG.md)**                               | Agent Handoff & Audit Logs                  | Engineering audits, visual layout verifications, and context handoff logs                       |
 
 ---
 
@@ -88,6 +106,9 @@ npm run dev
 
 # Run TypeScript linting check
 npm run lint
+
+# Format codebase with Prettier
+npm run format
 
 # Build for production
 npm run build

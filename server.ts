@@ -471,11 +471,9 @@ async function startServer() {
       }
 
       if (isPrivateOrInternalHost(parsedUrl.hostname)) {
-        res
-          .status(400)
-          .json({
-            error: "Access to internal or private addresses is forbidden.",
-          });
+        res.status(400).json({
+          error: "Access to internal or private addresses is forbidden.",
+        });
         return;
       }
 
@@ -634,11 +632,9 @@ ${text}`;
       }
 
       if (query.trim().length > 200) {
-        res
-          .status(400)
-          .json({
-            error: "Search query exceeds maximum length of 200 characters.",
-          });
+        res.status(400).json({
+          error: "Search query exceeds maximum length of 200 characters.",
+        });
         return;
       }
 
@@ -736,11 +732,9 @@ Return strict JSON:
       }
 
       if (trimmedText.length > 10000) {
-        res
-          .status(413)
-          .json({
-            error: "TTS text exceeds maximum length of 10000 characters.",
-          });
+        res.status(413).json({
+          error: "TTS text exceeds maximum length of 10000 characters.",
+        });
         return;
       }
 

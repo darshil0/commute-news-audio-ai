@@ -53,6 +53,21 @@ If a user request or task lacks explicit detail:
 
 ---
 
+## 📚 Documentation Directory & Specifications
+
+All documentation in this project is organized strictly under spec-driven guidelines:
+
+| File Path                       | Document Role              | Purpose                                                                   |
+| :------------------------------ | :------------------------- | :------------------------------------------------------------------------ |
+| `AGENTS.md`                     | **Master Agent Rules**     | SDD protocols, repository constraints, ambiguity management               |
+| `specs/SYSTEM_SPEC.md`          | **System Specification**   | Functional requirements, Firestore schemas, ABAC rules, user stories, ACs |
+| `specs/IMPLEMENTATION_PLAN.md`  | **Implementation Roadmap** | Component mapping, completed phases (1–7), defect tracking catalog        |
+| `specs/VALIDATION_CHECKLIST.md` | **Verification Checklist** | Automated type safety, build checks, AC verification, defect tests        |
+| `CHANGELOG.md`                  | **Release History**        | Chronological record of release versions and feature changes              |
+| `HANDOFF_LOG.md`                | **Agent Handoff Log**      | Quality audits, visual layout verifications, and handoff summaries        |
+
+---
+
 ## 📋 Verification Commands
 
 Before concluding any work, verify the codebase using:
