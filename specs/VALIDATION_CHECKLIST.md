@@ -20,6 +20,26 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
   ```
   _Pass Criteria_: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
 
+### 1.1 Custom Validation & Quality Audits
+
+- [x] **Documentation & Placeholder Audits**:
+  ```bash
+  python3 /home/jules/self_created_tools/doc_validator.py
+  ```
+  *Pass Criteria*: Scan all project markdown documentation files (`.md`). Assures there are no active `[NEEDS-CLARIFICATION]` placeholders and that all internal markdown relative links point to existing target files.
+
+- [x] **Changelog Syntax Validation**:
+  ```bash
+  python3 /home/jules/self_created_tools/changelog_validator.py
+  ```
+  *Pass Criteria*: Scan `CHANGELOG.md` to ensure all backticks are balanced and that all listed version headers have corresponding reference links at the bottom of the document.
+
+- [x] **Diagnostic Build Audits**:
+  ```bash
+  python3 /home/jules/self_created_tools/audit_diagnostics.py
+  ```
+  *Pass Criteria*: Executes both lint check and production build under an automated pipeline wrapper.
+
 ---
 
 ## 2. Feature Acceptance Criteria Verification
