@@ -50,7 +50,7 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + Firestore `onSnapshot` listener reconciliation).
 
 ### Phase 5: Gemini Search Grounding Integration (Completed)
-- [x] Integrate `@google/genai` Search Grounding (`{ tools: [{ googleSearch: {} }] }`) with model `gemini-3.6-flash`.
+- [x] Integrate `@google/genai` Search Grounding (`{ tools: [{ googleSearch: {} }] }`) with model `gemini-2.5-flash`.
 - [x] Add server API endpoint `/api/articles/search-news` returning grounded news summaries and citations/sources.
 - [x] Extend `IntakePanel` with a dedicated "Live Search" tab for searching real-time news articles and topics.
 - [x] Render grounded search summaries with source URL links and one-click "Add & Play Audio Now" / "Save to Briefs" actions.

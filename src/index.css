@@ -1,17 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "Space Grotesk", sans-serif;
-
-  --color-ink-950: #050507;
-  --color-ink-900: rgba(18, 18, 22, 0.7);
-  --color-ink-850: rgba(28, 28, 35, 0.85);
-  --color-ink-800: rgba(255, 255, 255, 0.1);
-  --color-ink-750: rgba(255, 255, 255, 0.08);
-  --color-ink-700: rgba(255, 255, 255, 0.05);
 
   --color-accent-500: #6366f1;
   --color-accent-400: #818cf8;
@@ -20,70 +15,52 @@
   --color-accent-950: rgba(99, 102, 241, 0.2);
 }
 
-@theme {
-  --color-zinc-850: rgba(28, 28, 35, 0.85);
-  --color-zinc-750: rgba(255, 255, 255, 0.08);
-}
-
 :root {
-  color-scheme: dark;
-  --body-bg: #050507;
-  --body-gradient: #1e1b4b;
-  --glass-bg: rgba(18, 18, 22, 0.72);
-  --scrollbar-thumb: rgba(110, 110, 115, 0.4);
-  --scrollbar-track: rgba(24, 24, 27, 0.3);
-}
-
-/* Light theme: flip the entire zinc scale so all zinc-based utilities
-   (including opacity variants like bg-zinc-900/40) adapt automatically */
-html:not(.dark) {
   color-scheme: light;
-  --body-bg: #fafaf9;
-  --body-gradient: #fef3c7;
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --scrollbar-thumb: rgba(161, 161, 170, 0.4);
-  --scrollbar-track: rgba(244, 244, 245, 0.5);
-
-  --color-zinc-950: #fafafa;
-  --color-zinc-900: #ffffff;
-  --color-zinc-850: rgba(244, 244, 245, 0.85);
-  --color-zinc-800: #e4e4e7;
-  --color-zinc-750: rgba(0, 0, 0, 0.06);
-  --color-zinc-700: #d4d4d8;
-  --color-zinc-600: #a1a1aa;
-  --color-zinc-500: #71717a;
-  --color-zinc-400: #71717a;
-  --color-zinc-300: #52525b;
-  --color-zinc-200: #3f3f46;
-  --color-zinc-100: #27272a;
+  --bg-primary: #f8fafc;
+  --bg-gradient-spot: #e0e7ff;
+  --text-primary: #0f172a;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --scrollbar-track: rgba(226, 232, 240, 0.5);
+  --scrollbar-thumb: rgba(148, 163, 184, 0.5);
 }
 
-html:not(.dark) .text-white { color: #18181b; }
+.dark {
+  color-scheme: dark;
+  --bg-primary: #050507;
+  --bg-gradient-spot: #1e1b4b;
+  --text-primary: #f8fafc;
+  --glass-bg: rgba(18, 18, 22, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --scrollbar-track: rgba(24, 24, 27, 0.3);
+  --scrollbar-thumb: rgba(110, 110, 115, 0.4);
+}
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--body-bg);
+  background-color: var(--bg-primary);
   background-image:
-    radial-gradient(circle at 0% 0%, var(--body-gradient) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, var(--body-gradient) 0%, transparent 40%);
+    radial-gradient(circle at 0% 0%, var(--bg-gradient-spot) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, var(--bg-gradient-spot) 0%, transparent 40%);
   background-attachment: fixed;
-  color: white;
-}
-
-html:not(.dark) body {
-  color: #18181b;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .app-shell {
-  background-color: var(--body-bg);
+  background-color: var(--bg-primary);
   background-image:
-    radial-gradient(circle at 0% 0%, var(--body-gradient) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, var(--body-gradient) 0%, transparent 40%);
+    radial-gradient(circle at 0% 0%, var(--bg-gradient-spot) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, var(--bg-gradient-spot) 0%, transparent 40%);
   background-attachment: fixed;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .glass-panel {
   background: var(--glass-bg);
+  border-color: var(--glass-border);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }

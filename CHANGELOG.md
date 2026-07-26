@@ -16,8 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed sleep timer expiry: explicitly triggers `window.speechSynthesis.cancel()` when sleep timer triggers to guarantee background speech synthesis ceases immediately.
 - **Player Slider Scrubbing & Haptic Optimization**:
   - Refactored progress seek slider in `PodcastPlayer.tsx` with dedicated `isDragging` and `dragPos` states to prevent playback jitter or haptic spam while dragging.
-- **Theme-Aware UI & Dark/Light Mode Adaptability**:
-  - Added theme-aware dark/light utility classes (`dark:text-white`, `dark:bg-zinc-900`, `dark:border-zinc-800`, etc.) across `HomeDashboard.tsx` and `PodcastPlayer.tsx`.
+- **Adaptive CSS Variables & Dark Mode Refactoring**:
+  - Refactored `src/index.css` and Tailwind configurations to replace hardcoded dark mode colors with CSS custom properties (`--bg-primary`, `--bg-gradient-spot`, `--text-primary`, `--glass-bg`, `--glass-border`, `--scrollbar-track`, `--scrollbar-thumb`) defined on `:root` and `.dark`.
+  - Configured `@custom-variant dark (&:where(.dark, .dark *));` in Tailwind v4 to ensure seamless theme toggling.
+  - Updated global `body`, `.app-shell`, and `.glass-panel` styles to dynamically adapt based on the `.dark` class on the root `<html>` element.
 - **Strict Typing & Spec Compliance Verification**:
   - Verified 100% type safety (`tsc --noEmit`) and production bundling (`vite build && esbuild server.ts`).
 

@@ -7,7 +7,11 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { localDB } from '../lib/db';
 import { ApiService } from '../lib/api';
-import { User, Lock, ArrowRight, Cloud, RefreshCw, LogOut, CircleCheck as CheckCircle2, Wifi, WifiOff, Beaker, Play, ShieldCheck, Volume2, Pause, Sparkles, Headphones } from 'lucide-react';
+import { 
+  User, Lock, ArrowRight, Cloud, RefreshCw, LogOut, 
+  CheckCircle2, Wifi, WifiOff, Beaker, Play, ShieldCheck,
+  Volume2, Pause, Sparkles, Headphones
+} from 'lucide-react';
 
 export const ProfilePanel: React.FC = () => {
   const { 

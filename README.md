@@ -7,7 +7,7 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 ## 🚀 Key Features
 
 ### 📡 Real-Time News Search (Gemini Search Grounding)
-* **Live Web Grounding**: Search real-time news topics using Gemini Search Grounding (`gemini-3.6-flash`).
+* **Live Web Grounding**: Search real-time news topics using Gemini Search Grounding (`gemini-2.5-flash`).
 * **Source Citations**: Preview live web citations and original source links alongside the generated summary.
 * **Instant Brief Creation**: One-tap action to save grounded briefings to your queue or stream audio immediately.
 
@@ -34,7 +34,7 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 
 * **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Framer Motion (`motion/react`), Lucide Icons.
 * **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, and Text-to-Speech proxying.
-* **AI Engine**: `@google/genai` TypeScript SDK utilizing `gemini-3.6-flash` with Google Search Grounding tools.
+* **AI Engine**: `@google/genai` TypeScript SDK utilizing `gemini-2.5-flash` with Google Search Grounding tools and `gemini-2.5-flash-preview-tts` for TTS generation.
 
 ---
 
