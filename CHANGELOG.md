@@ -11,28 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Model Alignment & Server Port Isolation**:
   - Standardized backend Gemini API model references in `server.ts` to `gemini-2.5-flash` for article extraction/summarization and `gemini-2.5-flash-preview-tts` for Text-To-Speech synthesis.
   - Guarded `startServer()` in `server.ts` to prevent automatic port binding during automated test suite runs (`NODE_ENV === "test"`).
-  - Sanitized backend error responses to prevent internal stack trace leakage and added token expiry handling (7-day validity).
-  - Improved extraction and summarization prompts to prevent LLM hallucinations and handled JSON escaping securely.
-- **AppContext Architectural & Memory Leak Fixes**:
-  - Fixed `syncWithServer` data-loss bug by removing premature snapshotting and executing atomic local/server merges.
-  - Resolved memory leak in `deleteArticle` by removing deleted articles from all user playlists and purging `audioElementsCache`.
-  - Converted `setPreferences` into a pure state updater to avoid stale closure race conditions.
-  - Fixed speech synthesis seeking, `playPrev` speech synth playback, and cleared sleep timer intervals cleanly.
-- **PodcastPlayer & Audio Scrubbing Polish**:
+- **Audio State & Sleep Timer Reliability**:
+  - Enhanced `AppContext.tsx` audio error handling: calls `clearPlaybackErrorLater` when audio playback or speech synthesis fails, ensuring playback error banners auto-dismiss.
+  - Fixed sleep timer expiry: explicitly triggers `window.speechSynthesis.cancel()` when sleep timer triggers to guarantee background speech synthesis ceases immediately.
+- **Player Slider Scrubbing & Haptic Optimization**:
   - Refactored progress seek slider in `PodcastPlayer.tsx` with dedicated `isDragging` and `dragPos` states to prevent playback jitter or haptic spam while dragging.
-  - Fixed 15s skip logic to calculate offset relative to `activePos` preventing stale position jumps.
-  - Added full volume control slider with UI state and adjusted HTML audio element volume dynamically.
-  - Added accessibility dialog semantics (`role="dialog"`, `aria-label="Podcast player overlay"`) and Escape key listener to close the expanded overlay.
-- **PlaylistPanel & HomeDashboard Refinements**:
-  - Fixed drag-and-drop playlist reordering when filter queries are active by mapping filtered indices back to original playlist item indices.
-  - Updated "Listen Now" button in `PlaylistPanel.tsx` to clear current queue and replace it with playlist articles before starting playback.
-  - Added playlist details rename modal dialog allowing users to update playlist name and description dynamically.
-  - Fixed `HomeDashboard.tsx` Continue Listening card light theme styling and raw seconds formatting (`Resume from Xm Ys`).
-  - Added loading state skeleton UI in `HomeDashboard.tsx` during initial data load.
-- **IntakePanel & Accessibility Polish**:
-  - Updated `IntakePanel.tsx` mode switching to clear `successMsg` automatically and added fallback messages for empty grounded search sources.
-  - Updated navigation buttons in `App.tsx` and `HomeDashboard.tsx` to replace `aria-pressed` with `aria-current="page"` and added proper `aria-label` attributes to icon buttons.
-  - Updated modal dialogs across components with `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, and Escape key dismissal listeners.
 - **Adaptive CSS Variables & Dark Mode Refactoring**:
   - Refactored `src/index.css` and Tailwind configurations to replace hardcoded dark mode colors with CSS custom properties (`--bg-primary`, `--bg-gradient-spot`, `--text-primary`, `--glass-bg`, `--glass-border`, `--scrollbar-track`, `--scrollbar-thumb`) defined on `:root` and `.dark`.
   - Configured `@custom-variant dark (&:where(.dark, .dark *));` in Tailwind v4 to ensure seamless theme toggling.
