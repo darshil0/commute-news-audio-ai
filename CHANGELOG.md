@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-07-25
+
+### 🛡️ Production Hardening & Audit Resolutions
+- **Production Secret Enforcer**: Configured mandatory `validateEnvironment()` startup check in `server.ts` that halts execution if `TOKEN_SECRET` is missing in production deployments (`NODE_ENV === "production"`).
+- **Startup Environment Validation**: Added startup environment check for `GEMINI_API_KEY` presence and expected key prefix (`AIza`) to catch misconfigurations before listening.
+- **In-Memory Rate Limiting**: Added sliding-window rate limiters across API routes (60 req/min global, 15 req/min AI routes) returning HTTP 429 status when limit thresholds are exceeded.
+- **Input Length Bounds Enforcement**: Enforced character length checks across AI endpoints (`/api/articles/extract` url <= 2000, `/api/articles/summarize` text <= 50,000, `/api/articles/search-news` query <= 200, `/api/articles/tts` text <= 10,000).
+- **Structured Error Logging & Observability**: Implemented `logStructured` for JSON formatted logs with timestamps, levels, request paths, status codes, and masked internal error stack traces.
+- **Auth Log Warning Context**: Added server-side security warnings for failed login attempts while keeping generic `401 Invalid username or password` client responses.
+- **HTML Title & OpenGraph Metadata**: Updated `index.html` title tag to `"CommuteBrief — Smart Commute Audio Briefings"` and configured OpenGraph description meta tags.
+- **Source Control Security**: Updated `.gitignore` to explicitly ignore `data/` and `*.db` files to prevent user databases and session secrets from being committed.
+
 ## [1.6.0] - 2026-07-25
 
 ### 🐛 Bugs, Errors, and Defects Fixed

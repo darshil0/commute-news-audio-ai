@@ -50,6 +50,12 @@ This repository follows **Spec-Driven Development (SDD)**:
 
 ## 🐛 Bugs, Errors, and Defects Fixed
 
+- **Production Secret Management**: Enforced `validateEnvironment()` startup check that halts server execution if `TOKEN_SECRET` is unset in production (`NODE_ENV === "production"`).
+- **Startup Environment Validation**: Added startup validation for `GEMINI_API_KEY` presence and expected key format before binding listeners.
+- **API Rate Limiting Middleware**: Implemented sliding-window in-memory rate limiters (60 req/min global, 15 req/min AI routes) returning HTTP 429 when thresholds are exceeded.
+- **Input Length Bounds Enforcement**: Added strict character limits across AI endpoints (`/api/articles/extract` url <= 2000, `/api/articles/summarize` text <= 50,000, `/api/articles/search-news` query <= 200, `/api/articles/tts` text <= 10,000).
+- **Structured Error Logging & Observability**: Replaced raw `console.error` with `logStructured` logger providing JSON timestamps, paths, status codes, and masked internal stack traces.
+- **Auth Security & Log Warnings**: Added server-side security warnings for invalid login attempts without leaking detailed error states to clients.
 - **SSRF Endpoint Safeguards**: Protected `/api/articles/extract` against SSRF by checking schemes (`http:`, `https:`) and blocking private RFC 1918/4193 IP blocks, loopbacks, and link-local ranges.
 - **Model Standardizations**: Aligned Express server AI requests to `@google/genai` models `gemini-2.5-flash` and `gemini-2.5-flash-preview-tts`.
 - **Atomic Cloud Synchronization**: Fixed Firestore data-loss bug in `syncWithServer` by merging IndexedDB and cloud changes atomically.
@@ -59,6 +65,8 @@ This repository follows **Spec-Driven Development (SDD)**:
 - **Firefox Drag-and-Drop Fix**: Added `dataTransfer.setData` payload for cross-browser HTML5 drag compatibility.
 - **Null-Safe Fuzzy Search**: Added strict null, array, and string guards to `tokenize`, `scoreArticle`, and `searchAndFilterArticles`.
 - **Theme & Accessibility Polish**: Fixed non-existent Tailwind utility classes (`zinc-750`, `zinc-850`, `w-4.5`) and added `aria-label`, `role="dialog"`, and `aria-current="page"` semantics.
+- **HTML Branding & OpenGraph Meta**: Replaced generic template title in `index.html` with `"CommuteBrief — Smart Commute Audio Briefings"` and OpenGraph metadata.
+- **Source Control Protection**: Added `data/` and `*.db` to `.gitignore` to prevent database secret leaks.
 
 ---
 

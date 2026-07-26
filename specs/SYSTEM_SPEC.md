@@ -203,6 +203,16 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 - **Null Safety in Search**: Added strict null and array guards to `tokenize`, `scoreArticle`, and `searchAndFilterArticles` in `src/utils/search.ts` to prevent `TypeError` exceptions.
 - **Accessibility & Theme Contrast**: Updated expanded player overlay for seamless light/dark mode contrast and added `aria-label`, `role="dialog"`, and `aria-current="page"` across player buttons and navigation.
 
+### 7.4 Audit Report Resolutions & Production Hardening
+- **Production Secret Management (TOKEN_SECRET)**: Configured mandatory `validateEnvironment()` startup check that halts server execution if `TOKEN_SECRET` is unset in production (`NODE_ENV === "production"`).
+- **Startup Environment Validation**: Added startup validation for `GEMINI_API_KEY` presence and format warnings to fail fast before binding listeners.
+- **API Rate Limiting Middleware**: Implemented sliding-window in-memory rate limiters (60 req/min global, 15 req/min AI routes) returning HTTP 429 when thresholds are exceeded.
+- **Input Length Bounds Enforcement**: Added strict character limits across AI endpoints (`/api/articles/extract` url <= 2000 chars, `/api/articles/summarize` text <= 50,000 chars, `/api/articles/search-news` query <= 200 chars, `/api/articles/tts` text <= 10,000 chars).
+- **Structured Error Logging & Observability**: Replaced raw `console.error` with a structured `logStructured` logger providing JSON timestamps, paths, status codes, and masked internal stack traces.
+- **Auth Server Log Context**: Added server-side security warnings for invalid login attempts without leaking detailed error states to clients.
+- **HTML Title & OpenGraph Metadata**: Replaced generic template title in `index.html` with `"CommuteBrief — Smart Commute Audio Briefings"` and complete OpenGraph meta tags.
+- **Source Control Security (.gitignore)**: Added `data/` and `*.db` to `.gitignore` to prevent secret or user database leaks in git commits.
+
 ---
 
 ## 8. Verification Protocol

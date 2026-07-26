@@ -18,10 +18,75 @@ const PORT = Number(process.env.PORT) || 3000;
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 
-if (process.env.NODE_ENV === "production" && !process.env.TOKEN_SECRET) {
-  console.warn("WARNING: TOKEN_SECRET environment variable is not set! Using default secret.");
+function validateEnvironment() {
+  if (process.env.NODE_ENV === "production" && !process.env.TOKEN_SECRET) {
+    throw new Error(
+      "FATAL: TOKEN_SECRET environment variable must be set in production deployments. Exiting startup."
+    );
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn("[Env Warning] GEMINI_API_KEY is not configured. AI features will fail until set.");
+  } else if (!apiKey.startsWith("AIza")) {
+    console.warn("[Env Warning] GEMINI_API_KEY format looks unexpected (expected prefix 'AIza').");
+  }
 }
+
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "dev-only-change-me";
+
+// In-memory sliding window rate limiter
+type RateLimitEntry = { timestamps: number[] };
+const rateLimitStore = new Map<string, RateLimitEntry>();
+
+function createRateLimiter(maxRequests: number, windowMs: number) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const ip = req.ip || req.socket.remoteAddress || "127.0.0.1";
+    const key = `${req.path}:${ip}`;
+    const now = Date.now();
+    const windowStart = now - windowMs;
+
+    let entry = rateLimitStore.get(key);
+    if (!entry) {
+      entry = { timestamps: [] };
+      rateLimitStore.set(key, entry);
+    }
+
+    // Filter out timestamps older than current window
+    entry.timestamps = entry.timestamps.filter((ts) => ts > windowStart);
+
+    if (entry.timestamps.length >= maxRequests) {
+      logStructured("warn", `Rate limit exceeded for IP: ${ip} on ${req.path}`, {
+        ip,
+        endpoint: req.path,
+        count: entry.timestamps.length,
+      });
+      res.status(429).json({
+        error: `Too many requests to ${req.path}. Please try again later.`,
+      });
+      return;
+    }
+
+    entry.timestamps.push(now);
+    next();
+  };
+}
+
+const globalRateLimiter = createRateLimiter(60, 60 * 1000); // 60 req/min
+const aiRouteRateLimiter = createRateLimiter(15, 60 * 1000); // 15 req/min
+
+function logStructured(level: "info" | "warn" | "error", message: string, metadata?: Record<string, unknown>) {
+  const payload = {
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    ...metadata,
+  };
+  const jsonStr = JSON.stringify(payload);
+  if (level === "error") console.error(jsonStr);
+  else if (level === "warn") console.warn(jsonStr);
+  else console.log(jsonStr);
+}
 
 const USERNAME_REGEX = /^[a-z0-9_-]{3,32}$/;
 
@@ -199,9 +264,12 @@ function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) 
 }
 
 async function startServer() {
+  validateEnvironment();
+
   const app = express();
   app.disable("x-powered-by");
   app.use(express.json({ limit: "10mb" }));
+  app.use("/api", globalRateLimiter);
 
   app.post(
     "/api/auth/register",
@@ -231,6 +299,7 @@ async function startServer() {
       users[uClean] = { passwordHash: hashPassword(password, salt), salt };
       await saveUsers(users);
 
+      logStructured("info", `User registered successfully: ${uClean}`, { username: uClean });
       res.json({ username: uClean, token: signToken(uClean) });
     })
   );
@@ -250,10 +319,15 @@ async function startServer() {
       const user = users[uClean];
 
       if (!user || hashPassword(password, user.salt) !== user.passwordHash) {
+        logStructured("warn", `Login failed for user '${uClean}': invalid credentials`, {
+          username: uClean,
+          ip: req.ip || req.socket.remoteAddress,
+        });
         res.status(401).json({ error: "Invalid username or password." });
         return;
       }
 
+      logStructured("info", `User logged in successfully: ${uClean}`, { username: uClean });
       res.json({ username: uClean, token: signToken(uClean) });
     })
   );
@@ -302,11 +376,17 @@ async function startServer() {
 
   app.post(
     "/api/articles/extract",
+    aiRouteRateLimiter,
     asyncHandler(async (req, res) => {
       const { url, preferences } = req.body as { url?: unknown; preferences?: Preferences };
 
       if (typeof url !== "string" || !url.trim()) {
         res.status(400).json({ error: "Valid article URL is required." });
+        return;
+      }
+
+      if (url.length > 2000) {
+        res.status(400).json({ error: "URL exceeds maximum length of 2000 characters." });
         return;
       }
 
@@ -393,6 +473,7 @@ Return strict JSON:
 
   app.post(
     "/api/articles/summarize",
+    aiRouteRateLimiter,
     asyncHandler(async (req, res) => {
       const { text, title, preferences } = req.body as {
         text?: unknown;
@@ -402,6 +483,13 @@ Return strict JSON:
 
       if (typeof text !== "string" || !text.trim()) {
         res.status(400).json({ error: "Article text is required." });
+        return;
+      }
+
+      if (text.length > 50000) {
+        res.status(413).json({
+          error: `Article text exceeds maximum length of 50000 characters. Received ${text.length} characters.`,
+        });
         return;
       }
 
@@ -454,6 +542,7 @@ ${text}`;
 
   app.post(
     "/api/articles/search-news",
+    aiRouteRateLimiter,
     asyncHandler(async (req, res) => {
       const { query, preferences } = req.body as {
         query?: unknown;
@@ -462,6 +551,11 @@ ${text}`;
 
       if (typeof query !== "string" || !query.trim()) {
         res.status(400).json({ error: "Search query is required." });
+        return;
+      }
+
+      if (query.trim().length > 200) {
+        res.status(400).json({ error: "Search query exceeds maximum length of 200 characters." });
         return;
       }
 
@@ -532,6 +626,7 @@ Return strict JSON:
 
   app.post(
     "/api/articles/tts",
+    aiRouteRateLimiter,
     asyncHandler(async (req, res) => {
       const { text, voiceName, speed } = req.body as {
         text?: unknown;
@@ -544,6 +639,23 @@ Return strict JSON:
         return;
       }
 
+      const trimmedText = text.trim();
+      if (trimmedText.length < 2) {
+        res.status(400).json({ error: "Text must be at least 2 characters long." });
+        return;
+      }
+
+      if (trimmedText.length > 10000) {
+        res.status(413).json({ error: "TTS text exceeds maximum length of 10000 characters." });
+        return;
+      }
+
+      if (/<[^>]+>/.test(trimmedText)) {
+        logStructured("warn", "TTS text contains HTML/SSML tags; tags will be spoken verbatim or stripped", {
+          sample: trimmedText.slice(0, 50),
+        });
+      }
+
       const validVoices = ["Kore", "Puck", "Charon", "Fenrir", "Zephyr"] as const;
       type VoiceName = (typeof validVoices)[number];
       const voice: VoiceName = validVoices.includes(voiceName as VoiceName) ? (voiceName as VoiceName) : "Kore";
@@ -553,7 +665,7 @@ Return strict JSON:
       const ai = getAI();
       const result = await ai.models.generateContent({
         model: "gemini-2.5-flash-preview-tts",
-        contents: [{ role: "user", parts: [{ text }] }],
+        contents: [{ role: "user", parts: [{ text: trimmedText }] }],
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
@@ -592,17 +704,24 @@ Return strict JSON:
     });
   }
 
-  app.use((err: ApiError, _req: Request, res: Response, _next: NextFunction) => {
-    console.error(err);
+  app.use((err: ApiError, req: Request, res: Response, _next: NextFunction) => {
     const status = err.statusCode && Number.isInteger(err.statusCode) && err.statusCode >= 400 && err.statusCode < 600 ? err.statusCode : 500;
     const isOperational = status < 500;
+
+    logStructured(status >= 500 ? "error" : "warn", err.message || "Request handling error", {
+      path: req.path,
+      method: req.method,
+      status,
+      stack: status >= 500 ? err.stack : undefined,
+    });
+
     res.status(status).json({
       error: isOperational || err.message?.startsWith("GEMINI_API_KEY") ? err.message : "An internal server error occurred.",
     });
   });
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[CommuteNews Server] running on http://localhost:${PORT}`);
+    logStructured("info", `CommuteNews Server running on port ${PORT}`, { port: PORT });
   });
 }
 

@@ -91,6 +91,14 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 | **DEF-10** | Styling / CSS | Invalid non-existent Tailwind CSS utilities (`zinc-750`, `zinc-850`, `w-4.5`) broke light/dark mode contrast. Replaced with standard Tailwind scale classes. | Low |
 | **DEF-11** | Search / Guard | `tokenize`, `scoreArticle`, and `searchAndFilterArticles` crashed on undefined/null input. Added strict null, type, and array guards in `src/utils/search.ts`. | Medium |
 | **DEF-12** | Accessibility | Missing button labels and dialog attributes in player overlay. Added `aria-label`, `role="dialog"`, `aria-current="page"`, and Escape key listener. | Low |
+| **DEF-13** | Server / Security | Production secret `TOKEN_SECRET` missing validation. Added `validateEnvironment()` startup check to halt execution if `TOKEN_SECRET` is unset in production. | Critical |
+| **DEF-14** | Server / Config | `GEMINI_API_KEY` validation occurred on first API request instead of startup. Added startup environment checks and format verification. | High |
+| **DEF-15** | Server / DoS | API routes lacked rate limiting protection. Created in-memory sliding-window rate limiters (60 req/min global, 15 req/min AI routes). | High |
+| **DEF-16** | Server / DoS | AI endpoints lacked payload length bounds. Added length checks (`/api/articles/summarize` <= 50,000 chars, `/api/articles/search-news` <= 200 chars, `/api/articles/tts` <= 10,000 chars). | High |
+| **DEF-17** | Server / Logging | Unstructured console error logging lost context. Implemented `logStructured` for JSON formatted logs with timestamps, levels, paths, status codes, and stack trace masking. | Medium |
+| **DEF-18** | Server / Security | Login failure error states leaked information. Added server-side warning logs for failed auth while returning generic client errors. | Medium |
+| **DEF-19** | HTML / Branding | `index.html` title tag contained generic default title. Updated to `CommuteBrief — Smart Commute Audio Briefings` with OpenGraph meta tags. | High |
+| **DEF-20** | Git / Security | `.gitignore` lacked explicit data directory rules. Added `data/` and `*.db` to `.gitignore` to prevent database secret leaks. | High |
 
 ---
 

@@ -102,3 +102,11 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-10 (Tailwind Class Sanity)**: Codebase has zero invalid Tailwind class references (`zinc-750`, `zinc-850`, `w-4.5`).
 - [x] **DEF-11 (Search Null Safety)**: Search tokenization and scoring handle `undefined`, `null`, and empty strings safely without throwing `TypeError`.
 - [x] **DEF-12 (Accessibility Semantics)**: Audio player and navigation controls include comprehensive `aria-label`, `aria-current="page"`, `role="dialog"`, and Escape key handlers.
+- [x] **DEF-13 (Production Secret Enforcer)**: Server startup halts with fatal error if `TOKEN_SECRET` is unset in production environments.
+- [x] **DEF-14 (Startup Env Validation)**: Server validates `GEMINI_API_KEY` presence and expected key prefix on startup before binding listeners.
+- [x] **DEF-15 (API Rate Limiting)**: Express rate limiters throttle traffic (60 req/min global, 15 req/min AI routes) with HTTP 429 status code.
+- [x] **DEF-16 (Input Length Limits)**: Endpoints reject oversized input payloads (`/api/articles/summarize` > 50k, `/api/articles/search-news` > 200, `/api/articles/tts` > 10k).
+- [x] **DEF-17 (Structured Error Logger)**: All server errors output JSON structured logs with ISO timestamps, endpoints, status codes, and masked internal stack traces.
+- [x] **DEF-18 (Auth Warning Logging)**: Failed login attempts log server-side security warnings while returning safe generic error responses to clients.
+- [x] **DEF-19 (HTML Title & Meta Tags)**: `index.html` renders `<title>CommuteBrief — Smart Commute Audio Briefings</title>` and OpenGraph description tags.
+- [x] **DEF-20 (Git Ignore Data Protection)**: `.gitignore` includes `data/` and `*.db` rules to prevent user database or secret leaks in repository commits.
