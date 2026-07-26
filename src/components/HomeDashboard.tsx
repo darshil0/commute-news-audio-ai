@@ -417,7 +417,7 @@ export const HomeDashboard: React.FC = () => {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-zinc-850 border border-emerald-200 dark:border-transparent px-2 py-0.5 rounded uppercase">
+                        <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-zinc-800 border border-emerald-200 dark:border-transparent px-2 py-0.5 rounded uppercase">
                           {art.category}
                         </span>
                         {art.isDownloaded && (
@@ -438,11 +438,11 @@ export const HomeDashboard: React.FC = () => {
 
                       <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-zinc-500 font-mono">
                         <span>{art.author || "Audio Brief"}</span>
-                        <span className="w-1 h-1 bg-zinc-750 rounded-full" />
+                        <span className="w-1 h-1 bg-zinc-400 dark:bg-zinc-700 rounded-full" />
                         <span>{new Date(art.createdAt).toLocaleDateString()}</span>
                         {art.playCount > 0 && (
                           <>
-                            <span className="w-1 h-1 bg-zinc-750 rounded-full" />
+                            <span className="w-1 h-1 bg-zinc-400 dark:bg-zinc-700 rounded-full" />
                             <span>
                               {art.playCount} {art.playCount === 1 ? "play" : "plays"}
                             </span>
@@ -453,7 +453,7 @@ export const HomeDashboard: React.FC = () => {
                       {art.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {art.tags.map((tag) => (
-                            <span key={tag} className="text-[9px] text-zinc-500 bg-zinc-800/40 px-1.5 py-0.5 rounded">
+                            <span key={tag} className="text-[9px] text-zinc-500 bg-zinc-100 dark:bg-zinc-800/40 px-1.5 py-0.5 rounded">
                               #{tag}
                             </span>
                           ))}
@@ -462,13 +462,14 @@ export const HomeDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center sm:flex-col justify-end gap-2.5 flex-shrink-0 border-t sm:border-t-0 border-zinc-900 pt-3 sm:pt-0">
+                  <div className="flex items-center sm:flex-col justify-end gap-2.5 flex-shrink-0 border-t sm:border-t-0 border-zinc-200 dark:border-zinc-900 pt-3 sm:pt-0">
                     <button
                       type="button"
                       id={`queue-add-btn-${art.id}`}
                       onClick={() => addToQueue(art.id)}
-                      className="p-1.5 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-lg transition-colors flex items-center gap-1 text-[11px]"
+                      className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-lg transition-colors flex items-center gap-1 text-[11px]"
                       title="Add to queue"
+                      aria-label={`Add ${art.title} to queue`}
                     >
                       <ListPlus className="w-4 h-4" />
                       <span className="sm:hidden">Add Queue</span>
@@ -478,8 +479,9 @@ export const HomeDashboard: React.FC = () => {
                       type="button"
                       id={`download-feed-item-${art.id}`}
                       onClick={() => downloadArticleAudio(art.id)}
-                      className="p-1.5 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-lg transition-colors"
+                      className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-lg transition-colors"
                       title="Download audio"
+                      aria-label={`Download ${art.title} audio`}
                     >
                       <Download className="w-4 h-4" />
                     </button>
@@ -489,8 +491,9 @@ export const HomeDashboard: React.FC = () => {
                       id={`bookmark-toggle-${art.id}`}
                       onClick={() => toggleSaveArticle(art.id)}
                       aria-pressed={art.isSaved}
-                      className={`p-1.5 hover:bg-zinc-800 rounded-lg transition-colors ${
-                        art.isSaved ? "text-emerald-400" : "text-zinc-500 hover:text-zinc-300"
+                      aria-label={art.isSaved ? `Remove bookmark for ${art.title}` : `Bookmark ${art.title}`}
+                      className={`p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors ${
+                        art.isSaved ? "text-emerald-500 dark:text-emerald-400" : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                       }`}
                       title={art.isSaved ? "Bookmarked" : "Bookmark"}
                     >
@@ -505,8 +508,9 @@ export const HomeDashboard: React.FC = () => {
                           deleteArticle(art.id);
                         }
                       }}
-                      className="p-1.5 hover:bg-red-950/20 text-zinc-500 hover:text-red-400 rounded-lg transition-colors"
+                      className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 text-zinc-400 dark:text-zinc-500 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors"
                       title="Delete brief"
+                      aria-label={`Delete ${art.title}`}
                     >
                       <Trash className="w-4 h-4" />
                     </button>

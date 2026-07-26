@@ -8,7 +8,8 @@ import { Article } from "../types";
 /**
  * Clean and tokenize a query string.
  */
-export function tokenize(str: string): string[] {
+export function tokenize(str?: string | null): string[] {
+  if (!str || typeof str !== "string") return [];
   return str
     .toLowerCase()
     .normalize("NFD")
@@ -22,14 +23,14 @@ export function tokenize(str: string): string[] {
  * A higher score means a better match.
  * Returns 0 if there is no match or if the search tokens are empty.
  */
-export function scoreArticle(article: Article, tokens: readonly string[]): number {
-  if (tokens.length === 0) return 0;
+export function scoreArticle(article: Article | null | undefined, tokens: readonly string[]): number {
+  if (!article || !tokens || tokens.length === 0) return 0;
 
-  const titleTokens = tokenize(article.title);
+  const titleTokens = tokenize(article.title || "");
   const authorTokens = article.author ? tokenize(article.author) : [];
-  const summaryTokens = tokenize(article.summary);
-  const categoryTokens = tokenize(article.category);
-  const tagsTokens = article.tags.flatMap(tokenize);
+  const summaryTokens = tokenize(article.summary || "");
+  const categoryTokens = tokenize(article.category || "");
+  const tagsTokens = Array.isArray(article.tags) ? article.tags.flatMap(tokenize) : [];
 
   let score = 0;
   let matchesAll = true;
@@ -102,11 +103,12 @@ export function scoreArticle(article: Article, tokens: readonly string[]): numbe
  * Built for performance with larger dataset support.
  */
 export function searchAndFilterArticles(
-  articles: readonly Article[],
+  articles: readonly Article[] | null | undefined,
   query: string,
   selectedCategory: string
 ): Article[] {
-  const normalizedQuery = query.toLowerCase().trim();
+  if (!articles || !Array.isArray(articles)) return [];
+  const normalizedQuery = (query || "").toLowerCase().trim();
 
   // Handle special filters directly
   const isSavedQuery = normalizedQuery === "saved";

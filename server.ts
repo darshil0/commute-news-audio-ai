@@ -130,8 +130,12 @@ function verifyToken(token: string): string | null {
   if (!crypto.timingSafeEqual(sigBuffer, expectedBuffer)) return null;
 
   try {
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as { username?: string };
-    return payload.username || null;
+    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as { username?: string; ts?: number };
+    if (!payload.username) return null;
+    if (payload.ts && Date.now() - payload.ts > 7 * 24 * 60 * 60 * 1000) {
+      return null; // Token expired after 7 days
+    }
+    return payload.username;
   } catch {
     return null;
   }
@@ -352,14 +356,14 @@ async function startServer() {
             : "straight-to-the-point, highly concise facts-only";
 
       const prompt = html
-        ? `Extract the main article title, author, and body from this HTML, then summarize it in a ${lengthText} and ${toneText} style.
+        ? `Extract the main article title, author, and body from this HTML, then summarize it in a ${lengthText} and ${toneText} style. Only extract factual content from the provided source HTML; do not invent or hallucinate unverified details.
 
 Return strict JSON:
 {"title":"...","author":"...","summary":"..."}
 
 HTML:
 ${html.slice(0, 50000)}`
-        : `Extract and summarize the article at ${url} in a ${lengthText} and ${toneText} style.
+        : `Extract and summarize the article at ${url} in a ${lengthText} and ${toneText} style. Only extract factual content from the source article; do not invent or hallucinate unverified details.
 
 Return strict JSON:
 {"title":"...","author":"...","summary":"..."}`;
@@ -416,17 +420,18 @@ Return strict JSON:
             ? "engaging, storytelling podcast style, using conversational speech patterns"
             : "straight-to-the-point, highly concise facts-only";
 
-      const prompt = `You are a professional audio script editor. Summarize the article titled "${safeTitle}" into a natural TTS-friendly script.
+      const prompt = `You are a professional audio script editor. Summarize the provided article text into a natural TTS-friendly audio briefing.
+
+Article Title: ${safeTitle}
 
 Requirements:
 - Generate a ${lengthText}.
 - Use a ${toneText} tone.
 - Do not include markdown, HTML, or stage directions.
 
-Return strict JSON:
-{"title":"${safeTitle.replace(/"/g, '\\"')}","summary":"..."}
+Return strict JSON object with fields "title" and "summary".
 
-Article:
+Article Content:
 ${text}`;
 
       const ai = getAI();
@@ -589,8 +594,10 @@ Return strict JSON:
 
   app.use((err: ApiError, _req: Request, res: Response, _next: NextFunction) => {
     console.error(err);
-    res.status(err.statusCode || 500).json({
-      error: err.message || "Internal server error",
+    const status = err.statusCode && Number.isInteger(err.statusCode) && err.statusCode >= 400 && err.statusCode < 600 ? err.statusCode : 500;
+    const isOperational = status < 500;
+    res.status(status).json({
+      error: isOperational || err.message?.startsWith("GEMINI_API_KEY") ? err.message : "An internal server error occurred.",
     });
   });
 

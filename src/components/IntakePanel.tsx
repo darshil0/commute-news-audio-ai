@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Globe, FileText, Sparkles, AlertCircle, Search, ExternalLink, Play, Radio, CheckCircle2 } from 'lucide-react';
 import { ApiService, SearchNewsResponse } from '../lib/api';
+import { SummaryLength, SummaryTone, VoiceName } from '../types';
 
 export const IntakePanel: React.FC = () => {
   const { preferences, setPreferences, addArticleText, importArticleUrl, addGroundedArticle, playArticle, isOnline } = useApp();
@@ -252,7 +253,7 @@ export const IntakePanel: React.FC = () => {
               <select
                 id="pref-length"
                 value={preferences.summaryLength}
-                onChange={(e: any) => setPreferences({ summaryLength: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPreferences({ summaryLength: e.target.value as SummaryLength })}
                 className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
                 disabled={localLoading}
               >
@@ -268,7 +269,7 @@ export const IntakePanel: React.FC = () => {
               <select
                 id="pref-tone"
                 value={preferences.summaryTone}
-                onChange={(e: any) => setPreferences({ summaryTone: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPreferences({ summaryTone: e.target.value as SummaryTone })}
                 className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
                 disabled={localLoading}
               >
@@ -284,7 +285,7 @@ export const IntakePanel: React.FC = () => {
               <select
                 id="pref-voice"
                 value={preferences.voiceName}
-                onChange={(e: any) => setPreferences({ voiceName: e.target.value as any })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPreferences({ voiceName: e.target.value as VoiceName })}
                 className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
                 disabled={localLoading}
               >

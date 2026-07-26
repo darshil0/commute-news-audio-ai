@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { localDB } from '../lib/db';
 import { ApiService } from '../lib/api';
+import { VoiceName } from '../types';
 import { 
   User, Lock, ArrowRight, Cloud, RefreshCw, LogOut, 
   CheckCircle2, Wifi, WifiOff, Beaker, Play, ShieldCheck,
@@ -435,7 +436,7 @@ export const ProfilePanel: React.FC = () => {
       {/* Voice Selection Settings Panel */}
       <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-6 space-y-4">
         <h3 className="text-sm font-semibold text-zinc-200 border-b border-zinc-800 pb-2 flex items-center gap-2">
-          <Headphones className="w-4.5 h-4.5 text-emerald-400" />
+          <Headphones className="w-5 h-5 text-emerald-400" />
           <span>AI Narrator Voice Settings</span>
         </h3>
         <p className="text-xs text-zinc-400 leading-relaxed">
@@ -452,7 +453,7 @@ export const ProfilePanel: React.FC = () => {
               <div
                 key={voice.id}
                 onClick={() => {
-                  setPreferences({ voiceName: voice.id as any });
+                  setPreferences({ voiceName: voice.id as VoiceName });
                   if (triggerHaptic) triggerHaptic(15);
                 }}
                 className={`group relative p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
@@ -518,7 +519,7 @@ export const ProfilePanel: React.FC = () => {
       {/* Diagnostics Panel (Interactive Testing Suite) */}
       <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-6 space-y-4">
         <h3 className="text-sm font-semibold text-zinc-200 border-b border-zinc-800 pb-2 flex items-center gap-2">
-          <Beaker className="w-4.5 h-4.5 text-emerald-400" />
+          <Beaker className="w-5 h-5 text-emerald-400" />
           <span>CommuteNews Test & Diagnostics Suite</span>
         </h3>
         <p className="text-xs text-zinc-400 leading-relaxed">
@@ -529,7 +530,7 @@ export const ProfilePanel: React.FC = () => {
           id="run-tests-btn"
           onClick={runDiagnostics}
           disabled={testing}
-          className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-850 disabled:text-zinc-500 text-black font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+          className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
         >
           <ShieldCheck className="w-4 h-4" />
           <span>{testing ? 'Running Integrated Tests...' : 'Run Automated Test Diagnostics'}</span>

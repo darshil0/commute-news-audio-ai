@@ -20,6 +20,11 @@ export const QueuePanel: React.FC = () => {
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
+    try {
+      e.dataTransfer.setData('text/plain', String(index));
+    } catch {
+      // ignore
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
