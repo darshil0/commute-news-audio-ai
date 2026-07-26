@@ -67,6 +67,7 @@ This repository follows **Spec-Driven Development (SDD)**:
 - **Theme & Accessibility Polish**: Fixed non-existent Tailwind utility classes (`zinc-750`, `zinc-850`, `w-4.5`) and added `aria-label`, `role="dialog"`, and `aria-current="page"` semantics.
 - **HTML Branding & OpenGraph Meta**: Replaced generic template title in `index.html` with `"CommuteBrief — Smart Commute Audio Briefings"` and OpenGraph metadata.
 - **Source Control Protection**: Added `data/` and `*.db` to `.gitignore` to prevent database secret leaks.
+- **Rate Limiter Memory Cleanup**: Added a periodic 10-minute sweep in `server.ts` to purge stale IP entries from `rateLimitStore` and eliminate map memory accumulation.
 
 ---
 

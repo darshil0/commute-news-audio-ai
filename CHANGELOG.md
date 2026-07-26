@@ -7,18 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.0] - 2026-07-26
 
-### 🎨 Automated Visual Verification & Documentation Hardening
-- **Browser Automation Suite**: Integrated a robust visual validation engine powered by Playwright to simulate desktop user profiles, theme toggles, and UI interactions on the running SPA.
-- **Theme & Layout Auditing**: Verified color tokens, contrast boundaries, volume dials, sleep timers, and seek controls in both light and dark modes.
-- **Custom Compliance Tooling**: Implemented automated python validation scripts in `/home/jules/self_created_tools` to run end-to-end diagnostics and markdown audits.
-- **Specification Correction**: Updated placeholder syntax and aligned `/specs/` with the active full-stack visual checking features.
+### 📚 Spec-Driven Development & Documentation Alignment
+- **Documentation Audit & Sync**: Updated all repository specifications (`SYSTEM_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `VALIDATION_CHECKLIST.md`, and `README.md`) to maintain 100% alignment with current production features.
+- **In-Memory Rate Limiter Memory Sweep (DEF-21)**: Implemented periodic 10-minute sweep in `server.ts` to purge expired IP entries from `rateLimitStore` and eliminate unbounded map growth over time.
+- **Verification Protocol**: Passed all automated lint (`npm run lint`), build (`npm run build`), and SDD validation checklist items.
 
 ## [1.7.0] - 2026-07-25
 
 ### 🛡️ Production Hardening & Audit Resolutions
 - **Production Secret Enforcer**: Configured mandatory `validateEnvironment()` startup check in `server.ts` that halts execution if `TOKEN_SECRET` is missing in production deployments (`NODE_ENV === "production"`).
 - **Startup Environment Validation**: Added startup environment check for `GEMINI_API_KEY` presence and expected key prefix (`AIza`) to catch misconfigurations before listening.
-- **In-Memory Rate Limiting**: Added sliding-window rate limiters across API routes (60 req/min global, 15 req/min AI routes) returning HTTP 429 status when limit thresholds are exceeded.
+- **In-Memory Rate Limiting**: Added sliding-window rate limiters across API routes (60 req/min global, 15 req/min AI routes) returning HTTP 429 status when limit thresholds are exceeded, with an automated 10-minute periodic sweep to purge stale keys.
 - **Input Length Bounds Enforcement**: Enforced character length checks across AI endpoints (`/api/articles/extract` url <= 2000, `/api/articles/summarize` text <= 50,000, `/api/articles/search-news` query <= 200, `/api/articles/tts` text <= 10,000).
 - **Structured Error Logging & Observability**: Implemented `logStructured` for JSON formatted logs with timestamps, levels, request paths, status codes, and masked internal error stack traces.
 - **Auth Log Warning Context**: Added server-side security warnings for failed login attempts while keeping generic `401 Invalid username or password` client responses.
@@ -189,7 +188,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
-[1.8.0]: https://github.com/aistudio-build/commutenews/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0

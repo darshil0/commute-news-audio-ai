@@ -212,6 +212,7 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 - **Auth Server Log Context**: Added server-side security warnings for invalid login attempts without leaking detailed error states to clients.
 - **HTML Title & OpenGraph Metadata**: Replaced generic template title in `index.html` with `"CommuteBrief — Smart Commute Audio Briefings"` and complete OpenGraph meta tags.
 - **Source Control Security (.gitignore)**: Added `data/` and `*.db` to `.gitignore` to prevent secret or user database leaks in git commits.
+- **Rate Limiter Memory Sweep (DEF-21)**: Added periodic 10-minute cleanup sweep in `server.ts` to purge expired IP entries from `rateLimitStore` and prevent memory growth.
 
 ---
 
