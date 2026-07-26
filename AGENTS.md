@@ -20,7 +20,7 @@ When working on this repository, all AI agents and human contributors **MUST** f
 └─────────────────┘     └───────────────────────┘
 ```
 
-1. **Spec First**: Before modifying or writing code, consult `/specs/SYSTEM_SPEC.md`. If a requested feature or fix is not specified or differs from current specs, update the spec document first or mark ambiguous requirements as `[NEEDS-CLARIFICATION]`.
+1. **Spec First**: Before modifying or writing code, consult `/specs/SYSTEM_SPEC.md`. If a requested feature or fix is not specified or differs from current specs, update the spec document first or mark ambiguous requirements as `[NEEDS CLARIFICATION]`.
 2. **Plan & Breakdown**: Review or update `/specs/IMPLEMENTATION_PLAN.md` to map proposed code changes to specific Acceptance Criteria (ACs).
 3. **Surgical Implementation**: Execute code changes in precise, modular blocks. Never break existing builds or introduce unverified assumptions.
 4. **Validation & Verification**: Run `npm run lint` and `npm run build` (or run `lint_applet` / `compile_applet`) to verify compilation and type safety. Cross-check against `/specs/VALIDATION_CHECKLIST.md`.
@@ -43,11 +43,12 @@ When working on this repository, all AI agents and human contributors **MUST** f
 
 ---
 
-## ❓ Handling Ambiguity (`[NEEDS-CLARIFICATION]`)
+## ❓ Handling Ambiguity (`[NEEDS CLARIFICATION]`)
 
 If a user request or task lacks explicit detail:
+
 - **Do NOT guess or invent unrequested features.**
-- Clearly flag the ambiguity using the `[NEEDS-CLARIFICATION]` tag in the relevant spec (`specs/SYSTEM_SPEC.md`) and in your final response.
+- Clearly flag the ambiguity using the `[NEEDS CLARIFICATION]` tag in the relevant spec (`specs/SYSTEM_SPEC.md`) and in your final response.
 - Provide a clear explanation of what information is missing and offer logical options to resolve it.
 
 ---
@@ -55,5 +56,6 @@ If a user request or task lacks explicit detail:
 ## 📋 Verification Commands
 
 Before concluding any work, verify the codebase using:
+
 - **Lint Check**: `npm run lint` (`tsc --noEmit`)
 - **Build Check**: `npm run build` (`tsc --noEmit && vite build && esbuild ...`)

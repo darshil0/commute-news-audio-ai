@@ -23,14 +23,19 @@ export function tokenize(str?: string | null): string[] {
  * A higher score means a better match.
  * Returns 0 if there is no match or if the search tokens are empty.
  */
-export function scoreArticle(article: Article | null | undefined, tokens: readonly string[]): number {
+export function scoreArticle(
+  article: Article | null | undefined,
+  tokens: readonly string[],
+): number {
   if (!article || !tokens || tokens.length === 0) return 0;
 
   const titleTokens = tokenize(article.title || "");
   const authorTokens = article.author ? tokenize(article.author) : [];
   const summaryTokens = tokenize(article.summary || "");
   const categoryTokens = tokenize(article.category || "");
-  const tagsTokens = Array.isArray(article.tags) ? article.tags.flatMap(tokenize) : [];
+  const tagsTokens = Array.isArray(article.tags)
+    ? article.tags.flatMap(tokenize)
+    : [];
 
   let score = 0;
   let matchesAll = true;
@@ -105,7 +110,7 @@ export function scoreArticle(article: Article | null | undefined, tokens: readon
 export function searchAndFilterArticles(
   articles: readonly Article[] | null | undefined,
   query: string,
-  selectedCategory: string
+  selectedCategory: string,
 ): Article[] {
   if (!articles || !Array.isArray(articles)) return [];
   const normalizedQuery = (query || "").toLowerCase().trim();
@@ -114,7 +119,8 @@ export function searchAndFilterArticles(
   const isSavedQuery = normalizedQuery === "saved";
   const isDownloadedQuery = normalizedQuery === "downloaded";
 
-  const tokens = isSavedQuery || isDownloadedQuery ? [] : tokenize(normalizedQuery);
+  const tokens =
+    isSavedQuery || isDownloadedQuery ? [] : tokenize(normalizedQuery);
 
   const scoredArticles = articles
     .filter((art) => {
@@ -123,7 +129,10 @@ export function searchAndFilterArticles(
         if (!art.isSaved) return false;
       } else if (selectedCategory === "Downloaded") {
         if (!art.isDownloaded) return false;
-      } else if (selectedCategory !== "All" && art.category !== selectedCategory) {
+      } else if (
+        selectedCategory !== "All" &&
+        art.category !== selectedCategory
+      ) {
         return false;
       }
 
@@ -143,7 +152,10 @@ export function searchAndFilterArticles(
     if (tokens.length > 0 && a.score !== b.score) {
       return b.score - a.score;
     }
-    return new Date(b.article.createdAt).getTime() - new Date(a.article.createdAt).getTime();
+    return (
+      new Date(b.article.createdAt).getTime() -
+      new Date(a.article.createdAt).getTime()
+    );
   });
 
   return scoredArticles.map((item) => item.article);

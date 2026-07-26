@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -41,21 +41,41 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-primary);
   background-image:
-    radial-gradient(circle at 0% 0%, var(--bg-gradient-spot) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, var(--bg-gradient-spot) 0%, transparent 40%);
+    radial-gradient(
+      circle at 0% 0%,
+      var(--bg-gradient-spot) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      var(--bg-gradient-spot) 0%,
+      transparent 40%
+    );
   background-attachment: fixed;
   color: var(--text-primary);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .app-shell {
   background-color: var(--bg-primary);
   background-image:
-    radial-gradient(circle at 0% 0%, var(--bg-gradient-spot) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, var(--bg-gradient-spot) 0%, transparent 40%);
+    radial-gradient(
+      circle at 0% 0%,
+      var(--bg-gradient-spot) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      var(--bg-gradient-spot) 0%,
+      transparent 40%
+    );
   background-attachment: fixed;
   color: var(--text-primary);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .glass-panel {

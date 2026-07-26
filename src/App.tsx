@@ -11,7 +11,15 @@ import { PlaylistPanel } from "./components/PlaylistPanel";
 import { ProfilePanel } from "./components/ProfilePanel";
 import { QueuePanel } from "./components/QueuePanel";
 import { PodcastPlayer } from "./components/PodcastPlayer";
-import { Headphones, Sparkles, ListMusic, User, PlayCircle, Sun, Moon } from "lucide-react";
+import {
+  Headphones,
+  Sparkles,
+  ListMusic,
+  User,
+  PlayCircle,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const TABS = ["home", "intake", "playlists", "queue", "profile"] as const;
@@ -57,7 +65,11 @@ function CommuteAppContent() {
       touchStartX.current = null;
       touchStartY.current = null;
 
-      if (duration >= 450 || Math.abs(diffX) <= 60 || Math.abs(diffX) <= Math.abs(diffY) * 1.5) {
+      if (
+        duration >= 450 ||
+        Math.abs(diffX) <= 60 ||
+        Math.abs(diffX) <= Math.abs(diffY) * 1.5
+      ) {
         return;
       }
 
@@ -86,7 +98,7 @@ function CommuteAppContent() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     },
-    [activeTab, setActiveTab]
+    [activeTab, setActiveTab],
   );
 
   const navItems = useMemo(
@@ -97,7 +109,7 @@ function CommuteAppContent() {
       { id: "queue", label: "Up Next Queue", icon: PlayCircle },
       { id: "profile", label: "Sync Account", icon: User },
     ],
-    []
+    [],
   );
 
   return (
@@ -108,7 +120,9 @@ function CommuteAppContent() {
     >
       <header
         className={`px-4 py-4 border-b flex items-center justify-between backdrop-blur-md sticky top-0 z-30 transition-colors ${
-          isDark ? "bg-zinc-950/80 border-zinc-900" : "bg-white/80 border-zinc-100"
+          isDark
+            ? "bg-zinc-950/80 border-zinc-900"
+            : "bg-white/80 border-zinc-100"
         }`}
       >
         <div className="flex items-center gap-2">
@@ -145,7 +159,9 @@ function CommuteAppContent() {
       <main className="flex-1 w-full max-w-4xl mx-auto flex flex-col md:flex-row relative">
         <aside
           className={`hidden md:flex flex-col gap-1.5 w-60 p-4 border-r transition-colors ${
-            isDark ? "border-zinc-900 bg-zinc-950/30" : "border-zinc-100 bg-orange-50/10"
+            isDark
+              ? "border-zinc-900 bg-zinc-950/30"
+              : "border-zinc-100 bg-orange-50/10"
           }`}
           aria-label="Primary navigation"
         >
@@ -168,7 +184,11 @@ function CommuteAppContent() {
           ))}
         </aside>
 
-        <section className="flex-1 min-w-0" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <section
+          className="flex-1 min-w-0"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -192,7 +212,9 @@ function CommuteAppContent() {
 
       <nav
         className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t flex items-center justify-around py-2.5 px-2 backdrop-blur-md transition-colors ${
-          isDark ? "bg-zinc-950/95 border-zinc-900 text-white" : "bg-white/95 border-zinc-200 text-zinc-900"
+          isDark
+            ? "bg-zinc-950/95 border-zinc-900 text-white"
+            : "bg-white/95 border-zinc-200 text-zinc-900"
         }`}
         aria-label="Mobile navigation"
       >
@@ -205,7 +227,9 @@ function CommuteAppContent() {
             aria-current={activeTab === id ? "page" : undefined}
             aria-label={label}
             className={`flex flex-col items-center gap-1 cursor-pointer ${
-              activeTab === id ? "text-emerald-400 font-bold" : "text-zinc-400 hover:text-zinc-200"
+              activeTab === id
+                ? "text-emerald-400 font-bold"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <Icon className="w-5 h-5" />

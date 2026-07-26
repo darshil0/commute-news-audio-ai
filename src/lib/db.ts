@@ -18,7 +18,8 @@ type SettingsStoreShape = {
 function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
+    request.onerror = () =>
+      reject(request.error ?? new Error("IndexedDB request failed"));
   });
 }
 
@@ -79,8 +80,9 @@ class LocalDatabase {
   }
 
   private async getStore(
-    storeName: "articles" | "playlists" | "progress" | "settings" | "audioStore",
-    mode: IDBTransactionMode = "readonly"
+    storeName:
+      "articles" | "playlists" | "progress" | "settings" | "audioStore",
+    mode: IDBTransactionMode = "readonly",
   ): Promise<IDBObjectStore> {
     const db = await this.initDB();
     const tx = db.transaction(storeName, mode);
@@ -91,9 +93,10 @@ class LocalDatabase {
   }
 
   private async withStore<T>(
-    storeName: "articles" | "playlists" | "progress" | "settings" | "audioStore",
+    storeName:
+      "articles" | "playlists" | "progress" | "settings" | "audioStore",
     mode: IDBTransactionMode,
-    fn: (store: IDBObjectStore) => IDBRequest<T>
+    fn: (store: IDBObjectStore) => IDBRequest<T>,
   ): Promise<T> {
     const db = await this.initDB();
 
@@ -103,15 +106,20 @@ class LocalDatabase {
       const request = fn(store);
 
       request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
-      tx.onerror = () => reject(tx.error ?? new Error("IndexedDB transaction failed"));
-      tx.onabort = () => reject(tx.error ?? new Error("IndexedDB transaction aborted"));
+      request.onerror = () =>
+        reject(request.error ?? new Error("IndexedDB request failed"));
+      tx.onerror = () =>
+        reject(tx.error ?? new Error("IndexedDB transaction failed"));
+      tx.onabort = () =>
+        reject(tx.error ?? new Error("IndexedDB transaction aborted"));
     });
   }
 
   async getArticles(): Promise<Article[]> {
     try {
-      return await this.withStore("articles", "readonly", (store) => store.getAll());
+      return await this.withStore("articles", "readonly", (store) =>
+        store.getAll(),
+      );
     } catch (err) {
       console.error("getArticles failed", err);
       return [];
@@ -119,7 +127,9 @@ class LocalDatabase {
   }
 
   async saveArticle(article: Article): Promise<void> {
-    await this.withStore("articles", "readwrite", (store) => store.put(article));
+    await this.withStore("articles", "readwrite", (store) =>
+      store.put(article),
+    );
   }
 
   async deleteArticle(id: string): Promise<void> {
@@ -129,7 +139,9 @@ class LocalDatabase {
 
   async getPlaylists(): Promise<Playlist[]> {
     try {
-      return await this.withStore("playlists", "readonly", (store) => store.getAll());
+      return await this.withStore("playlists", "readonly", (store) =>
+        store.getAll(),
+      );
     } catch (err) {
       console.error("getPlaylists failed", err);
       return [];
@@ -137,7 +149,9 @@ class LocalDatabase {
   }
 
   async savePlaylist(playlist: Playlist): Promise<void> {
-    await this.withStore("playlists", "readwrite", (store) => store.put(playlist));
+    await this.withStore("playlists", "readwrite", (store) =>
+      store.put(playlist),
+    );
   }
 
   async deletePlaylist(id: string): Promise<void> {
@@ -146,7 +160,9 @@ class LocalDatabase {
 
   async getProgress(): Promise<PlaybackProgress[]> {
     try {
-      return await this.withStore("progress", "readonly", (store) => store.getAll());
+      return await this.withStore("progress", "readonly", (store) =>
+        store.getAll(),
+      );
     } catch (err) {
       console.error("getProgress failed", err);
       return [];
@@ -154,11 +170,15 @@ class LocalDatabase {
   }
 
   async saveProgress(progress: PlaybackProgress): Promise<void> {
-    await this.withStore("progress", "readwrite", (store) => store.put(progress));
+    await this.withStore("progress", "readwrite", (store) =>
+      store.put(progress),
+    );
   }
 
   async deleteProgress(articleId: string): Promise<void> {
-    await this.withStore("progress", "readwrite", (store) => store.delete(articleId));
+    await this.withStore("progress", "readwrite", (store) =>
+      store.delete(articleId),
+    );
   }
 
   async getPreferences(): Promise<UserPreferences | null> {
@@ -166,7 +186,7 @@ class LocalDatabase {
       const prefs = await this.withStore<UserPreferences | undefined>(
         "settings",
         "readonly",
-        (store) => store.get("preferences")
+        (store) => store.get("preferences"),
       );
       return prefs ?? null;
     } catch (err) {
@@ -176,7 +196,9 @@ class LocalDatabase {
   }
 
   async savePreferences(prefs: UserPreferences): Promise<void> {
-    await this.withStore("settings", "readwrite", (store) => store.put(prefs, "preferences"));
+    await this.withStore("settings", "readwrite", (store) =>
+      store.put(prefs, "preferences"),
+    );
   }
 
   async getQueue(): Promise<string[]> {
@@ -184,7 +206,7 @@ class LocalDatabase {
       const queue = await this.withStore<string[] | undefined>(
         "settings",
         "readonly",
-        (store) => store.get("queue")
+        (store) => store.get("queue"),
       );
       return queue ?? [];
     } catch (err) {
@@ -194,7 +216,9 @@ class LocalDatabase {
   }
 
   async saveQueue(queue: string[]): Promise<void> {
-    await this.withStore("settings", "readwrite", (store) => store.put(queue, "queue"));
+    await this.withStore("settings", "readwrite", (store) =>
+      store.put(queue, "queue"),
+    );
   }
 
   async getAudio(articleId: string): Promise<string | null> {
@@ -202,7 +226,7 @@ class LocalDatabase {
       const audio = await this.withStore<string | undefined>(
         "audioStore",
         "readonly",
-        (store) => store.get(articleId)
+        (store) => store.get(articleId),
       );
       return audio ?? null;
     } catch (err) {
@@ -212,25 +236,34 @@ class LocalDatabase {
   }
 
   async saveAudio(articleId: string, audioBase64: string): Promise<void> {
-    await this.withStore("audioStore", "readwrite", (store) => store.put(audioBase64, articleId));
+    await this.withStore("audioStore", "readwrite", (store) =>
+      store.put(audioBase64, articleId),
+    );
   }
 
   async deleteAudio(articleId: string): Promise<void> {
-    await this.withStore("audioStore", "readwrite", (store) => store.delete(articleId));
+    await this.withStore("audioStore", "readwrite", (store) =>
+      store.delete(articleId),
+    );
   }
 
   async clearAll(): Promise<void> {
     const db = await this.initDB();
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(["articles", "playlists", "progress", "settings", "audioStore"], "readwrite");
+      const tx = db.transaction(
+        ["articles", "playlists", "progress", "settings", "audioStore"],
+        "readwrite",
+      );
       tx.objectStore("articles").clear();
       tx.objectStore("playlists").clear();
       tx.objectStore("progress").clear();
       tx.objectStore("settings").clear();
       tx.objectStore("audioStore").clear();
       tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error ?? new Error("Failed to clear IndexedDB"));
-      tx.onabort = () => reject(tx.error ?? new Error("Clear transaction aborted"));
+      tx.onerror = () =>
+        reject(tx.error ?? new Error("Failed to clear IndexedDB"));
+      tx.onabort = () =>
+        reject(tx.error ?? new Error("Clear transaction aborted"));
     });
   }
 }

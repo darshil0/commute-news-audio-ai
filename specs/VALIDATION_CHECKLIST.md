@@ -7,16 +7,18 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 ## 1. Automated Build & Type Verification
 
 - [x] **Linter / Type Checking**:
+
   ```bash
   npm run lint
   ```
-  *Pass Criteria*: `tsc --noEmit` completes with zero errors.
+
+  _Pass Criteria_: `tsc --noEmit` completes with zero errors.
 
 - [x] **Production Build**:
   ```bash
   npm run build
   ```
-  *Pass Criteria*: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
+  _Pass Criteria_: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
 
 ### 1.1 Custom Validation & Quality Audits
 
@@ -73,7 +75,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **SDD Alignment**:
   - Code changes match the definitions in `/specs/SYSTEM_SPEC.md`.
   - Any new behavior or scope change has been documented in `/specs/SYSTEM_SPEC.md` first.
-  - Unclear requirements are flagged with `[NEEDS-CLARIFICATION]`.
+  - Unclear requirements are flagged with `[NEEDS CLARIFICATION]`.
 
 - [x] **Documentation Updates**:
   - `/README.md` accurately reflects project architecture and SDD workflow.
@@ -130,31 +132,4 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-18 (Auth Warning Logging)**: Failed login attempts log server-side security warnings while returning safe generic error responses to clients.
 - [x] **DEF-19 (HTML Title & Meta Tags)**: `index.html` renders `<title>CommuteBrief — Smart Commute Audio Briefings</title>` and OpenGraph description tags.
 - [x] **DEF-20 (Git Ignore Data Protection)**: `.gitignore` includes `data/` and `*.db` rules to prevent user database or secret leaks in repository commits.
-
----
-
-## 6. Visual Layout & Theme Verification (Playwright Browser Automation)
-
-### 6.1 Visual Test Environment Specification
-- **Engine**: Headless Playwright (Chromium Browser Wrapper)
-- **Viewport Dimension**: Desktop (`1280px` width by `800px` height)
-- **Target URL**: `http://localhost:3000`
-- **Automation Runner**: `/home/jules/verification/verify_theme_layouts.py`
-
-### 6.2 Visual Validation Checklist Items
-
-- [x] **Light/Dark Mode Theme Check**:
-  - Verification script toggles the theme on the HTML root element and ensures components (Dashboard, Player, IntakePanel, Settings, and Playlists) adjust color tokens, contrast, and font visibility seamlessly.
-  - *Artifacts*: `/home/jules/verification/home_dashboard.png` (Dark Theme Feed), `/home/jules/verification/home_dashboard_alt_theme.png` (Light Theme Feed)
-
-- [x] **Expanded Player Layout & Controls Check**:
-  - Verified audio player's expanded panel overlays, volume sliders, seek controls, voice profile badges, and buttons remain properly aligned without clipped boundaries.
-  - *Artifacts*: `/home/jules/verification/player_expanded_overlay_dark.png` (Dark Theme Overlay), `/home/jules/verification/player_expanded_overlay_light.png` (Light Theme Overlay)
-
-- [x] **Queue Panel & Playlist Ordering Check**:
-  - Queue items and playlists render properly in list format, with correct spacing, drag handles, and no overflowing metadata text.
-  - *Artifacts*: `/home/jules/verification/queue_panel.png` (Queue Structure), `/home/jules/verification/playlists_panel.png` (Playlist Directory)
-
-- [x] **Grounded Source Link Placement Check**:
-  - Citations and original source links under "Live Search" are clear, responsive, and legible across both light and dark backgrounds.
-  - *Artifacts*: `/home/jules/verification/intake_panel.png` (Intake Web Form)
+- [x] **DEF-21 (Rate Limiter Memory Sweep)**: `server.ts` executes a periodic 10-minute sweep purging stale IP keys from `rateLimitStore` to prevent in-memory map leakage.
