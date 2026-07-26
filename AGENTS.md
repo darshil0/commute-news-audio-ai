@@ -46,6 +46,7 @@ When working on this repository, all AI agents and human contributors **MUST** f
 ## ❓ Handling Ambiguity (`[NEEDS CLARIFICATION]`)
 
 If a user request or task lacks explicit detail:
+
 - **Do NOT guess or invent unrequested features.**
 - Clearly flag the ambiguity using the `[NEEDS CLARIFICATION]` tag in the relevant spec (`specs/SYSTEM_SPEC.md`) and in your final response.
 - Provide a clear explanation of what information is missing and offer logical options to resolve it.
@@ -55,5 +56,6 @@ If a user request or task lacks explicit detail:
 ## 📋 Verification Commands
 
 Before concluding any work, verify the codebase using:
+
 - **Lint Check**: `npm run lint` (`tsc --noEmit`)
 - **Build Check**: `npm run build` (`tsc --noEmit && vite build && esbuild ...`)

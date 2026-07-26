@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.8.0] - 2026-07-26
 
 ### 📚 Spec-Driven Development & Documentation Alignment
+
 - **Documentation Audit & Sync**: Updated all repository specifications (`SYSTEM_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `VALIDATION_CHECKLIST.md`, and `README.md`) to maintain 100% alignment with current production features.
 - **In-Memory Rate Limiter Memory Sweep (DEF-21)**: Implemented periodic 10-minute sweep in `server.ts` to purge expired IP entries from `rateLimitStore` and eliminate unbounded map growth over time.
 - **Verification Protocol**: Passed all automated lint (`npm run lint`), build (`npm run build`), and SDD validation checklist items.
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.7.0] - 2026-07-25
 
 ### 🛡️ Production Hardening & Audit Resolutions
+
 - **Production Secret Enforcer**: Configured mandatory `validateEnvironment()` startup check in `server.ts` that halts execution if `TOKEN_SECRET` is missing in production deployments (`NODE_ENV === "production"`).
 - **Startup Environment Validation**: Added startup environment check for `GEMINI_API_KEY` presence and expected key prefix (`AIza`) to catch misconfigurations before listening.
 - **In-Memory Rate Limiting**: Added sliding-window rate limiters across API routes (60 req/min global, 15 req/min AI routes) returning HTTP 429 status when limit thresholds are exceeded, with an automated 10-minute periodic sweep to purge stale keys.
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.6.0] - 2026-07-25
 
 ### 🐛 Bugs, Errors, and Defects Fixed
+
 - **Model Alignment & Server Port Isolation**:
   - Standardized backend Gemini API model references in `server.ts` to `gemini-2.5-flash` for article extraction/summarization and `gemini-2.5-flash-preview-tts` for Text-To-Speech synthesis.
   - Guarded `startServer()` in `server.ts` to prevent automatic port binding during automated test suite runs (`NODE_ENV === "test"`).
@@ -69,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.5.0] - 2026-07-24
 
 ### Refactored & Code Quality Hardening
+
 - **Strict Typing & Elimination of `any` Casts**:
   - Replaced raw `any` casts in `server.ts` with explicit internal types (`GroundingChunk`, `VoiceName`, `PartWithInlineData`).
   - Replaced `any` event handlers and preference casts in `IntakePanel.tsx` and `ProfilePanel.tsx` with strict TypeScript types (`SummaryLength`, `SummaryTone`, `VoiceName`).
@@ -85,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.0] - 2026-07-24
 
 ### Fixed & Security Hardening
+
 - **Path Traversal Vulnerability Fix**:
   - Enforced strict character allowlist (`/^[a-z0-9_-]{3,32}$/`) for username registration in `server.ts`.
   - Added strict path checking (`path.resolve(syncFile).startsWith(path.resolve(DATA_DIR))`) in `/api/sync/save` and `/api/sync/get` to eliminate path traversal risks.
@@ -106,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2026-07-24
 
 ### Added
+
 - **Gemini Search Grounding Integration in IntakePanel**:
   - Integrated `@google/genai` real-time Google Search Grounding (`{ tools: [{ googleSearch: {} }] }`) with model `gemini-3.6-flash`.
   - Created Express backend endpoint `/api/articles/search-news` returning real-time news summaries grounded by live web sources and citations.
@@ -116,6 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0] - 2026-07-24
 
 ### Added
+
 - **Spec-Driven Development (SDD) Framework**:
   - Introduced root `/AGENTS.md` specifying mandatory spec-first development workflows, port constraints, error handling, and agent handoff protocols.
   - Created `/specs/SYSTEM_SPEC.md` formally defining system purpose, scope, Firestore cloud cross-device sync technical architecture (`UserBrief`, `UserPlaylist`, `UserSettings`), ABAC security model, offline-first sync resolution strategies, acceptance criteria (AC-1 to AC-7), non-goals, and validation protocols.
@@ -127,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2026-07-10
 
 ### Added
+
 - **AI Narrator Voice Customization**:
   - Implemented 5 distinct voice profiles in the Profile/Settings panel:
     - **Calm Narrator (Zephyr)**: Deep, reassuring, and professional tone.
@@ -155,6 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implemented tokenized, scored term matching (weighting titles, categories, tags, and authors higher than summaries) with exact-match multi-term bonuses to keep filtering fast and scale-resilient.
 
 ### Changed
+
 - **Robust Immutability Design**:
   - Toughened `src/types.ts` data structures by replacing mutable properties with deep read-only identifiers (`readonly tags: readonly string[]`, `readonly articleIds: readonly string[]`, `readonly queue: readonly string[]`, etc.) to guarantee state purity and avoid unintended mutations.
 - **Decoupled API Transport & Client Domain Schemas**:
@@ -165,6 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wrapped the core state values in a optimized React `useMemo` dependency array inside `src/context/AppContext.tsx` to drastically reduce unnecessary deep re-renders across all consumer panels.
 
 ### Fixed
+
 - **Hoisting & Temporal Dead Zone Errors**:
   - Fixed a block-scoped variable reference error in `src/context/AppContext.tsx` by setting up a persistent functional ref for `playNextInQueue` to avoid closure errors within audio event listeners before the function is fully initialized.
 - **Centralized API Error & Transport Safety**:
@@ -184,6 +194,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - Initial Release
 
 ### Added
+
 - Standard single-page application (SPA) architecture utilizing custom Express backend wrapper + Vite asset bundler on Port 3000.
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.

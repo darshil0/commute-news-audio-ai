@@ -93,7 +93,12 @@ export const HomeDashboard: React.FC = () => {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isPullingRef.current || touchStartYRef.current === null || isRefreshing) return;
+    if (
+      !isPullingRef.current ||
+      touchStartYRef.current === null ||
+      isRefreshing
+    )
+      return;
     const currentY = e.touches[0].clientY;
     const deltaY = currentY - touchStartYRef.current;
     if (deltaY > 0 && typeof window !== "undefined" && window.scrollY <= 2) {
@@ -119,7 +124,10 @@ export const HomeDashboard: React.FC = () => {
     const totalBriefs = articles.length;
     const completedBriefs = progress.filter((p) => p.completed).length;
     const downloadedBriefs = articles.filter((a) => a.isDownloaded).length;
-    const totalSecondsListen = progress.reduce((acc, curr) => acc + Math.max(0, Math.round(curr.position)), 0);
+    const totalSecondsListen = progress.reduce(
+      (acc, curr) => acc + Math.max(0, Math.round(curr.position)),
+      0,
+    );
 
     return {
       totalBriefs,
@@ -152,7 +160,7 @@ export const HomeDashboard: React.FC = () => {
     (articleId: string) => {
       playArticle(articleId);
     },
-    [playArticle]
+    [playArticle],
   );
 
   return (
@@ -178,8 +186,8 @@ export const HomeDashboard: React.FC = () => {
               isRefreshing
                 ? "animate-spin"
                 : pullDistance > 55
-                ? "rotate-180 text-emerald-600"
-                : ""
+                  ? "rotate-180 text-emerald-600"
+                  : ""
             }`}
           />
           {isRefreshing ? (
@@ -229,11 +237,14 @@ export const HomeDashboard: React.FC = () => {
               aria-label="Refresh feed"
               className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer disabled:opacity-50"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-emerald-500" : ""}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${isRefreshing ? "animate-spin text-emerald-500" : ""}`}
+              />
             </button>
           </div>
           <p className="text-zinc-600 dark:text-zinc-400 text-xs mt-1">
-            Seamless summaries formatted into offline-ready morning podcast streams.
+            Seamless summaries formatted into offline-ready morning podcast
+            streams.
           </p>
         </div>
 
@@ -241,15 +252,21 @@ export const HomeDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <Headphones className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
             <div>
-              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Listening</p>
-              <p className="font-semibold text-zinc-800 dark:text-zinc-200">{stats.totalMinListen} min</p>
+              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
+                Listening
+              </p>
+              <p className="font-semibold text-zinc-800 dark:text-zinc-200">
+                {stats.totalMinListen} min
+              </p>
             </div>
           </div>
           <div className="w-px h-8 bg-zinc-200 dark:bg-zinc-800" />
           <div className="flex items-center gap-2">
             <Check className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
             <div>
-              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Completed</p>
+              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
+                Completed
+              </p>
               <p className="font-semibold text-zinc-800 dark:text-zinc-200">
                 {stats.completedBriefs} / {stats.totalBriefs}
               </p>
@@ -284,7 +301,10 @@ export const HomeDashboard: React.FC = () => {
         )}
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar" aria-label="Category filters">
+      <div
+        className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar"
+        aria-label="Category filters"
+      >
         {categories.map((cat) => (
           <button
             key={cat}
@@ -310,7 +330,13 @@ export const HomeDashboard: React.FC = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {inProgressBriefs.map(({ art, progress }) => {
-              const percent = progress.duration > 0 ? Math.min(100, Math.round((progress.position / progress.duration) * 100)) : 0;
+              const percent =
+                progress.duration > 0
+                  ? Math.min(
+                      100,
+                      Math.round((progress.position / progress.duration) * 100),
+                    )
+                  : 0;
 
               return (
                 <div
@@ -323,8 +349,12 @@ export const HomeDashboard: React.FC = () => {
                       <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase bg-emerald-100 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
                         {art.category}
                       </span>
-                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-200 truncate mt-1.5">{art.title}</h4>
-                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Resume from {formatSecondsLabel(progress.position)}</p>
+                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-200 truncate mt-1.5">
+                        {art.title}
+                      </h4>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Resume from {formatSecondsLabel(progress.position)}
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -338,8 +368,14 @@ export const HomeDashboard: React.FC = () => {
                   </div>
 
                   <div className="mt-4">
-                    <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1 rounded overflow-hidden" aria-hidden="true">
-                      <div className="bg-emerald-500 dark:bg-emerald-400 h-full" style={{ width: `${percent}%` }} />
+                    <div
+                      className="w-full bg-zinc-200 dark:bg-zinc-800 h-1 rounded overflow-hidden"
+                      aria-hidden="true"
+                    >
+                      <div
+                        className="bg-emerald-500 dark:bg-emerald-400 h-full"
+                        style={{ width: `${percent}%` }}
+                      />
                     </div>
                     <div className="flex justify-between text-[9px] font-mono text-zinc-500 dark:text-zinc-400 mt-1">
                       <span>{percent}% listened</span>
@@ -362,7 +398,10 @@ export const HomeDashboard: React.FC = () => {
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="border border-zinc-200 dark:border-zinc-900 rounded-xl p-4 animate-pulse flex items-center gap-4 bg-white/50 dark:bg-zinc-900/20">
+              <div
+                key={n}
+                className="border border-zinc-200 dark:border-zinc-900 rounded-xl p-4 animate-pulse flex items-center gap-4 bg-white/50 dark:bg-zinc-900/20"
+              >
                 <div className="w-11 h-11 bg-zinc-200 dark:bg-zinc-800 rounded-xl flex-shrink-0" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3" />
@@ -374,16 +413,21 @@ export const HomeDashboard: React.FC = () => {
         ) : filteredArticles.length === 0 ? (
           <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl py-12 px-6 text-center">
             <FileText className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-            <h4 className="font-semibold text-zinc-400">No briefs match criteria</h4>
+            <h4 className="font-semibold text-zinc-400">
+              No briefs match criteria
+            </h4>
             <p className="text-zinc-600 text-xs mt-1">
-              Add some news, saved feeds, or refine your search query or filters.
+              Add some news, saved feeds, or refine your search query or
+              filters.
             </p>
           </div>
         ) : (
           <div className="space-y-3">
             {filteredArticles.map((art) => {
               const isActive = currentArticleId === art.id;
-              const isComp = progress.find((p) => p.articleId === art.id)?.completed ?? false;
+              const isComp =
+                progress.find((p) => p.articleId === art.id)?.completed ??
+                false;
 
               return (
                 <div
@@ -432,19 +476,26 @@ export const HomeDashboard: React.FC = () => {
                         )}
                       </div>
 
-                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100 truncate mt-1.5">{art.title}</h4>
+                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100 truncate mt-1.5">
+                        {art.title}
+                      </h4>
 
-                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">{art.summary}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
+                        {art.summary}
+                      </p>
 
                       <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-zinc-500 font-mono">
                         <span>{art.author || "Audio Brief"}</span>
                         <span className="w-1 h-1 bg-zinc-400 dark:bg-zinc-700 rounded-full" />
-                        <span>{new Date(art.createdAt).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(art.createdAt).toLocaleDateString()}
+                        </span>
                         {art.playCount > 0 && (
                           <>
                             <span className="w-1 h-1 bg-zinc-400 dark:bg-zinc-700 rounded-full" />
                             <span>
-                              {art.playCount} {art.playCount === 1 ? "play" : "plays"}
+                              {art.playCount}{" "}
+                              {art.playCount === 1 ? "play" : "plays"}
                             </span>
                           </>
                         )}
@@ -453,7 +504,10 @@ export const HomeDashboard: React.FC = () => {
                       {art.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {art.tags.map((tag) => (
-                            <span key={tag} className="text-[9px] text-zinc-500 bg-zinc-100 dark:bg-zinc-800/40 px-1.5 py-0.5 rounded">
+                            <span
+                              key={tag}
+                              className="text-[9px] text-zinc-500 bg-zinc-100 dark:bg-zinc-800/40 px-1.5 py-0.5 rounded"
+                            >
                               #{tag}
                             </span>
                           ))}
@@ -491,9 +545,15 @@ export const HomeDashboard: React.FC = () => {
                       id={`bookmark-toggle-${art.id}`}
                       onClick={() => toggleSaveArticle(art.id)}
                       aria-pressed={art.isSaved}
-                      aria-label={art.isSaved ? `Remove bookmark for ${art.title}` : `Bookmark ${art.title}`}
+                      aria-label={
+                        art.isSaved
+                          ? `Remove bookmark for ${art.title}`
+                          : `Bookmark ${art.title}`
+                      }
                       className={`p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors ${
-                        art.isSaved ? "text-emerald-500 dark:text-emerald-400" : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                        art.isSaved
+                          ? "text-emerald-500 dark:text-emerald-400"
+                          : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                       }`}
                       title={art.isSaved ? "Bookmarked" : "Bookmark"}
                     >
@@ -504,7 +564,11 @@ export const HomeDashboard: React.FC = () => {
                       type="button"
                       id={`delete-feed-item-${art.id}`}
                       onClick={() => {
-                        if (window.confirm("Are you sure you want to delete this news brief?")) {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this news brief?",
+                          )
+                        ) {
                           deleteArticle(art.id);
                         }
                       }}

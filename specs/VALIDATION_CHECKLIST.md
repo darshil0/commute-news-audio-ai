@@ -7,16 +7,18 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 ## 1. Automated Build & Type Verification
 
 - [x] **Linter / Type Checking**:
+
   ```bash
   npm run lint
   ```
-  *Pass Criteria*: `tsc --noEmit` completes with zero errors.
+
+  _Pass Criteria_: `tsc --noEmit` completes with zero errors.
 
 - [x] **Production Build**:
   ```bash
   npm run build
   ```
-  *Pass Criteria*: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
+  _Pass Criteria_: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
 
 ---
 

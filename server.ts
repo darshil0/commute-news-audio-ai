@@ -21,15 +21,19 @@ const USERS_FILE = path.join(DATA_DIR, "users.json");
 function validateEnvironment() {
   if (process.env.NODE_ENV === "production" && !process.env.TOKEN_SECRET) {
     throw new Error(
-      "FATAL: TOKEN_SECRET environment variable must be set in production deployments. Exiting startup."
+      "FATAL: TOKEN_SECRET environment variable must be set in production deployments. Exiting startup.",
     );
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.warn("[Env Warning] GEMINI_API_KEY is not configured. AI features will fail until set.");
+    console.warn(
+      "[Env Warning] GEMINI_API_KEY is not configured. AI features will fail until set.",
+    );
   } else if (!apiKey.startsWith("AIza")) {
-    console.warn("[Env Warning] GEMINI_API_KEY format looks unexpected (expected prefix 'AIza').");
+    console.warn(
+      "[Env Warning] GEMINI_API_KEY format looks unexpected (expected prefix 'AIza').",
+    );
   }
 }
 
@@ -56,11 +60,15 @@ function createRateLimiter(maxRequests: number, windowMs: number) {
     entry.timestamps = entry.timestamps.filter((ts) => ts > windowStart);
 
     if (entry.timestamps.length >= maxRequests) {
-      logStructured("warn", `Rate limit exceeded for IP: ${ip} on ${req.path}`, {
-        ip,
-        endpoint: req.path,
-        count: entry.timestamps.length,
-      });
+      logStructured(
+        "warn",
+        `Rate limit exceeded for IP: ${ip} on ${req.path}`,
+        {
+          ip,
+          endpoint: req.path,
+          count: entry.timestamps.length,
+        },
+      );
       res.status(429).json({
         error: `Too many requests to ${req.path}. Please try again later.`,
       });
@@ -76,17 +84,24 @@ const globalRateLimiter = createRateLimiter(60, 60 * 1000); // 60 req/min
 const aiRouteRateLimiter = createRateLimiter(15, 60 * 1000); // 15 req/min
 
 // Periodic cleanup of stale rate-limit store entries every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
-    entry.timestamps = entry.timestamps.filter((ts) => ts > now - 60000);
-    if (entry.timestamps.length === 0) {
-      rateLimitStore.delete(key);
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, entry] of rateLimitStore.entries()) {
+      entry.timestamps = entry.timestamps.filter((ts) => ts > now - 60000);
+      if (entry.timestamps.length === 0) {
+        rateLimitStore.delete(key);
+      }
     }
-  }
-}, 10 * 60 * 1000);
+  },
+  10 * 60 * 1000,
+);
 
-function logStructured(level: "info" | "warn" | "error", message: string, metadata?: Record<string, unknown>) {
+function logStructured(
+  level: "info" | "warn" | "error",
+  message: string,
+  metadata?: Record<string, unknown>,
+) {
   const payload = {
     timestamp: new Date().toISOString(),
     level,
@@ -158,7 +173,9 @@ function getAI() {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      throw Object.assign(new Error("GEMINI_API_KEY is not configured."), { statusCode: 500 });
+      throw Object.assign(new Error("GEMINI_API_KEY is not configured."), {
+        statusCode: 500,
+      });
     }
     aiClient = new GoogleGenAI({
       apiKey,
@@ -182,31 +199,41 @@ async function saveUsers(users: UsersDb) {
 }
 
 function hashPassword(password: string, salt: string): string {
-  return crypto.pbkdf2Sync(password, salt, 100000, 64, "sha256").toString("hex");
+  return crypto
+    .pbkdf2Sync(password, salt, 100000, 64, "sha256")
+    .toString("hex");
 }
 
 function signToken(username: string): string {
   const payload = JSON.stringify({ username, ts: Date.now() });
   const body = Buffer.from(payload).toString("base64url");
-  const sig = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
+  const sig = crypto
+    .createHmac("sha256", TOKEN_SECRET)
+    .update(body)
+    .digest("base64url");
   return `${body}.${sig}`;
 }
 
 function verifyToken(token: string): string | null {
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
-  const expected = crypto.createHmac("sha256", TOKEN_SECRET).update(body).digest("base64url");
-  
+  const expected = crypto
+    .createHmac("sha256", TOKEN_SECRET)
+    .update(body)
+    .digest("base64url");
+
   const sigBuffer = Buffer.from(sig);
   const expectedBuffer = Buffer.from(expected);
-  
+
   // Timing safe equal throws an error if buffers have different lengths.
   // Compare lengths first to prevent crashes.
   if (sigBuffer.length !== expectedBuffer.length) return null;
   if (!crypto.timingSafeEqual(sigBuffer, expectedBuffer)) return null;
 
   try {
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as { username?: string; ts?: number };
+    const payload = JSON.parse(
+      Buffer.from(body, "base64url").toString("utf-8"),
+    ) as { username?: string; ts?: number };
     if (!payload.username) return null;
     if (payload.ts && Date.now() - payload.ts > 7 * 24 * 60 * 60 * 1000) {
       return null; // Token expired after 7 days
@@ -223,7 +250,10 @@ function cleanAndParseJson<T>(rawText: string, fallback: T): T {
 
   // Strip markdown code fences if present (e.g. ```json ... ```)
   if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    cleaned = cleaned
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/, "")
+      .trim();
   }
 
   try {
@@ -248,14 +278,18 @@ function toError(err: unknown, fallback: string): ApiError {
 }
 
 function asyncHandler(
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>,
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
 
-function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
+function authenticateToken(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
@@ -285,7 +319,10 @@ async function startServer() {
   app.post(
     "/api/auth/register",
     asyncHandler(async (req, res) => {
-      const { username, password } = req.body as { username?: unknown; password?: unknown };
+      const { username, password } = req.body as {
+        username?: unknown;
+        password?: unknown;
+      };
 
       if (typeof username !== "string" || typeof password !== "string") {
         res.status(400).json({ error: "Username and password are required." });
@@ -295,7 +332,8 @@ async function startServer() {
       const uClean = username.trim().toLowerCase();
       if (!USERNAME_REGEX.test(uClean) || password.length < 8) {
         res.status(400).json({
-          error: "Username must be 3-32 alphanumeric characters, underscores, or hyphens; password at least 8 chars.",
+          error:
+            "Username must be 3-32 alphanumeric characters, underscores, or hyphens; password at least 8 chars.",
         });
         return;
       }
@@ -310,15 +348,20 @@ async function startServer() {
       users[uClean] = { passwordHash: hashPassword(password, salt), salt };
       await saveUsers(users);
 
-      logStructured("info", `User registered successfully: ${uClean}`, { username: uClean });
+      logStructured("info", `User registered successfully: ${uClean}`, {
+        username: uClean,
+      });
       res.json({ username: uClean, token: signToken(uClean) });
-    })
+    }),
   );
 
   app.post(
     "/api/auth/login",
     asyncHandler(async (req, res) => {
-      const { username, password } = req.body as { username?: unknown; password?: unknown };
+      const { username, password } = req.body as {
+        username?: unknown;
+        password?: unknown;
+      };
 
       if (typeof username !== "string" || typeof password !== "string") {
         res.status(400).json({ error: "Username and password are required." });
@@ -330,17 +373,23 @@ async function startServer() {
       const user = users[uClean];
 
       if (!user || hashPassword(password, user.salt) !== user.passwordHash) {
-        logStructured("warn", `Login failed for user '${uClean}': invalid credentials`, {
-          username: uClean,
-          ip: req.ip || req.socket.remoteAddress,
-        });
+        logStructured(
+          "warn",
+          `Login failed for user '${uClean}': invalid credentials`,
+          {
+            username: uClean,
+            ip: req.ip || req.socket.remoteAddress,
+          },
+        );
         res.status(401).json({ error: "Invalid username or password." });
         return;
       }
 
-      logStructured("info", `User logged in successfully: ${uClean}`, { username: uClean });
+      logStructured("info", `User logged in successfully: ${uClean}`, {
+        username: uClean,
+      });
       res.json({ username: uClean, token: signToken(uClean) });
-    })
+    }),
   );
 
   app.post(
@@ -359,7 +408,7 @@ async function startServer() {
 
       await fs.writeFile(syncFile, JSON.stringify(req.body, null, 2), "utf-8");
       res.json({ success: true, timestamp: Date.now() });
-    })
+    }),
   );
 
   app.get(
@@ -382,14 +431,17 @@ async function startServer() {
       } catch {
         res.json({ empty: true });
       }
-    })
+    }),
   );
 
   app.post(
     "/api/articles/extract",
     aiRouteRateLimiter,
     asyncHandler(async (req, res) => {
-      const { url, preferences } = req.body as { url?: unknown; preferences?: Preferences };
+      const { url, preferences } = req.body as {
+        url?: unknown;
+        preferences?: Preferences;
+      };
 
       if (typeof url !== "string" || !url.trim()) {
         res.status(400).json({ error: "Valid article URL is required." });
@@ -397,7 +449,9 @@ async function startServer() {
       }
 
       if (url.length > 2000) {
-        res.status(400).json({ error: "URL exceeds maximum length of 2000 characters." });
+        res
+          .status(400)
+          .json({ error: "URL exceeds maximum length of 2000 characters." });
         return;
       }
 
@@ -410,12 +464,18 @@ async function startServer() {
       }
 
       if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
-        res.status(400).json({ error: "Only http and https protocols are supported." });
+        res
+          .status(400)
+          .json({ error: "Only http and https protocols are supported." });
         return;
       }
 
       if (isPrivateOrInternalHost(parsedUrl.hostname)) {
-        res.status(400).json({ error: "Access to internal or private addresses is forbidden." });
+        res
+          .status(400)
+          .json({
+            error: "Access to internal or private addresses is forbidden.",
+          });
         return;
       }
 
@@ -470,7 +530,11 @@ Return strict JSON:
       });
 
       const text = result.text?.trim() ?? "{}";
-      const parsed = cleanAndParseJson<{ title?: string; author?: string; summary?: string }>(text, {
+      const parsed = cleanAndParseJson<{
+        title?: string;
+        author?: string;
+        summary?: string;
+      }>(text, {
         title: "Extracted Article",
         summary: "Could not generate summary for this article.",
       });
@@ -479,7 +543,7 @@ Return strict JSON:
         author: parsed.author || undefined,
         summary: parsed.summary || "Summary unavailable.",
       });
-    })
+    }),
   );
 
   app.post(
@@ -504,7 +568,8 @@ Return strict JSON:
         return;
       }
 
-      const safeTitle = typeof title === "string" && title.trim() ? title.trim() : "Untitled";
+      const safeTitle =
+        typeof title === "string" && title.trim() ? title.trim() : "Untitled";
       const lengthText =
         preferences?.summaryLength === "detailed"
           ? "detailed, structured summary (around 300-400 words) with multiple bullet points"
@@ -540,15 +605,18 @@ ${text}`;
         config: { responseMimeType: "application/json" },
       });
 
-      const parsed = cleanAndParseJson<{ title?: string; summary?: string }>(result.text?.trim() ?? "{}", {
-        title: safeTitle,
-        summary: text.slice(0, 300) + "...",
-      });
+      const parsed = cleanAndParseJson<{ title?: string; summary?: string }>(
+        result.text?.trim() ?? "{}",
+        {
+          title: safeTitle,
+          summary: text.slice(0, 300) + "...",
+        },
+      );
       res.json({
         title: parsed.title || safeTitle,
         summary: parsed.summary || text.slice(0, 300),
       });
-    })
+    }),
   );
 
   app.post(
@@ -566,7 +634,11 @@ ${text}`;
       }
 
       if (query.trim().length > 200) {
-        res.status(400).json({ error: "Search query exceeds maximum length of 200 characters." });
+        res
+          .status(400)
+          .json({
+            error: "Search query exceeds maximum length of 200 characters.",
+          });
         return;
       }
 
@@ -608,14 +680,19 @@ Return strict JSON:
       });
 
       const text = result.text?.trim() ?? "{}";
-      const parsed = cleanAndParseJson<{ title?: string; category?: string; summary?: string }>(text, {
+      const parsed = cleanAndParseJson<{
+        title?: string;
+        category?: string;
+        summary?: string;
+      }>(text, {
         title: `Latest News: ${safeQuery}`,
         category: "Search Grounding",
         summary: "Summary generated from live search.",
       });
 
       type GroundingChunk = { web?: { uri?: string; title?: string } };
-      const groundingChunks = (result.candidates?.[0]?.groundingMetadata?.groundingChunks || []) as GroundingChunk[];
+      const groundingChunks = (result.candidates?.[0]?.groundingMetadata
+        ?.groundingChunks || []) as GroundingChunk[];
       const sources: Array<{ title: string; url: string }> = [];
       for (const chunk of groundingChunks) {
         if (chunk?.web?.uri) {
@@ -632,7 +709,7 @@ Return strict JSON:
         summary: parsed.summary || "Summary generated from live web search.",
         sources,
       });
-    })
+    }),
   );
 
   app.post(
@@ -652,26 +729,45 @@ Return strict JSON:
 
       const trimmedText = text.trim();
       if (trimmedText.length < 2) {
-        res.status(400).json({ error: "Text must be at least 2 characters long." });
+        res
+          .status(400)
+          .json({ error: "Text must be at least 2 characters long." });
         return;
       }
 
       if (trimmedText.length > 10000) {
-        res.status(413).json({ error: "TTS text exceeds maximum length of 10000 characters." });
+        res
+          .status(413)
+          .json({
+            error: "TTS text exceeds maximum length of 10000 characters.",
+          });
         return;
       }
 
       if (/<[^>]+>/.test(trimmedText)) {
-        logStructured("warn", "TTS text contains HTML/SSML tags; tags will be spoken verbatim or stripped", {
-          sample: trimmedText.slice(0, 50),
-        });
+        logStructured(
+          "warn",
+          "TTS text contains HTML/SSML tags; tags will be spoken verbatim or stripped",
+          {
+            sample: trimmedText.slice(0, 50),
+          },
+        );
       }
 
-      const validVoices = ["Kore", "Puck", "Charon", "Fenrir", "Zephyr"] as const;
+      const validVoices = [
+        "Kore",
+        "Puck",
+        "Charon",
+        "Fenrir",
+        "Zephyr",
+      ] as const;
       type VoiceName = (typeof validVoices)[number];
-      const voice: VoiceName = validVoices.includes(voiceName as VoiceName) ? (voiceName as VoiceName) : "Kore";
+      const voice: VoiceName = validVoices.includes(voiceName as VoiceName)
+        ? (voiceName as VoiceName)
+        : "Kore";
 
-      const numericSpeed = typeof speed === "number" && Number.isFinite(speed) ? speed : 1;
+      const numericSpeed =
+        typeof speed === "number" && Number.isFinite(speed) ? speed : 1;
 
       const ai = getAI();
       const result = await ai.models.generateContent({
@@ -689,16 +785,20 @@ Return strict JSON:
       });
 
       type PartWithInlineData = { inlineData?: { data?: string } };
-      const parts = (result.candidates?.[0]?.content?.parts || []) as PartWithInlineData[];
-      const audioData = parts.find((part) => part.inlineData?.data)?.inlineData?.data;
+      const parts = (result.candidates?.[0]?.content?.parts ||
+        []) as PartWithInlineData[];
+      const audioData = parts.find((part) => part.inlineData?.data)?.inlineData
+        ?.data;
 
       if (!audioData) {
-        res.status(500).json({ error: "TTS model did not return any audio data." });
+        res
+          .status(500)
+          .json({ error: "TTS model did not return any audio data." });
         return;
       }
 
       res.json({ audioBase64: audioData, speed: numericSpeed });
-    })
+    }),
   );
 
   if (process.env.NODE_ENV !== "production") {
@@ -716,29 +816,47 @@ Return strict JSON:
   }
 
   app.use((err: ApiError, req: Request, res: Response, _next: NextFunction) => {
-    const status = err.statusCode && Number.isInteger(err.statusCode) && err.statusCode >= 400 && err.statusCode < 600 ? err.statusCode : 500;
+    const status =
+      err.statusCode &&
+      Number.isInteger(err.statusCode) &&
+      err.statusCode >= 400 &&
+      err.statusCode < 600
+        ? err.statusCode
+        : 500;
     const isOperational = status < 500;
 
-    logStructured(status >= 500 ? "error" : "warn", err.message || "Request handling error", {
-      path: req.path,
-      method: req.method,
-      status,
-      stack: status >= 500 ? err.stack : undefined,
-    });
+    logStructured(
+      status >= 500 ? "error" : "warn",
+      err.message || "Request handling error",
+      {
+        path: req.path,
+        method: req.method,
+        status,
+        stack: status >= 500 ? err.stack : undefined,
+      },
+    );
 
     res.status(status).json({
-      error: isOperational || err.message?.startsWith("GEMINI_API_KEY") ? err.message : "An internal server error occurred.",
+      error:
+        isOperational || err.message?.startsWith("GEMINI_API_KEY")
+          ? err.message
+          : "An internal server error occurred.",
     });
   });
 
   app.listen(PORT, "0.0.0.0", () => {
-    logStructured("info", `CommuteNews Server running on port ${PORT}`, { port: PORT });
+    logStructured("info", `CommuteNews Server running on port ${PORT}`, {
+      port: PORT,
+    });
   });
 }
 
 if (process.env.NODE_ENV !== "test") {
   startServer().catch((err) => {
-    console.error("Failed to start server:", toError(err, "Failed to start server"));
+    console.error(
+      "Failed to start server:",
+      toError(err, "Failed to start server"),
+    );
     process.exit(1);
   });
 }

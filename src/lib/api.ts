@@ -39,7 +39,9 @@ interface ApiErrorBody {
 async function readJson<T>(res: Response): Promise<T> {
   const contentType = res.headers.get("content-type") || "";
   if (!contentType.includes("application/json")) {
-    throw new Error(`Expected JSON response, received ${contentType || "unknown content type"}.`);
+    throw new Error(
+      `Expected JSON response, received ${contentType || "unknown content type"}.`,
+    );
   }
   return (await res.json()) as T;
 }
@@ -50,7 +52,10 @@ async function readMaybeJson<T>(res: Response): Promise<T | null> {
   return (await res.json()) as T;
 }
 
-async function readErrorMessage(res: Response, fallback: string): Promise<string> {
+async function readErrorMessage(
+  res: Response,
+  fallback: string,
+): Promise<string> {
   const data = await readMaybeJson<ApiErrorBody>(res);
   return data?.error || data?.message || fallback;
 }
@@ -58,13 +63,15 @@ async function readErrorMessage(res: Response, fallback: string): Promise<string
 async function requestJson<T>(
   input: RequestInfo | URL,
   init: RequestInit,
-  fallbackError: string
+  fallbackError: string,
 ): Promise<T> {
   let res: Response;
   try {
     res = await fetch(input, init);
   } catch {
-    throw new Error("Network error. Please check your connection and try again.");
+    throw new Error(
+      "Network error. Please check your connection and try again.",
+    );
   }
 
   if (!res.ok) {
@@ -80,33 +87,47 @@ function isLikelyOnline(): boolean {
 }
 
 export class ApiService {
-  static async register(username: string, password: string): Promise<AuthResponse> {
+  static async register(
+    username: string,
+    password: string,
+  ): Promise<AuthResponse> {
     return requestJson<AuthResponse>(
       "/api/auth/register",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ username, password }),
       },
-      "Registration failed"
+      "Registration failed",
     );
   }
 
-  static async login(username: string, password: string): Promise<AuthResponse> {
+  static async login(
+    username: string,
+    password: string,
+  ): Promise<AuthResponse> {
     return requestJson<AuthResponse>(
       "/api/auth/login",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ username, password }),
       },
-      "Authentication failed"
+      "Authentication failed",
     );
   }
 
   static async backupData(token: string, data: SyncData): Promise<void> {
     if (!isLikelyOnline()) {
-      throw new Error("Offline: Sync is queued and will execute when reconnected.");
+      throw new Error(
+        "Offline: Sync is queued and will execute when reconnected.",
+      );
     }
 
     await requestJson<{ success: boolean }>(
@@ -120,7 +141,7 @@ export class ApiService {
         },
         body: JSON.stringify(data),
       },
-      "Backup sync failed"
+      "Backup sync failed",
     );
   }
 
@@ -154,26 +175,34 @@ export class ApiService {
     return data as SyncData;
   }
 
-  static async extractUrl(url: string, preferences: UserPreferences): Promise<SummarizeResponse> {
+  static async extractUrl(
+    url: string,
+    preferences: UserPreferences,
+  ): Promise<SummarizeResponse> {
     if (!isLikelyOnline()) {
-      throw new Error("Internet connection required to import and summarize URLs.");
+      throw new Error(
+        "Internet connection required to import and summarize URLs.",
+      );
     }
 
     return requestJson<SummarizeResponse>(
       "/api/articles/extract",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ url, preferences }),
       },
-      "Failed to extract and process the website URL."
+      "Failed to extract and process the website URL.",
     );
   }
 
   static async summarizeText(
     text: string,
     title: string,
-    preferences: UserPreferences
+    preferences: UserPreferences,
   ): Promise<SummarizeResponse> {
     if (!isLikelyOnline()) {
       throw new Error("Internet connection required to generate summaries.");
@@ -183,16 +212,19 @@ export class ApiService {
       "/api/articles/summarize",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ text, title, preferences }),
       },
-      "Summarization failed."
+      "Summarization failed.",
     );
   }
 
   static async searchNews(
     query: string,
-    preferences: UserPreferences
+    preferences: UserPreferences,
   ): Promise<SearchNewsResponse> {
     if (!isLikelyOnline()) {
       throw new Error("Internet connection required to search real-time news.");
@@ -202,26 +234,38 @@ export class ApiService {
       "/api/articles/search-news",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ query, preferences }),
       },
-      "Search grounding failed."
+      "Search grounding failed.",
     );
   }
 
-  static async generateTTS(text: string, voiceName: string, speed: number): Promise<string> {
+  static async generateTTS(
+    text: string,
+    voiceName: string,
+    speed: number,
+  ): Promise<string> {
     if (!isLikelyOnline()) {
-      throw new Error("Internet connection required to generate audio voiceover.");
+      throw new Error(
+        "Internet connection required to generate audio voiceover.",
+      );
     }
 
     const data = await requestJson<TTSResponse>(
       "/api/articles/tts",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ text, voiceName, speed }),
       },
-      "TTS voice synthesis failed."
+      "TTS voice synthesis failed.",
     );
 
     return data.audioBase64;

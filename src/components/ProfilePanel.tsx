@@ -3,33 +3,46 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
-import { localDB } from '../lib/db';
-import { ApiService } from '../lib/api';
-import { VoiceName } from '../types';
-import { 
-  User, Lock, ArrowRight, Cloud, RefreshCw, LogOut, 
-  CheckCircle2, Wifi, WifiOff, Beaker, Play, ShieldCheck,
-  Volume2, Pause, Sparkles, Headphones
-} from 'lucide-react';
+import React, { useState } from "react";
+import { useApp } from "../context/AppContext";
+import { localDB } from "../lib/db";
+import { ApiService } from "../lib/api";
+import { VoiceName } from "../types";
+import {
+  User,
+  Lock,
+  ArrowRight,
+  Cloud,
+  RefreshCw,
+  LogOut,
+  CheckCircle2,
+  Wifi,
+  WifiOff,
+  Beaker,
+  Play,
+  ShieldCheck,
+  Volume2,
+  Pause,
+  Sparkles,
+  Headphones,
+} from "lucide-react";
 
 export const ProfilePanel: React.FC = () => {
-  const { 
-    userProfile, 
-    registerUser, 
-    loginUser, 
-    logoutUser, 
-    syncWithServer, 
+  const {
+    userProfile,
+    registerUser,
+    loginUser,
+    logoutUser,
+    syncWithServer,
     isOnline,
     preferences,
     setPreferences,
-    triggerHaptic
+    triggerHaptic,
   } = useApp();
 
   const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -40,8 +53,11 @@ export const ProfilePanel: React.FC = () => {
 
   // Voice Preview States
   const [previewLoading, setPreviewLoading] = useState<string | null>(null);
-  const [currentPreviewAudio, setCurrentPreviewAudio] = useState<HTMLAudioElement | null>(null);
-  const [playingPreviewVoice, setPlayingPreviewVoice] = useState<string | null>(null);
+  const [currentPreviewAudio, setCurrentPreviewAudio] =
+    useState<HTMLAudioElement | null>(null);
+  const [playingPreviewVoice, setPlayingPreviewVoice] = useState<string | null>(
+    null,
+  );
 
   React.useEffect(() => {
     return () => {
@@ -73,20 +89,25 @@ export const ProfilePanel: React.FC = () => {
     try {
       let greetText = "";
       switch (voice) {
-        case 'Zephyr':
-          greetText = "Hello! I am Zephyr, your calm narrator. I offer a deep, reassuring, and professional voice.";
+        case "Zephyr":
+          greetText =
+            "Hello! I am Zephyr, your calm narrator. I offer a deep, reassuring, and professional voice.";
           break;
-        case 'Kore':
-          greetText = "Hey there! I am Kore, your energetic host. Let's make today's briefing bright and lively!";
+        case "Kore":
+          greetText =
+            "Hey there! I am Kore, your energetic host. Let's make today's briefing bright and lively!";
           break;
-        case 'Charon':
-          greetText = "Hello, I am Charon, your mellow storyteller. I speak with a calm, slow, and relaxing flow.";
+        case "Charon":
+          greetText =
+            "Hello, I am Charon, your mellow storyteller. I speak with a calm, slow, and relaxing flow.";
           break;
-        case 'Puck':
-          greetText = "Good day. I am Puck, your crisp newsreader. I keep updates clear, sharp, and articulate.";
+        case "Puck":
+          greetText =
+            "Good day. I am Puck, your crisp newsreader. I keep updates clear, sharp, and articulate.";
           break;
-        case 'Fenrir':
-          greetText = "Welcome. I am Fenrir, your bold anchor. I present stories with a powerful and authoritative tone.";
+        case "Fenrir":
+          greetText =
+            "Welcome. I am Fenrir, your bold anchor. I present stories with a powerful and authoritative tone.";
           break;
         default:
           greetText = "Hello! This is your Text-to-Speech preview.";
@@ -96,10 +117,10 @@ export const ProfilePanel: React.FC = () => {
       const base64 = await ApiService.generateTTS(greetText, voice, 1.0);
       const audioUrl = `data:audio/mp3;base64,${base64}`;
       const audio = new Audio(audioUrl);
-      
+
       setCurrentPreviewAudio(audio);
       setPlayingPreviewVoice(voice);
-      
+
       audio.onended = () => {
         setPlayingPreviewVoice(null);
         setCurrentPreviewAudio(null);
@@ -108,12 +129,15 @@ export const ProfilePanel: React.FC = () => {
       audio.onerror = () => {
         setPlayingPreviewVoice(null);
         setCurrentPreviewAudio(null);
-        alert("Could not load preview audio. Please check your network connection.");
+        alert(
+          "Could not load preview audio. Please check your network connection.",
+        );
       };
 
       await audio.play();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to preview voice.";
+      const msg =
+        err instanceof Error ? err.message : "Failed to preview voice.";
       alert(msg);
     } finally {
       setPreviewLoading(null);
@@ -122,40 +146,45 @@ export const ProfilePanel: React.FC = () => {
 
   const voices = [
     {
-      id: 'Zephyr',
-      name: 'Calm Narrator',
-      techName: 'Zephyr',
-      description: 'Deep, professional, and reassuring. Perfect for complex analysis, politics, and technology journals.',
-      accent: 'Neutral Deep'
+      id: "Zephyr",
+      name: "Calm Narrator",
+      techName: "Zephyr",
+      description:
+        "Deep, professional, and reassuring. Perfect for complex analysis, politics, and technology journals.",
+      accent: "Neutral Deep",
     },
     {
-      id: 'Kore',
-      name: 'Energetic Host',
-      techName: 'Kore',
-      description: 'Warm, bright, and highly enthusiastic. Gives the feeling of an engaging morning commute podcast.',
-      accent: 'Engaging Bright'
+      id: "Kore",
+      name: "Energetic Host",
+      techName: "Kore",
+      description:
+        "Warm, bright, and highly enthusiastic. Gives the feeling of an engaging morning commute podcast.",
+      accent: "Engaging Bright",
     },
     {
-      id: 'Charon',
-      name: 'Mellow Storyteller',
-      techName: 'Charon',
-      description: 'Calm, slow, and relaxing. Ideal for casual catch-ups, human stories, and end-of-day recaps.',
-      accent: 'Warm Relaxed'
+      id: "Charon",
+      name: "Mellow Storyteller",
+      techName: "Charon",
+      description:
+        "Calm, slow, and relaxing. Ideal for casual catch-ups, human stories, and end-of-day recaps.",
+      accent: "Warm Relaxed",
     },
     {
-      id: 'Puck',
-      name: 'Crisp Newsreader',
-      techName: 'Puck',
-      description: 'Sharp, fast, and crystal clear. Excellent for fast-paced briefs and headlines.',
-      accent: 'Articulate Clear'
+      id: "Puck",
+      name: "Crisp Newsreader",
+      techName: "Puck",
+      description:
+        "Sharp, fast, and crystal clear. Excellent for fast-paced briefs and headlines.",
+      accent: "Articulate Clear",
     },
     {
-      id: 'Fenrir',
-      name: 'Bold Anchor',
-      techName: 'Fenrir',
-      description: 'Grounded, authoritative, and powerful. Best suited for editorial opinions and critical reporting.',
-      accent: 'Strong Resonant'
-    }
+      id: "Fenrir",
+      name: "Bold Anchor",
+      techName: "Fenrir",
+      description:
+        "Grounded, authoritative, and powerful. Best suited for editorial opinions and critical reporting.",
+      accent: "Strong Resonant",
+    },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -164,7 +193,7 @@ export const ProfilePanel: React.FC = () => {
     setAuthSuccess(false);
 
     if (!username.trim() || !password.trim()) {
-      setAuthError('All fields are required.');
+      setAuthError("All fields are required.");
       return;
     }
 
@@ -175,10 +204,13 @@ export const ProfilePanel: React.FC = () => {
         await registerUser(username, password);
       }
       setAuthSuccess(true);
-      setUsername('');
-      setPassword('');
+      setUsername("");
+      setPassword("");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Authentication action failed. Please try again.';
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Authentication action failed. Please try again.";
       setAuthError(msg);
     }
   };
@@ -202,80 +234,95 @@ export const ProfilePanel: React.FC = () => {
 
     try {
       // Test 1: Offline Local Persistence (IndexedDB)
-      addLog('🧪 Test 1: Verifying Local-First IndexedDB read/write...');
-      const testArtId = 'diag-test-id';
+      addLog("🧪 Test 1: Verifying Local-First IndexedDB read/write...");
+      const testArtId = "diag-test-id";
       await localDB.saveArticle({
         id: testArtId,
-        title: 'Diagnostic Test Brief',
-        summary: 'This is a test summary for persistence verification.',
-        category: 'Diagnostics',
-        tags: ['test'],
-        voiceName: 'Kore',
+        title: "Diagnostic Test Brief",
+        summary: "This is a test summary for persistence verification.",
+        category: "Diagnostics",
+        tags: ["test"],
+        voiceName: "Kore",
         isDownloaded: false,
         isSaved: false,
         createdAt: new Date().toISOString(),
-        playCount: 0
+        playCount: 0,
       });
-      const retrieved = (await localDB.getArticles()).find(a => a.id === testArtId);
-      if (!retrieved || retrieved.summary !== 'This is a test summary for persistence verification.') {
-        throw new Error('IndexedDB Metadata Persistence failed');
+      const retrieved = (await localDB.getArticles()).find(
+        (a) => a.id === testArtId,
+      );
+      if (
+        !retrieved ||
+        retrieved.summary !==
+          "This is a test summary for persistence verification."
+      ) {
+        throw new Error("IndexedDB Metadata Persistence failed");
       }
-      addLog('✅ Test 1: IndexedDB metadata verified.');
+      addLog("✅ Test 1: IndexedDB metadata verified.");
 
       // Test 2: Audio Synthesis & Download Cache
-      addLog('🧪 Test 2: Verifying Background Audio Cache & Blob storage...');
-      await localDB.saveAudio(testArtId, 'UklGRigAAABXQVZFMmZtdCAAEgAABgEAZgAAsGgAAGCgAAgA'); // dummy base64 wav header
+      addLog("🧪 Test 2: Verifying Background Audio Cache & Blob storage...");
+      await localDB.saveAudio(
+        testArtId,
+        "UklGRigAAABXQVZFMmZtdCAAEgAABgEAZgAAsGgAAGCgAAgA",
+      ); // dummy base64 wav header
       const audioRetrieved = await localDB.getAudio(testArtId);
-      if (!audioRetrieved || !audioRetrieved.startsWith('UklG')) {
-        throw new Error('IndexedDB Audio cache/download storage failed');
+      if (!audioRetrieved || !audioRetrieved.startsWith("UklG")) {
+        throw new Error("IndexedDB Audio cache/download storage failed");
       }
       await localDB.deleteArticle(testArtId); // cleanup
-      addLog('✅ Test 2: Offline audio cache and cleanup verified.');
+      addLog("✅ Test 2: Offline audio cache and cleanup verified.");
 
       // Test 3: Playback Progress Tracking Invariants
-      addLog('🧪 Test 3: Checking playback position tracking & resumes...');
+      addLog("🧪 Test 3: Checking playback position tracking & resumes...");
       const progressRecord = {
-        articleId: 'test-article-prog',
+        articleId: "test-article-prog",
         position: 45.5,
         duration: 180,
         completed: false,
-        lastPlayed: new Date().toISOString()
+        lastPlayed: new Date().toISOString(),
       };
       await localDB.saveProgress(progressRecord);
-      const progRetrieved = (await localDB.getProgress()).find(p => p.articleId === 'test-article-prog');
+      const progRetrieved = (await localDB.getProgress()).find(
+        (p) => p.articleId === "test-article-prog",
+      );
       if (!progRetrieved || progRetrieved.position !== 45.5) {
-        throw new Error('Position Tracking storage failed');
+        throw new Error("Position Tracking storage failed");
       }
-      await localDB.deleteProgress('test-article-prog'); // cleanup test progress
-      addLog('✅ Test 3: Playback position resuming invariants verified and cleaned up.');
+      await localDB.deleteProgress("test-article-prog"); // cleanup test progress
+      addLog(
+        "✅ Test 3: Playback position resuming invariants verified and cleaned up.",
+      );
 
       // Test 4: Cloud Sync Connection
-      addLog('🧪 Test 4: Verifying secure Cloud Sync Backup reconciliation...');
+      addLog("🧪 Test 4: Verifying secure Cloud Sync Backup reconciliation...");
       if (!isOnline) {
-        addLog('⚠️ Test 4: Skipped (Offline commuting state).');
+        addLog("⚠️ Test 4: Skipped (Offline commuting state).");
       } else {
         if (!userProfile) {
-          addLog('⚠️ Test 4: Skipped (Requires authenticated user session).');
+          addLog("⚠️ Test 4: Skipped (Requires authenticated user session).");
         } else {
           await syncWithServer();
-          addLog('✅ Test 4: Secure Cloud Sync replication verified.');
+          addLog("✅ Test 4: Secure Cloud Sync replication verified.");
         }
       }
 
-      addLog('🎉 All core application integration tests PASSED successfully!');
+      addLog("🎉 All core application integration tests PASSED successfully!");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       addLog(`❌ Test failed: ${msg}`);
     } finally {
-      await localDB.deleteArticle('diag-test-id').catch(() => {});
-      await localDB.deleteProgress('test-article-prog').catch(() => {});
+      await localDB.deleteArticle("diag-test-id").catch(() => {});
+      await localDB.deleteProgress("test-article-prog").catch(() => {});
       setTesting(false);
     }
   };
 
   return (
-    <div id="profile-panel-container" className="max-w-md mx-auto p-4 md:p-6 text-white pb-32 space-y-6">
-      
+    <div
+      id="profile-panel-container"
+      className="max-w-md mx-auto p-4 md:p-6 text-white pb-32 space-y-6"
+    >
       {/* Network Connectivity Ribbon */}
       <div className="flex justify-between items-center bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium">
         <span className="text-zinc-400">Connectivity Status:</span>
@@ -297,15 +344,24 @@ export const ProfilePanel: React.FC = () => {
             <div className="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
               <User className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-zinc-100">{isLogin ? 'Welcome Back' : 'Create Commuter Account'}</h3>
+            <h3 className="text-xl font-bold text-zinc-100">
+              {isLogin ? "Welcome Back" : "Create Commuter Account"}
+            </h3>
             <p className="text-zinc-400 text-xs mt-1">
-              {isLogin ? 'Sign in to restore your playlists & listen across multiple devices.' : 'Register to unlock secure cloud backups and listening queues.'}
+              {isLogin
+                ? "Sign in to restore your playlists & listen across multiple devices."
+                : "Register to unlock secure cloud backups and listening queues."}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="auth-username" className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Username</label>
+              <label
+                htmlFor="auth-username"
+                className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1"
+              >
+                Username
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-500 pointer-events-none">
                   <User className="w-4 h-4" />
@@ -323,7 +379,12 @@ export const ProfilePanel: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="auth-password" className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Password</label>
+              <label
+                htmlFor="auth-password"
+                className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1"
+              >
+                Password
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-500 pointer-events-none">
                   <Lock className="w-4 h-4" />
@@ -357,7 +418,7 @@ export const ProfilePanel: React.FC = () => {
               type="submit"
               className="w-full py-2.5 mt-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 shadow-lg cursor-pointer transition-all active:scale-[0.99]"
             >
-              <span>{isLogin ? 'Log In' : 'Sign Up'}</span>
+              <span>{isLogin ? "Log In" : "Sign Up"}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -374,7 +435,9 @@ export const ProfilePanel: React.FC = () => {
               }}
               className="text-xs text-emerald-400 hover:text-emerald-300 font-medium cursor-pointer"
             >
-              {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Log In'}
+              {isLogin
+                ? "Don't have an account? Sign Up"
+                : "Already have an account? Log In"}
             </button>
           </div>
         </div>
@@ -386,8 +449,12 @@ export const ProfilePanel: React.FC = () => {
               {userProfile.username[0].toUpperCase()}
             </div>
             <div>
-              <p className="text-xs text-zinc-400 uppercase tracking-widest font-bold">Commuter Account</p>
-              <h4 className="text-lg font-bold text-zinc-100">{userProfile.username}</h4>
+              <p className="text-xs text-zinc-400 uppercase tracking-widest font-bold">
+                Commuter Account
+              </p>
+              <h4 className="text-lg font-bold text-zinc-100">
+                {userProfile.username}
+              </h4>
             </div>
           </div>
 
@@ -402,9 +469,10 @@ export const ProfilePanel: React.FC = () => {
                 Active
               </span>
             </div>
-            
+
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Playlists, listening positions, bookmarks, preferences, and downloaded articles are backup-synchronized per session.
+              Playlists, listening positions, bookmarks, preferences, and
+              downloaded articles are backup-synchronized per session.
             </p>
 
             <button
@@ -414,8 +482,12 @@ export const ProfilePanel: React.FC = () => {
               disabled={!isOnline || syncing}
               className="w-full py-2 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin text-emerald-400' : ''}`} />
-              <span>{syncing ? 'Synchronizing Cloud Vault...' : 'Sync Backup Now'}</span>
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${syncing ? "animate-spin text-emerald-400" : ""}`}
+              />
+              <span>
+                {syncing ? "Synchronizing Cloud Vault..." : "Sync Backup Now"}
+              </span>
             </button>
           </div>
 
@@ -440,7 +512,8 @@ export const ProfilePanel: React.FC = () => {
           <span>AI Narrator Voice Settings</span>
         </h3>
         <p className="text-xs text-zinc-400 leading-relaxed">
-          Select your preferred Text-to-Speech voice profile. The chosen voice will read new audio briefings you compile.
+          Select your preferred Text-to-Speech voice profile. The chosen voice
+          will read new audio briefings you compile.
         </p>
 
         <div className="space-y-3">
@@ -457,22 +530,28 @@ export const ProfilePanel: React.FC = () => {
                   if (triggerHaptic) triggerHaptic(15);
                 }}
                 className={`group relative p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
-                  isSelected 
-                    ? 'bg-emerald-950/20 border-emerald-500 text-white' 
-                    : 'bg-zinc-950/40 border-zinc-900 hover:border-zinc-800 text-zinc-300'
+                  isSelected
+                    ? "bg-emerald-950/20 border-emerald-500 text-white"
+                    : "bg-zinc-950/40 border-zinc-900 hover:border-zinc-800 text-zinc-300"
                 }`}
               >
                 {/* Custom radio indicator */}
                 <div className="mt-1 flex-shrink-0">
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${isSelected ? 'border-emerald-400' : 'border-zinc-700 group-hover:border-zinc-500'}`}>
-                    {isSelected && <div className="w-2 h-2 rounded-full bg-emerald-400" />}
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${isSelected ? "border-emerald-400" : "border-zinc-700 group-hover:border-zinc-500"}`}
+                  >
+                    {isSelected && (
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                    )}
                   </div>
                 </div>
 
                 {/* Info Text */}
                 <div className="flex-1 min-w-0 pr-8">
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-zinc-100">{voice.name}</span>
+                    <span className="font-bold text-sm text-zinc-100">
+                      {voice.name}
+                    </span>
                     <span className="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-1.5 py-0.5 rounded">
                       {voice.techName}
                     </span>
@@ -480,7 +559,9 @@ export const ProfilePanel: React.FC = () => {
                       {voice.accent}
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">{voice.description}</p>
+                  <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
+                    {voice.description}
+                  </p>
                 </div>
 
                 {/* Preview Button */}
@@ -492,17 +573,32 @@ export const ProfilePanel: React.FC = () => {
                   }}
                   className={`absolute right-3.5 top-1/2 -translate-y-1/2 p-2 rounded-full border transition-all ${
                     isPlaying
-                      ? 'bg-emerald-500 text-black border-emerald-400 scale-105 shadow-md shadow-emerald-500/20'
+                      ? "bg-emerald-500 text-black border-emerald-400 scale-105 shadow-md shadow-emerald-500/20"
                       : isSelected
-                        ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-400 hover:bg-emerald-900/50'
-                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                        ? "bg-emerald-950/40 border-emerald-800/60 text-emerald-400 hover:bg-emerald-900/50"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
                   }`}
                   title={isPlaying ? "Stop Preview" : "Play Voice Preview"}
                 >
                   {isLoading ? (
-                    <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-3.5 w-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                   ) : isPlaying ? (
                     <Pause className="w-3.5 h-3.5 fill-current" />
@@ -523,7 +619,8 @@ export const ProfilePanel: React.FC = () => {
           <span>CommuteNews Test & Diagnostics Suite</span>
         </h3>
         <p className="text-xs text-zinc-400 leading-relaxed">
-          Execute real-time integrated unit tests to verify the offline flow database state, progress tracking, and client-server synchronization.
+          Execute real-time integrated unit tests to verify the offline flow
+          database state, progress tracking, and client-server synchronization.
         </p>
 
         <button
@@ -533,20 +630,32 @@ export const ProfilePanel: React.FC = () => {
           className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>{testing ? 'Running Integrated Tests...' : 'Run Automated Test Diagnostics'}</span>
+          <span>
+            {testing
+              ? "Running Integrated Tests..."
+              : "Run Automated Test Diagnostics"}
+          </span>
         </button>
 
         {testLogs.length > 0 && (
           <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-4 font-mono text-[10px] space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
             {testLogs.map((log, i) => (
-              <p key={i} className={log.startsWith('❌') ? 'text-red-400' : log.startsWith('✅') ? 'text-emerald-400' : 'text-zinc-400'}>
+              <p
+                key={i}
+                className={
+                  log.startsWith("❌")
+                    ? "text-red-400"
+                    : log.startsWith("✅")
+                      ? "text-emerald-400"
+                      : "text-zinc-400"
+                }
+              >
                 {log}
               </p>
             ))}
           </div>
         )}
       </div>
-
     </div>
   );
 };

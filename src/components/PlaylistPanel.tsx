@@ -3,67 +3,81 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { useApp } from '../context/AppContext';
-import { 
-  FolderClosed, Plus, Trash, Music, ListMusic, 
-  ChevronRight, ArrowRight, Play, Check, X, GripVertical, Search, Headphones
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { searchAndFilterArticles } from '../utils/search';
+import React, { useState, useMemo, useEffect } from "react";
+import { useApp } from "../context/AppContext";
+import {
+  FolderClosed,
+  Plus,
+  Trash,
+  Music,
+  ListMusic,
+  ChevronRight,
+  ArrowRight,
+  Play,
+  Check,
+  X,
+  GripVertical,
+  Search,
+  Headphones,
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { searchAndFilterArticles } from "../utils/search";
 
 export const PlaylistPanel: React.FC = () => {
-  const { 
-    playlists, 
-    articles, 
-    createPlaylist, 
-    deletePlaylist, 
+  const {
+    playlists,
+    articles,
+    createPlaylist,
+    deletePlaylist,
     updatePlaylistDetails,
-    addArticleToPlaylist, 
-    removeArticleFromPlaylist, 
+    addArticleToPlaylist,
+    removeArticleFromPlaylist,
     reorderPlaylist,
     playArticle,
     addToQueue,
-    clearQueue
+    clearQueue,
   } = useApp();
 
   const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
-  const [newPlaylistName, setNewPlaylistName] = useState('');
-  const [newPlaylistDesc, setNewPlaylistDesc] = useState('');
-  const [renameName, setRenameName] = useState('');
-  const [renameDesc, setRenameDesc] = useState('');
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [newPlaylistDesc, setNewPlaylistDesc] = useState("");
+  const [renameName, setRenameName] = useState("");
+  const [renameDesc, setRenameDesc] = useState("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const activePlaylist = playlists.find(p => p.id === activePlaylistId);
+  const activePlaylist = playlists.find((p) => p.id === activePlaylistId);
   const activePlaylistArticles = useMemo(() => {
-    return activePlaylist 
-      ? activePlaylist.articleIds.map(id => articles.find(a => a.id === id)).filter(Boolean) as typeof articles
+    return activePlaylist
+      ? (activePlaylist.articleIds
+          .map((id) => articles.find((a) => a.id === id))
+          .filter(Boolean) as typeof articles)
       : [];
   }, [activePlaylist, articles]);
 
   // Articles that are NOT currently in the active playlist (for quick additions)
   const remainingArticles = useMemo(() => {
     return activePlaylist
-      ? articles.filter(a => !activePlaylist.articleIds.includes(a.id))
+      ? articles.filter((a) => !activePlaylist.articleIds.includes(a.id))
       : [];
   }, [activePlaylist, articles]);
 
   const filteredPlaylists = useMemo(() => {
     if (!searchQuery.trim()) return playlists;
     const q = searchQuery.toLowerCase().trim();
-    return playlists.filter(pl => {
+    return playlists.filter((pl) => {
       const nameMatch = pl.name.toLowerCase().includes(q);
       const descMatch = pl.description?.toLowerCase().includes(q) ?? false;
-      const trackMatch = pl.articleIds.some(id => {
-        const art = articles.find(a => a.id === id);
-        return art && (
-          art.title.toLowerCase().includes(q) ||
-          art.summary.toLowerCase().includes(q) ||
-          art.category.toLowerCase().includes(q) ||
-          (art.author?.toLowerCase().includes(q) ?? false)
+      const trackMatch = pl.articleIds.some((id) => {
+        const art = articles.find((a) => a.id === id);
+        return (
+          art &&
+          (art.title.toLowerCase().includes(q) ||
+            art.summary.toLowerCase().includes(q) ||
+            art.category.toLowerCase().includes(q) ||
+            (art.author?.toLowerCase().includes(q) ?? false))
         );
       });
       return nameMatch || descMatch || trackMatch;
@@ -71,57 +85,61 @@ export const PlaylistPanel: React.FC = () => {
   }, [playlists, articles, searchQuery]);
 
   const filteredActiveArticles = useMemo(() => {
-    return searchAndFilterArticles(activePlaylistArticles, searchQuery, 'All');
+    return searchAndFilterArticles(activePlaylistArticles, searchQuery, "All");
   }, [activePlaylistArticles, searchQuery]);
 
   const filteredRemainingArticles = useMemo(() => {
-    return searchAndFilterArticles(remainingArticles, searchQuery, 'All');
+    return searchAndFilterArticles(remainingArticles, searchQuery, "All");
   }, [remainingArticles, searchQuery]);
 
   const matchingGlobalArticles = useMemo(() => {
     if (!searchQuery.trim() || activePlaylistId) return [];
-    return searchAndFilterArticles(articles, searchQuery, 'All');
+    return searchAndFilterArticles(articles, searchQuery, "All");
   }, [articles, searchQuery, activePlaylistId]);
 
   // Close modals on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setShowCreateModal(false);
         setShowRenameModal(false);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlaylistName.trim()) return;
     createPlaylist(newPlaylistName.trim(), newPlaylistDesc.trim());
-    setNewPlaylistName('');
-    setNewPlaylistDesc('');
+    setNewPlaylistName("");
+    setNewPlaylistDesc("");
     setShowCreateModal(false);
   };
 
   const handleRenameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activePlaylist || !renameName.trim()) return;
-    updatePlaylistDetails(activePlaylist.id, renameName.trim(), renameDesc.trim());
+    updatePlaylistDetails(
+      activePlaylist.id,
+      renameName.trim(),
+      renameDesc.trim(),
+    );
     setShowRenameModal(false);
   };
 
   const openRenameModal = () => {
     if (!activePlaylist) return;
     setRenameName(activePlaylist.name);
-    setRenameDesc(activePlaylist.description || '');
+    setRenameDesc(activePlaylist.description || "");
     setShowRenameModal(true);
   };
 
   // HTML5 Drag and Drop event handlers mapping filtered list to original article indices
   const handleDragStart = (e: React.DragEvent, filteredIndex: number) => {
     setDraggedIndex(filteredIndex);
-    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -130,14 +148,23 @@ export const PlaylistPanel: React.FC = () => {
 
   const handleDrop = (e: React.DragEvent, targetFilteredIndex: number) => {
     e.preventDefault();
-    if (draggedIndex === null || draggedIndex === targetFilteredIndex || !activePlaylistId) return;
+    if (
+      draggedIndex === null ||
+      draggedIndex === targetFilteredIndex ||
+      !activePlaylistId
+    )
+      return;
 
     const draggedArticle = filteredActiveArticles[draggedIndex];
     const targetArticle = filteredActiveArticles[targetFilteredIndex];
     if (!draggedArticle || !targetArticle) return;
 
-    const originalStartIndex = activePlaylistArticles.findIndex(a => a.id === draggedArticle.id);
-    const originalEndIndex = activePlaylistArticles.findIndex(a => a.id === targetArticle.id);
+    const originalStartIndex = activePlaylistArticles.findIndex(
+      (a) => a.id === draggedArticle.id,
+    );
+    const originalEndIndex = activePlaylistArticles.findIndex(
+      (a) => a.id === targetArticle.id,
+    );
 
     if (originalStartIndex !== -1 && originalEndIndex !== -1) {
       reorderPlaylist(activePlaylistId, originalStartIndex, originalEndIndex);
@@ -148,12 +175,15 @@ export const PlaylistPanel: React.FC = () => {
   const handlePlayEntirePlaylist = () => {
     if (!activePlaylist || activePlaylist.articleIds.length === 0) return;
     clearQueue();
-    activePlaylist.articleIds.forEach(id => addToQueue(id));
+    activePlaylist.articleIds.forEach((id) => addToQueue(id));
     playArticle(activePlaylist.articleIds[0]);
   };
 
   return (
-    <div id="playlist-panel-container" className="max-w-2xl mx-auto p-4 md:p-6 text-white pb-32">
+    <div
+      id="playlist-panel-container"
+      className="max-w-2xl mx-auto p-4 md:p-6 text-white pb-32"
+    >
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -196,7 +226,7 @@ export const PlaylistPanel: React.FC = () => {
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => setSearchQuery("")}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-500 hover:text-zinc-200 cursor-pointer"
                   aria-label="Clear search"
                 >
@@ -208,9 +238,12 @@ export const PlaylistPanel: React.FC = () => {
             {playlists.length === 0 ? (
               <div className="bg-zinc-900/30 border border-zinc-900 rounded-2xl py-12 px-6 text-center">
                 <FolderClosed className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-                <h3 className="font-semibold text-zinc-300">No playlists yet</h3>
+                <h3 className="font-semibold text-zinc-300">
+                  No playlists yet
+                </h3>
                 <p className="text-zinc-500 text-xs mt-1 max-w-sm mx-auto">
-                  Create a customized playlist to organize articles into single-stream listens.
+                  Create a customized playlist to organize articles into
+                  single-stream listens.
                 </p>
                 <button
                   id="create-first-playlist-btn"
@@ -220,13 +253,16 @@ export const PlaylistPanel: React.FC = () => {
                   Create Your First Playlist
                 </button>
               </div>
-            ) : filteredPlaylists.length === 0 && !matchingGlobalArticles.length ? (
+            ) : filteredPlaylists.length === 0 &&
+              !matchingGlobalArticles.length ? (
               <div className="bg-zinc-900/20 border border-zinc-900 rounded-xl py-8 px-4 text-center">
                 <Search className="w-8 h-8 text-zinc-700 mx-auto mb-2" />
-                <p className="text-xs text-zinc-400 font-medium">No playlists or saved summaries match "{searchQuery}"</p>
+                <p className="text-xs text-zinc-400 font-medium">
+                  No playlists or saved summaries match "{searchQuery}"
+                </p>
                 <button
                   type="button"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => setSearchQuery("")}
                   className="mt-2 text-xs text-emerald-400 hover:underline cursor-pointer"
                 >
                   Clear search
@@ -241,7 +277,7 @@ export const PlaylistPanel: React.FC = () => {
                         Playlists ({filteredPlaylists.length})
                       </h4>
                     )}
-                    {filteredPlaylists.map(pl => (
+                    {filteredPlaylists.map((pl) => (
                       <div
                         key={pl.id}
                         id={`playlist-card-${pl.id}`}
@@ -253,9 +289,15 @@ export const PlaylistPanel: React.FC = () => {
                             <Music className="w-5 h-5" />
                           </div>
                           <div className="min-w-0">
-                            <h4 className="font-semibold text-zinc-200 truncate">{pl.name}</h4>
-                            <p className="text-xs text-zinc-400 truncate mt-0.5">{pl.description || 'No description'}</p>
-                            <p className="text-[10px] font-mono text-zinc-500 mt-1">{pl.articleIds.length} tracks</p>
+                            <h4 className="font-semibold text-zinc-200 truncate">
+                              {pl.name}
+                            </h4>
+                            <p className="text-xs text-zinc-400 truncate mt-0.5">
+                              {pl.description || "No description"}
+                            </p>
+                            <p className="text-[10px] font-mono text-zinc-500 mt-1">
+                              {pl.articleIds.length} tracks
+                            </p>
                           </div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-zinc-600" />
@@ -268,10 +310,13 @@ export const PlaylistPanel: React.FC = () => {
                   <div className="border-t border-zinc-900/80 pt-4 space-y-2">
                     <h4 className="text-[11px] font-mono font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
                       <Headphones className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Matching Audio Summaries ({matchingGlobalArticles.length})</span>
+                      <span>
+                        Matching Audio Summaries (
+                        {matchingGlobalArticles.length})
+                      </span>
                     </h4>
                     <div className="space-y-2">
-                      {matchingGlobalArticles.map(art => (
+                      {matchingGlobalArticles.map((art) => (
                         <div
                           key={art.id}
                           className="bg-zinc-900/40 border border-zinc-900 rounded-xl p-3 flex items-center justify-between gap-3"
@@ -287,8 +332,12 @@ export const PlaylistPanel: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            <h5 className="font-medium text-zinc-200 text-xs truncate mt-1">{art.title}</h5>
-                            <p className="text-[10px] text-zinc-400 line-clamp-1 mt-0.5">{art.summary}</p>
+                            <h5 className="font-medium text-zinc-200 text-xs truncate mt-1">
+                              {art.title}
+                            </h5>
+                            <p className="text-[10px] text-zinc-400 line-clamp-1 mt-0.5">
+                              {art.summary}
+                            </p>
                           </div>
                           <button
                             type="button"
@@ -316,7 +365,7 @@ export const PlaylistPanel: React.FC = () => {
                   id="playlist-back-btn"
                   onClick={() => {
                     setActivePlaylistId(null);
-                    setSearchQuery('');
+                    setSearchQuery("");
                   }}
                   className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white font-medium transition-colors cursor-pointer"
                 >
@@ -326,10 +375,14 @@ export const PlaylistPanel: React.FC = () => {
                 <button
                   id="delete-playlist-btn"
                   onClick={() => {
-                    if (window.confirm(`Are you sure you want to delete "${activePlaylist.name}" playlist?`)) {
+                    if (
+                      window.confirm(
+                        `Are you sure you want to delete "${activePlaylist.name}" playlist?`,
+                      )
+                    ) {
                       deletePlaylist(activePlaylist.id);
                       setActivePlaylistId(null);
-                      setSearchQuery('');
+                      setSearchQuery("");
                     }
                   }}
                   className="p-1.5 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-red-950/20 transition-all cursor-pointer"
@@ -347,7 +400,9 @@ export const PlaylistPanel: React.FC = () => {
                 </div>
                 <div className="min-w-0 flex-1 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <h3 className="text-xl font-bold text-zinc-100">{activePlaylist.name}</h3>
+                    <h3 className="text-xl font-bold text-zinc-100">
+                      {activePlaylist.name}
+                    </h3>
                     <button
                       type="button"
                       onClick={openRenameModal}
@@ -357,7 +412,9 @@ export const PlaylistPanel: React.FC = () => {
                       Edit
                     </button>
                   </div>
-                  <p className="text-sm text-zinc-400 mt-1 leading-relaxed">{activePlaylist.description || 'No custom description'}</p>
+                  <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
+                    {activePlaylist.description || "No custom description"}
+                  </p>
                   <div className="flex flex-wrap gap-2 items-center justify-center sm:justify-start mt-3.5">
                     <span className="text-[10px] font-mono bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded uppercase">
                       {activePlaylist.articleIds.length} audio tracks
@@ -393,7 +450,7 @@ export const PlaylistPanel: React.FC = () => {
                 {searchQuery && (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => setSearchQuery("")}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-500 hover:text-zinc-200 cursor-pointer"
                     aria-label="Clear search"
                   >
@@ -405,11 +462,14 @@ export const PlaylistPanel: React.FC = () => {
               {/* Tracks List with HTML5 Drag & Drop Reordering */}
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3 font-mono">
-                  Playlist Queue ({filteredActiveArticles.length} of {activePlaylistArticles.length})
+                  Playlist Queue ({filteredActiveArticles.length} of{" "}
+                  {activePlaylistArticles.length})
                 </h4>
                 {filteredActiveArticles.length === 0 ? (
                   <p className="text-xs text-zinc-500 italic py-3">
-                    {searchQuery ? `No playlist tracks match "${searchQuery}"` : 'This playlist has no articles yet. Add some below!'}
+                    {searchQuery
+                      ? `No playlist tracks match "${searchQuery}"`
+                      : "This playlist has no articles yet. Add some below!"}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -421,7 +481,7 @@ export const PlaylistPanel: React.FC = () => {
                           onDragStart={(e) => handleDragStart(e, idx)}
                           onDragOver={(e) => handleDragOver(e)}
                           onDrop={(e) => handleDrop(e, idx)}
-                          className={`bg-zinc-900/30 border border-zinc-900 rounded-xl p-3 flex items-center justify-between transition-all ${draggedIndex === idx ? 'opacity-40 border-dashed border-zinc-700 bg-zinc-800/20' : 'hover:bg-zinc-900/60'}`}
+                          className={`bg-zinc-900/30 border border-zinc-900 rounded-xl p-3 flex items-center justify-between transition-all ${draggedIndex === idx ? "opacity-40 border-dashed border-zinc-700 bg-zinc-800/20" : "hover:bg-zinc-900/60"}`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             {/* Drag handle */}
@@ -429,8 +489,12 @@ export const PlaylistPanel: React.FC = () => {
                               <GripVertical className="w-4 h-4" />
                             </div>
                             <div className="min-w-0">
-                              <h5 className="font-semibold text-zinc-200 text-sm truncate">{art.title}</h5>
-                              <p className="text-[10px] text-zinc-500 truncate mt-0.5">{art.author || 'AI Voiceover'}</p>
+                              <h5 className="font-semibold text-zinc-200 text-sm truncate">
+                                {art.title}
+                              </h5>
+                              <p className="text-[10px] text-zinc-500 truncate mt-0.5">
+                                {art.author || "AI Voiceover"}
+                              </p>
                             </div>
                           </div>
 
@@ -445,7 +509,12 @@ export const PlaylistPanel: React.FC = () => {
                             </button>
                             <button
                               type="button"
-                              onClick={() => removeArticleFromPlaylist(activePlaylist.id, art.id)}
+                              onClick={() =>
+                                removeArticleFromPlaylist(
+                                  activePlaylist.id,
+                                  art.id,
+                                )
+                              }
                               className="p-1.5 hover:bg-red-950/20 text-zinc-500 hover:text-red-400 rounded-lg transition-colors cursor-pointer"
                               title="Remove from playlist"
                             >
@@ -466,23 +535,29 @@ export const PlaylistPanel: React.FC = () => {
                     Add briefs to playlist ({filteredRemainingArticles.length})
                   </h4>
                   {filteredRemainingArticles.length === 0 ? (
-                    <p className="text-xs text-zinc-500 italic py-2">No available briefs match "{searchQuery}"</p>
+                    <p className="text-xs text-zinc-500 italic py-2">
+                      No available briefs match "{searchQuery}"
+                    </p>
                   ) : (
                     <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-                      {filteredRemainingArticles.map(art => (
+                      {filteredRemainingArticles.map((art) => (
                         <div
                           key={art.id}
                           className="bg-zinc-900/10 hover:bg-zinc-900/40 border border-zinc-900/50 rounded-lg p-2.5 flex items-center justify-between"
                         >
                           <div className="min-w-0 flex-1 pr-2">
-                            <h5 className="font-medium text-zinc-300 text-xs truncate">{art.title}</h5>
+                            <h5 className="font-medium text-zinc-300 text-xs truncate">
+                              {art.title}
+                            </h5>
                             <span className="text-[9px] font-mono text-emerald-400 bg-zinc-800/80 px-1 py-0.5 rounded mt-1 inline-block uppercase">
                               {art.category}
                             </span>
                           </div>
                           <button
                             type="button"
-                            onClick={() => addArticleToPlaylist(activePlaylist.id, art.id)}
+                            onClick={() =>
+                              addArticleToPlaylist(activePlaylist.id, art.id)
+                            }
                             className="p-1 text-emerald-400 hover:bg-emerald-950/40 rounded-lg transition-all cursor-pointer"
                             title="Add to playlist"
                           >
@@ -521,14 +596,22 @@ export const PlaylistPanel: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              <h3 id="create-playlist-title" className="text-lg font-bold mb-4 flex items-center gap-2">
+              <h3
+                id="create-playlist-title"
+                className="text-lg font-bold mb-4 flex items-center gap-2"
+              >
                 <FolderClosed className="w-5 h-5 text-emerald-400" />
                 <span>Create Playlist</span>
               </h3>
 
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="pname" className="block text-xs font-semibold text-zinc-400 mb-1">Playlist Name</label>
+                  <label
+                    htmlFor="pname"
+                    className="block text-xs font-semibold text-zinc-400 mb-1"
+                  >
+                    Playlist Name
+                  </label>
                   <input
                     id="pname"
                     type="text"
@@ -540,7 +623,12 @@ export const PlaylistPanel: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="pdesc" className="block text-xs font-semibold text-zinc-400 mb-1">Description (Optional)</label>
+                  <label
+                    htmlFor="pdesc"
+                    className="block text-xs font-semibold text-zinc-400 mb-1"
+                  >
+                    Description (Optional)
+                  </label>
                   <textarea
                     id="pdesc"
                     rows={2.5}
@@ -597,14 +685,22 @@ export const PlaylistPanel: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              <h3 id="rename-playlist-title" className="text-lg font-bold mb-4 flex items-center gap-2">
+              <h3
+                id="rename-playlist-title"
+                className="text-lg font-bold mb-4 flex items-center gap-2"
+              >
                 <FolderClosed className="w-5 h-5 text-emerald-400" />
                 <span>Edit Playlist Details</span>
               </h3>
 
               <form onSubmit={handleRenameSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="rename-pname" className="block text-xs font-semibold text-zinc-400 mb-1">Playlist Name</label>
+                  <label
+                    htmlFor="rename-pname"
+                    className="block text-xs font-semibold text-zinc-400 mb-1"
+                  >
+                    Playlist Name
+                  </label>
                   <input
                     id="rename-pname"
                     type="text"
@@ -616,7 +712,12 @@ export const PlaylistPanel: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="rename-pdesc" className="block text-xs font-semibold text-zinc-400 mb-1">Description (Optional)</label>
+                  <label
+                    htmlFor="rename-pdesc"
+                    className="block text-xs font-semibold text-zinc-400 mb-1"
+                  >
+                    Description (Optional)
+                  </label>
                   <textarea
                     id="rename-pdesc"
                     rows={2.5}
