@@ -113,6 +113,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const sleepTimerIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioProgressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playWithSpeechSynthesisRef = useRef<(article: Article, startOffsetSeconds?: number) => void>(() => {});
 
   const playbackStateRef = useRef(playbackState);
   const articlesRef = useRef(articles);
@@ -642,7 +643,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, 1000);
   }, [triggerHaptic]);
 
-  const playWithSpeechSynthesis = useCallback((article: Article) => {
+  const playWithSpeechSynthesis = useCallback((article: Article, startOffsetSeconds = 0) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: "Audio playback unavailable." }));
       clearPlaybackErrorLater("Audio playback unavailable.");
@@ -656,7 +657,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const words = article.summary.split(/\s+/).length;
       const estimatedDuration = Math.max(15, Math.round((words / 150) * 60));
-      let elapsedSeconds = 0;
+      let elapsedSeconds = startOffsetSeconds;
 
       if (audioProgressIntervalRef.current) clearInterval(audioProgressIntervalRef.current);
 
@@ -715,7 +716,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setPlaybackState((prev) => ({ ...prev, isPlaying: false, playbackError: "Audio speech synthesis failed." }));
       clearPlaybackErrorLater("Audio speech synthesis failed.");
     }
-  }, [clearPlaybackErrorLater, triggerHaptic]);
+  }, [triggerHaptic]);
+
+  playWithSpeechSynthesisRef.current = playWithSpeechSynthesis;
 
   const togglePlayPause = useCallback(() => {
     if (isSpeechSynthesisActiveRef.current && typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -825,6 +828,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       audioObj.onended = () => playNextInQueueRef.current();
+      audioObj.onplay = () => {
+        audioObj.playbackRate = playbackStateRef.current.speed;
+      };
+      audioObj.onplaying = () => {
+        audioObj.playbackRate = playbackStateRef.current.speed;
+      };
       currentAudioRef.current = audioObj;
       audioObj.playbackRate = playbackStateRef.current.speed;
 
@@ -948,12 +957,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [analyticsEvent]);
 
   const updatePlaybackPosition = useCallback((seconds: number) => {
-    if (!currentAudioRef.current) return;
-    currentAudioRef.current.currentTime = seconds;
     triggerHaptic(15);
 
     const currentId = playbackStateRef.current.currentArticleId;
     if (!currentId) return;
+
+    if (currentAudioRef.current) {
+      currentAudioRef.current.currentTime = seconds;
+    } else if (isSpeechSynthesisActiveRef.current && typeof window !== "undefined" && "speechSynthesis" in window) {
+      const article = articlesRef.current.find((a) => a.id === currentId);
+      if (article) {
+        playWithSpeechSynthesisRef.current(article, seconds);
+      }
+    }
 
     setProgress((prev) =>
       prev.map((p) => (p.articleId === currentId ? { ...p, position: seconds } : p))
