@@ -11,15 +11,7 @@ import { PlaylistPanel } from "./components/PlaylistPanel";
 import { ProfilePanel } from "./components/ProfilePanel";
 import { QueuePanel } from "./components/QueuePanel";
 import { PodcastPlayer } from "./components/PodcastPlayer";
-import {
-  Headphones,
-  Sparkles,
-  ListMusic,
-  User,
-  PlayCircle,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Headphones, Sparkles, ListMusic, User, CirclePlay as PlayCircle, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const TABS = ["home", "intake", "playlists", "queue", "profile"] as const;
@@ -175,7 +167,7 @@ function CommuteAppContent() {
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === id
                   ? "bg-emerald-500 text-black shadow-lg"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40"
+                  : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-900/40"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -228,8 +220,8 @@ function CommuteAppContent() {
             aria-label={label}
             className={`flex flex-col items-center gap-1 cursor-pointer ${
               activeTab === id
-                ? "text-emerald-400 font-bold"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                : "text-zinc-400 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
             <Icon className="w-5 h-5" />

@@ -223,7 +223,7 @@ export const PodcastPlayer: React.FC = () => {
             <div className="flex-1 max-w-xl mx-auto w-full px-6 py-8 flex flex-col justify-center items-center gap-6">
               {/* Cover Art / Vector Logo */}
               <div className="w-56 h-56 md:w-64 md:h-64 bg-zinc-100 dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col items-center justify-center relative p-6 text-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-purple-500/10" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-emerald-400/5" />
                 <div className="w-16 h-16 bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
                   <Volume2 className="w-8 h-8" />
                 </div>

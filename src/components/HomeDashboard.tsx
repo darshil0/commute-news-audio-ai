@@ -5,22 +5,7 @@
 
 import React, { useState, useMemo, useCallback, useRef } from "react";
 import { useApp } from "../context/AppContext";
-import {
-  Search,
-  Play,
-  Pause,
-  Bookmark,
-  Trash,
-  Check,
-  FileText,
-  ListPlus,
-  History,
-  Headphones,
-  Download,
-  X,
-  RefreshCw,
-  ArrowDown,
-} from "lucide-react";
+import { Search, Play, Pause, Bookmark, Trash, Check, FileText, ListPlus, Factory as History, Headphones, Download, X, RefreshCw, ArrowDown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Article } from "../types";
 import { searchAndFilterArticles } from "../utils/search";
@@ -262,7 +247,7 @@ export const HomeDashboard: React.FC = () => {
           </div>
           <div className="w-px h-8 bg-zinc-200 dark:bg-zinc-800" />
           <div className="flex items-center gap-2">
-            <Check className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+            <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
             <div>
               <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
                 Completed
@@ -411,12 +396,12 @@ export const HomeDashboard: React.FC = () => {
             ))}
           </div>
         ) : filteredArticles.length === 0 ? (
-          <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl py-12 px-6 text-center">
-            <FileText className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-            <h4 className="font-semibold text-zinc-400">
+          <div className="bg-zinc-50 border border-zinc-200 dark:bg-zinc-900/20 dark:border-zinc-900 rounded-2xl py-12 px-6 text-center">
+            <FileText className="w-12 h-12 text-zinc-400 dark:text-zinc-700 mx-auto mb-3" />
+            <h4 className="font-semibold text-zinc-600 dark:text-zinc-400">
               No briefs match criteria
             </h4>
-            <p className="text-zinc-600 text-xs mt-1">
+            <p className="text-zinc-500 dark:text-zinc-600 text-xs mt-1">
               Add some news, saved feeds, or refine your search query or
               filters.
             </p>
@@ -470,7 +455,7 @@ export const HomeDashboard: React.FC = () => {
                           </span>
                         )}
                         {isComp && (
-                          <span className="text-[8px] font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded">
+                          <span className="text-[8px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
                             listened
                           </span>
                         )}
