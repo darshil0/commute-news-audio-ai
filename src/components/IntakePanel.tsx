@@ -5,7 +5,17 @@
 
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
-import { Globe, FileText, Sparkles, CircleAlert as AlertCircle, Search, ExternalLink, Play, Radio, CircleCheck as CheckCircle2 } from "lucide-react";
+import {
+  Globe,
+  FileText,
+  Sparkles,
+  AlertCircle,
+  Search,
+  ExternalLink,
+  Play,
+  Radio,
+  CheckCircle2,
+} from "lucide-react";
 import { ApiService, SearchNewsResponse } from "../lib/api";
 import { SummaryLength, SummaryTone, VoiceName } from "../types";
 
@@ -131,17 +141,17 @@ export const IntakePanel: React.FC = () => {
     >
       <div className="mb-6">
         <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-emerald-400" />
+          <Sparkles className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
           <span>New Audio Intake</span>
         </h2>
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+        <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-1">
           Search live news with Gemini Search Grounding, paste article text, or
           import URLs to generate audio briefings.
         </p>
       </div>
 
       {/* Mode Selector */}
-      <div className="flex border-b border-zinc-200 dark:border-zinc-800 mb-6 bg-zinc-100 dark:bg-zinc-900/50 p-1 rounded-lg">
+      <div className="flex border-b border-zinc-200 dark:border-zinc-800 mb-6 bg-zinc-100/80 dark:bg-zinc-900/50 p-1 rounded-lg">
         <button
           id="intake-mode-url"
           type="button"
@@ -151,7 +161,7 @@ export const IntakePanel: React.FC = () => {
             setSuccessMsg(null);
             setSearchResult(null);
           }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === "url" ? "bg-white text-emerald-600 shadow-md dark:bg-zinc-800 dark:text-emerald-400" : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === "url" ? "bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 shadow-sm dark:shadow-md" : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"}`}
         >
           <Globe className="w-4 h-4" />
           <span>Web URL</span>
@@ -165,12 +175,12 @@ export const IntakePanel: React.FC = () => {
             setSuccessMsg(null);
             setSearchResult(null);
           }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === "search" ? "bg-white text-emerald-600 shadow-md dark:bg-zinc-800 dark:text-emerald-400" : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === "search" ? "bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 shadow-sm dark:shadow-md" : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"}`}
         >
           <Search className="w-4 h-4" />
           <span className="flex items-center gap-1">
             <span>Live Search</span>
-            <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800/60 px-1.5 py-0.5 rounded font-mono">
+            <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/60 px-1.5 py-0.5 rounded font-mono">
               Grounding
             </span>
           </span>
@@ -184,7 +194,7 @@ export const IntakePanel: React.FC = () => {
             setSuccessMsg(null);
             setSearchResult(null);
           }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === "text" ? "bg-white text-emerald-600 shadow-md dark:bg-zinc-800 dark:text-emerald-400" : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-semibold transition-all ${mode === "text" ? "bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 shadow-sm dark:shadow-md" : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"}`}
         >
           <FileText className="w-4 h-4" />
           <span>Paste Text</span>
@@ -197,7 +207,7 @@ export const IntakePanel: React.FC = () => {
           <div>
             <label
               htmlFor="url-input"
-              className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2"
+              className="block text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2"
             >
               Article Web Address
             </label>
@@ -208,11 +218,11 @@ export const IntakePanel: React.FC = () => {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://news.ycombinator.com/item?id=..."
-                className="w-full bg-white border border-zinc-300 dark:bg-zinc-900 dark:border-zinc-800 rounded-lg py-3 px-4 text-zinc-900 placeholder-zinc-400 dark:text-zinc-100 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all"
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-3 px-4 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all shadow-sm"
                 disabled={localLoading}
               />
             </div>
-            <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-2 italic">
+            <p className="text-[11px] text-zinc-500 mt-2 italic">
               * Supports most major news websites, blog posts, and text-heavy
               columns.
             </p>
@@ -223,7 +233,7 @@ export const IntakePanel: React.FC = () => {
           <div>
             <label
               htmlFor="search-query-input"
-              className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2"
+              className="block text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2"
             >
               Real-Time News Topic / Search Query
             </label>
@@ -234,13 +244,13 @@ export const IntakePanel: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="e.g., SpaceX Starship launch, EV battery breakthroughs, AI regulations..."
-                className="w-full bg-white border border-zinc-300 dark:bg-zinc-900 dark:border-zinc-800 rounded-lg py-3 pl-10 pr-4 text-zinc-900 placeholder-zinc-400 dark:text-zinc-100 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all"
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-3 pl-10 pr-4 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-sm transition-all shadow-sm"
                 disabled={localLoading}
               />
-              <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3.5" />
+              <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
             </div>
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-2 flex items-center gap-1.5">
-              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-2 flex items-center gap-1.5">
+              <Radio className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 animate-pulse" />
               <span>
                 Uses Gemini Search Grounding to aggregate live web sources in
                 real-time.
@@ -254,7 +264,7 @@ export const IntakePanel: React.FC = () => {
             <div>
               <label
                 htmlFor="text-title"
-                className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2"
+                className="block text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2"
               >
                 Article Title (Optional)
               </label>
@@ -264,14 +274,14 @@ export const IntakePanel: React.FC = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Breakthrough in Battery Storage Technology"
-                className="w-full bg-white border border-zinc-300 dark:bg-zinc-900 dark:border-zinc-800 rounded-lg py-2.5 px-4 text-zinc-900 placeholder-zinc-400 dark:text-zinc-100 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 text-sm transition-all"
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-2.5 px-4 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 text-sm transition-all shadow-sm"
                 disabled={localLoading}
               />
             </div>
             <div>
               <label
                 htmlFor="text-body"
-                className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2"
+                className="block text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2"
               >
                 Raw Article Content
               </label>
@@ -281,7 +291,7 @@ export const IntakePanel: React.FC = () => {
                 value={pastedText}
                 onChange={(e) => setPastedText(e.target.value)}
                 placeholder="Paste the full article text body here..."
-                className="w-full bg-white border border-zinc-300 dark:bg-zinc-900 dark:border-zinc-800 rounded-lg py-3 px-4 text-zinc-900 placeholder-zinc-400 dark:text-zinc-100 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 text-sm leading-relaxed transition-all resize-none"
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-3 px-4 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 text-sm leading-relaxed transition-all resize-none shadow-sm"
                 disabled={localLoading}
               />
               <div className="flex justify-between items-center text-[10px] text-zinc-500 mt-1">
@@ -293,9 +303,9 @@ export const IntakePanel: React.FC = () => {
         )}
 
         {/* Dynamic Voiceover Preferences Configurator Card */}
-        <div className="bg-white border border-zinc-200 dark:bg-zinc-900/40 dark:border-zinc-800/60 rounded-xl p-5 space-y-4">
+        <div className="bg-white/80 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/60 rounded-xl p-5 space-y-4 shadow-sm">
           <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-2 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <Sparkles className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             <span>Voice & Audio Settings</span>
           </h3>
 
@@ -304,7 +314,7 @@ export const IntakePanel: React.FC = () => {
             <div>
               <label
                 htmlFor="pref-length"
-                className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 font-medium"
+                className="block text-xs text-zinc-600 dark:text-zinc-400 mb-1.5 font-medium"
               >
                 Summary Length
               </label>
@@ -316,7 +326,7 @@ export const IntakePanel: React.FC = () => {
                     summaryLength: e.target.value as SummaryLength,
                   })
                 }
-                className="w-full bg-zinc-50 border border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer shadow-sm"
                 disabled={localLoading}
               >
                 <option value="short">Brief Briefing (~100 words)</option>
@@ -331,7 +341,7 @@ export const IntakePanel: React.FC = () => {
             <div>
               <label
                 htmlFor="pref-tone"
-                className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 font-medium"
+                className="block text-xs text-zinc-600 dark:text-zinc-400 mb-1.5 font-medium"
               >
                 Script Tone / Style
               </label>
@@ -341,7 +351,7 @@ export const IntakePanel: React.FC = () => {
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setPreferences({ summaryTone: e.target.value as SummaryTone })
                 }
-                className="w-full bg-zinc-50 border border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer shadow-sm"
                 disabled={localLoading}
               >
                 <option value="engaging">
@@ -360,7 +370,7 @@ export const IntakePanel: React.FC = () => {
             <div>
               <label
                 htmlFor="pref-voice"
-                className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 font-medium"
+                className="block text-xs text-zinc-600 dark:text-zinc-400 mb-1.5 font-medium"
               >
                 TTS voice narrator
               </label>
@@ -370,7 +380,7 @@ export const IntakePanel: React.FC = () => {
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setPreferences({ voiceName: e.target.value as VoiceName })
                 }
-                className="w-full bg-zinc-50 border border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer shadow-sm"
                 disabled={localLoading}
               >
                 <option value="Zephyr">Zephyr (Deep & Professional)</option>
@@ -385,7 +395,7 @@ export const IntakePanel: React.FC = () => {
             <div>
               <label
                 htmlFor="pref-speed"
-                className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 font-medium"
+                className="block text-xs text-zinc-600 dark:text-zinc-400 mb-1.5 font-medium"
               >
                 Default Narrator Speed
               </label>
@@ -395,7 +405,7 @@ export const IntakePanel: React.FC = () => {
                 onChange={(e) =>
                   setPreferences({ playbackSpeed: parseFloat(e.target.value) })
                 }
-                className="w-full bg-zinc-50 border border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 rounded-lg py-2 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer shadow-sm"
                 disabled={localLoading}
               >
                 <option value="0.75">Slower (0.75x)</option>
@@ -410,21 +420,21 @@ export const IntakePanel: React.FC = () => {
 
         {/* Error / Success Notifications */}
         {errorMsg && (
-          <div className="bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-900/50 rounded-lg p-4 flex items-start gap-3 text-sm text-red-600 dark:text-red-400">
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-lg p-4 flex items-start gap-3 text-sm text-red-700 dark:text-red-400 shadow-sm">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-500" />
             <div>
               <p className="font-semibold">Generation Error</p>
-              <p className="text-xs text-red-500/90 dark:text-red-300/90 mt-1">{errorMsg}</p>
+              <p className="text-xs text-red-600 dark:text-red-300/90 mt-1">{errorMsg}</p>
             </div>
           </div>
         )}
 
         {successMsg && (
-          <div className="bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-900/50 rounded-lg p-4 flex items-start gap-3 text-sm text-emerald-600 dark:text-emerald-400">
-            <Sparkles className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 rounded-lg p-4 flex items-start gap-3 text-sm text-emerald-700 dark:text-emerald-400 shadow-sm">
+            <Sparkles className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-500" />
             <div>
               <p className="font-semibold">Success</p>
-              <p className="text-xs text-emerald-600/90 dark:text-emerald-300/90 mt-1">{successMsg}</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-300/90 mt-1">{successMsg}</p>
             </div>
           </div>
         )}
@@ -433,7 +443,7 @@ export const IntakePanel: React.FC = () => {
         <button
           id="intake-submit-btn"
           type="submit"
-          className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-200 disabled:text-zinc-400 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500 text-black font-semibold rounded-lg shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all transform active:scale-[0.99]"
+          className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-semibold rounded-lg shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all transform active:scale-[0.99]"
           disabled={
             localLoading ||
             (mode === "url"
@@ -492,15 +502,15 @@ export const IntakePanel: React.FC = () => {
       {searchResult && (
         <div
           id="grounded-search-result-card"
-          className="mt-8 bg-white border border-emerald-200 dark:bg-zinc-900 dark:border-emerald-900/60 rounded-xl p-5 space-y-4 shadow-xl"
+          className="mt-8 bg-white dark:bg-zinc-900 border border-emerald-300 dark:border-emerald-900/60 rounded-xl p-5 space-y-4 shadow-xl text-zinc-900 dark:text-white"
         >
           <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
             <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800/60">
+              <span className="p-1.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 rounded-lg border border-emerald-300 dark:border-emerald-800/60">
                 <Radio className="w-4 h-4" />
               </span>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                   Search Grounded Summary
                 </span>
                 <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
@@ -508,20 +518,20 @@ export const IntakePanel: React.FC = () => {
                 </h3>
               </div>
             </div>
-            <span className="text-xs bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700/50">
+            <span className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700/50">
               {searchResult.category}
             </span>
           </div>
 
-          <div className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed bg-zinc-50 dark:bg-zinc-950/60 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800/80">
+          <div className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-300 leading-relaxed bg-zinc-50 dark:bg-zinc-950/60 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800/80">
             {searchResult.summary}
           </div>
 
           {/* Sources / Grounding Citations */}
           {searchResult.sources && searchResult.sources.length > 0 ? (
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                 <span>
                   Grounded Web Sources ({searchResult.sources.length}):
                 </span>
@@ -533,16 +543,16 @@ export const IntakePanel: React.FC = () => {
                     href={src.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between gap-2 p-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 text-xs text-zinc-600 dark:text-zinc-300 dark:hover:text-emerald-400 rounded border border-zinc-200 dark:border-zinc-700/40 transition-all truncate"
+                    className="flex items-center justify-between gap-2 p-2 bg-zinc-100 dark:bg-zinc-800/50 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-xs text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 rounded border border-zinc-200 dark:border-zinc-700/40 transition-all truncate"
                   >
                     <span className="truncate">{src.title}</span>
-                    <ExternalLink className="w-3 h-3 flex-shrink-0 text-zinc-500" />
+                    <ExternalLink className="w-3 h-3 flex-shrink-0 text-zinc-400 dark:text-zinc-500" />
                   </a>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-xs text-zinc-400 dark:text-zinc-500 italic">
+            <p className="text-xs text-zinc-500 italic">
               No explicit web sources returned for this summary.
             </p>
           )}
@@ -553,7 +563,7 @@ export const IntakePanel: React.FC = () => {
               id="add-play-grounded-btn"
               type="button"
               onClick={handleAddAndPlayGrounded}
-              className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-lg text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-lg text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow"
               disabled={localLoading}
             >
               <Play className="w-4 h-4 fill-current" />
@@ -563,10 +573,10 @@ export const IntakePanel: React.FC = () => {
               id="save-grounded-btn"
               type="button"
               onClick={handleSaveGroundedOnly}
-              className="py-2.5 px-4 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium rounded-lg text-sm flex items-center justify-center gap-2 border border-zinc-200 dark:border-zinc-700/60 transition-all cursor-pointer"
+              className="py-2.5 px-4 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium rounded-lg text-sm flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-700/60 transition-all cursor-pointer"
               disabled={localLoading}
             >
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Save to Briefs</span>
             </button>
           </div>

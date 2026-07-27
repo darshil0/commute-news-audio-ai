@@ -11,7 +11,15 @@ import { PlaylistPanel } from "./components/PlaylistPanel";
 import { ProfilePanel } from "./components/ProfilePanel";
 import { QueuePanel } from "./components/QueuePanel";
 import { PodcastPlayer } from "./components/PodcastPlayer";
-import { Headphones, Sparkles, ListMusic, User, CirclePlay as PlayCircle, Sun, Moon } from "lucide-react";
+import {
+  Headphones,
+  Sparkles,
+  ListMusic,
+  User,
+  PlayCircle,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const TABS = ["home", "intake", "playlists", "queue", "profile"] as const;
@@ -153,7 +161,7 @@ function CommuteAppContent() {
           className={`hidden md:flex flex-col gap-1.5 w-60 p-4 border-r transition-colors ${
             isDark
               ? "border-zinc-900 bg-zinc-950/30"
-              : "border-zinc-100 bg-orange-50/10"
+              : "border-zinc-200/80 bg-orange-50/10"
           }`}
           aria-label="Primary navigation"
         >
@@ -167,7 +175,7 @@ function CommuteAppContent() {
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === id
                   ? "bg-emerald-500 text-black shadow-lg"
-                  : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-900/40"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-900/40"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -206,7 +214,7 @@ function CommuteAppContent() {
         className={`md:hidden fixed bottom-0 left-0 right-0 z-40 border-t flex items-center justify-around py-2.5 px-2 backdrop-blur-md transition-colors ${
           isDark
             ? "bg-zinc-950/95 border-zinc-900 text-white"
-            : "bg-white/95 border-zinc-200 text-zinc-900"
+            : "bg-white/95 border-zinc-200 text-zinc-900 shadow-lg"
         }`}
         aria-label="Mobile navigation"
       >
@@ -221,7 +229,7 @@ function CommuteAppContent() {
             className={`flex flex-col items-center gap-1 cursor-pointer ${
               activeTab === id
                 ? "text-emerald-600 dark:text-emerald-400 font-bold"
-                : "text-zinc-400 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
             <Icon className="w-5 h-5" />

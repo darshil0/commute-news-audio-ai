@@ -223,7 +223,7 @@ export const PodcastPlayer: React.FC = () => {
             <div className="flex-1 max-w-xl mx-auto w-full px-6 py-8 flex flex-col justify-center items-center gap-6">
               {/* Cover Art / Vector Logo */}
               <div className="w-56 h-56 md:w-64 md:h-64 bg-zinc-100 dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col items-center justify-center relative p-6 text-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-emerald-400/5" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-emerald-500/5" />
                 <div className="w-16 h-16 bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
                   <Volume2 className="w-8 h-8" />
                 </div>
@@ -420,16 +420,16 @@ export const PodcastPlayer: React.FC = () => {
               {/* Sleep Timer Settings */}
               <div className="relative">
                 <button
-                  id="sleep-timer-trigger"
+                  id="sleep-timer-button"
                   onClick={() => {
                     setShowSleepMenu(!showSleepMenu);
                     setShowSpeedMenu(false);
                     setShowVolumeMenu(false);
                   }}
                   aria-label="Sleep timer settings"
-                  className={`flex items-center gap-1.5 font-mono px-3 py-1.5 rounded-lg transition-colors ${sleepTimerDuration ? "bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400" : "hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"}`}
+                  className={`flex items-center gap-1.5 font-mono px-3 py-1.5 rounded-lg transition-colors ${sleepTimerDuration ? "bg-emerald-500/10 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20" : "hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"}`}
                 >
-                  <Moon className="w-4 h-4" />
+                  <Moon className={`w-4 h-4 ${sleepTimerDuration ? "text-emerald-600 dark:text-emerald-400" : ""}`} />
                   <span>
                     {sleepTimerDuration ? `${sleepTimerDuration}m` : "Off"}
                   </span>
@@ -456,7 +456,7 @@ export const PodcastPlayer: React.FC = () => {
                           setSleepTimer(m);
                           setShowSleepMenu(false);
                         }}
-                        className={`w-full px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center justify-between text-xs ${sleepTimerDuration === m ? "text-indigo-600 dark:text-indigo-400 font-bold" : "text-zinc-700 dark:text-zinc-300"}`}
+                        className={`w-full px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center justify-between text-xs ${sleepTimerDuration === m ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-zinc-700 dark:text-zinc-300"}`}
                       >
                         <span>{m} minutes</span>
                         {sleepTimerDuration === m && (

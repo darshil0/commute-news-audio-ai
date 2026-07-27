@@ -220,6 +220,8 @@ Firestore Security Rules enforce zero-trust Attribute-Based Access Control (ABAC
 - **Strict Typing Hardening**: Replaced remaining `any` types in `IntakePanel.tsx` and `ProfilePanel.tsx` with explicit domain unions (`SummaryLength`, `SummaryTone`, `VoiceName`).
 - **Null Safety in Search**: Added strict null and array guards to `tokenize`, `scoreArticle`, and `searchAndFilterArticles` in `src/utils/search.ts` to prevent `TypeError` exceptions.
 - **Accessibility & Theme Contrast**: Updated expanded player overlay for seamless light/dark mode contrast and added `aria-label`, `role="dialog"`, and `aria-current="page"` across player buttons and navigation.
+- **Adaptive Light/Dark Surface Contrast (DEF-22)**: Refactored `IntakePanel.tsx` and `PlaylistPanel.tsx` with white card surfaces (`bg-white dark:bg-zinc-900`) and dark text (`text-zinc-900 dark:text-white`) in light mode for crisp legibility and high contrast.
+- **Color Standard Enforcement (DEF-23)**: Removed prohibited purple/indigo accents from `PodcastPlayer.tsx` and `HomeDashboard.tsx`, aligning with primary `emerald` brand palette.
 
 ### 7.4 Audit Report Resolutions & Production Hardening
 

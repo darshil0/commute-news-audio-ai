@@ -8,7 +8,24 @@ import { useApp } from "../context/AppContext";
 import { localDB } from "../lib/db";
 import { ApiService } from "../lib/api";
 import { VoiceName } from "../types";
-import { User, Lock, ArrowRight, Cloud, RefreshCw, LogOut, CircleCheck as CheckCircle2, Wifi, WifiOff, Beaker, Play, ShieldCheck, Volume2, Pause, Sparkles, Headphones } from "lucide-react";
+import {
+  User,
+  Lock,
+  ArrowRight,
+  Cloud,
+  RefreshCw,
+  LogOut,
+  CheckCircle2,
+  Wifi,
+  WifiOff,
+  Beaker,
+  Play,
+  ShieldCheck,
+  Volume2,
+  Pause,
+  Sparkles,
+  Headphones,
+} from "lucide-react";
 
 export const ProfilePanel: React.FC = () => {
   const {
@@ -304,17 +321,17 @@ export const ProfilePanel: React.FC = () => {
   return (
     <div
       id="profile-panel-container"
-      className="max-w-md mx-auto p-4 md:p-6 text-zinc-900 dark:text-white pb-32 space-y-6"
+      className="max-w-md mx-auto p-4 md:p-6 text-white pb-32 space-y-6"
     >
       {/* Network Connectivity Ribbon */}
-      <div className="flex justify-between items-center bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium">
-        <span className="text-zinc-500 dark:text-zinc-400">Connectivity Status:</span>
+      <div className="flex justify-between items-center bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium">
+        <span className="text-zinc-400">Connectivity Status:</span>
         {isOnline ? (
-          <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full font-mono">
+          <span className="flex items-center gap-1.5 text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded-full font-mono">
             <Wifi className="w-3.5 h-3.5" /> Online Connected
           </span>
         ) : (
-          <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full font-mono">
+          <span className="flex items-center gap-1.5 text-amber-500 bg-amber-950/40 px-2 py-0.5 rounded-full font-mono">
             <WifiOff className="w-3.5 h-3.5 animate-pulse" /> Offline Commuting
           </span>
         )}
@@ -322,15 +339,15 @@ export const ProfilePanel: React.FC = () => {
 
       {!userProfile ? (
         /* Authentication Screen */
-        <div className="bg-white border border-zinc-200 dark:bg-zinc-900/40 dark:border-zinc-900 rounded-2xl p-6 md:p-8">
+        <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-6 md:p-8">
           <div className="text-center mb-6">
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
               <User className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-xl font-bold text-zinc-100">
               {isLogin ? "Welcome Back" : "Create Commuter Account"}
             </h3>
-            <p className="text-zinc-500 dark:text-zinc-400 text-xs mt-1">
+            <p className="text-zinc-400 text-xs mt-1">
               {isLogin
                 ? "Sign in to restore your playlists & listen across multiple devices."
                 : "Register to unlock secure cloud backups and listening queues."}
@@ -341,12 +358,12 @@ export const ProfilePanel: React.FC = () => {
             <div>
               <label
                 htmlFor="auth-username"
-                className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1"
+                className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1"
               >
                 Username
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400 dark:text-zinc-500 pointer-events-none">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-500 pointer-events-none">
                   <User className="w-4 h-4" />
                 </span>
                 <input
@@ -356,7 +373,7 @@ export const ProfilePanel: React.FC = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Username"
-                  className="w-full bg-zinc-50 border border-zinc-300 dark:bg-zinc-950 dark:border-zinc-800 rounded-lg py-2 pl-10 pr-4 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-all"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-10 pr-4 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-all"
                 />
               </div>
             </div>
@@ -364,12 +381,12 @@ export const ProfilePanel: React.FC = () => {
             <div>
               <label
                 htmlFor="auth-password"
-                className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1"
+                className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1"
               >
                 Password
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400 dark:text-zinc-500 pointer-events-none">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-500 pointer-events-none">
                   <Lock className="w-4 h-4" />
                 </span>
                 <input
@@ -379,19 +396,19 @@ export const ProfilePanel: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full bg-zinc-50 border border-zinc-300 dark:bg-zinc-950 dark:border-zinc-800 rounded-lg py-2 pl-10 pr-4 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-all"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-10 pr-4 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-all"
                 />
               </div>
             </div>
 
             {authError && (
-              <p className="text-xs text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-lg p-2.5">
+              <p className="text-xs text-red-400 font-medium bg-red-950/20 border border-red-900/40 rounded-lg p-2.5">
                 {authError}
               </p>
             )}
 
             {authSuccess && (
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 rounded-lg p-2.5">
+              <p className="text-xs text-emerald-400 font-medium bg-emerald-950/20 border border-emerald-900/40 rounded-lg p-2.5">
                 Account accessed successfully!
               </p>
             )}
@@ -407,7 +424,7 @@ export const ProfilePanel: React.FC = () => {
           </form>
 
           {/* Toggle link */}
-          <div className="text-center mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+          <div className="text-center mt-6 pt-4 border-t border-zinc-800">
             <button
               id="auth-toggle-btn"
               type="button"
@@ -416,7 +433,7 @@ export const ProfilePanel: React.FC = () => {
                 setAuthError(null);
                 setAuthSuccess(false);
               }}
-              className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 font-medium cursor-pointer"
+              className="text-xs text-emerald-400 hover:text-emerald-300 font-medium cursor-pointer"
             >
               {isLogin
                 ? "Don't have an account? Sign Up"
@@ -426,34 +443,35 @@ export const ProfilePanel: React.FC = () => {
         </div>
       ) : (
         /* Logged In Dashboard Profile Screen */
-        <div className="bg-white border border-zinc-200 dark:bg-zinc-900/40 dark:border-zinc-900 rounded-2xl p-6 space-y-6">
+        <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-6 space-y-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-full flex items-center justify-center font-bold text-lg border border-emerald-200 dark:border-emerald-500/20">
+            <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center font-bold text-lg border border-emerald-500/20">
               {userProfile.username[0].toUpperCase()}
             </div>
             <div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-widest font-bold">
+              <p className="text-xs text-zinc-400 uppercase tracking-widest font-bold">
                 Commuter Account
               </p>
-              <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              <h4 className="text-lg font-bold text-zinc-100">
                 {userProfile.username}
               </h4>
             </div>
           </div>
 
           {/* Cloud Sync Status Card */}
-          <div className="bg-zinc-50 border border-zinc-200 dark:bg-zinc-950/60 dark:border-zinc-800 rounded-xl p-4 space-y-3.5">
+          <div className="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4 space-y-3.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 font-medium">
-                <Cloud className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+              <span className="text-xs text-zinc-400 flex items-center gap-1.5 font-medium">
+                <Cloud className="w-4 h-4 text-emerald-400" />
                 <span>Cloud Sync & Backup</span>
               </span>
-              <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded uppercase">
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded uppercase">
                 Active
               </span>
             </div>
 
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Playlists, listening positions, bookmarks, preferences, and
               downloaded articles are backup-synchronized per session.
             </p>
 
@@ -462,10 +480,10 @@ export const ProfilePanel: React.FC = () => {
               type="button"
               onClick={handleManualSync}
               disabled={!isOnline || syncing}
-              className="w-full py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 disabled:bg-zinc-50 dark:disabled:bg-zinc-900 disabled:text-zinc-400 dark:disabled:text-zinc-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="w-full py-2 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 ${syncing ? "animate-spin text-emerald-500 dark:text-emerald-400" : ""}`}
+                className={`w-3.5 h-3.5 ${syncing ? "animate-spin text-emerald-400" : ""}`}
               />
               <span>
                 {syncing ? "Synchronizing Cloud Vault..." : "Sync Backup Now"}
@@ -474,11 +492,11 @@ export const ProfilePanel: React.FC = () => {
           </div>
 
           {/* Settings features */}
-          <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 space-y-4">
+          <div className="border-t border-zinc-800 pt-4 space-y-4">
             <button
               id="logout-btn"
               onClick={logoutUser}
-              className="w-full py-2.5 border border-zinc-200 dark:border-zinc-800 hover:bg-red-50 dark:hover:bg-red-950/10 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="w-full py-2.5 border border-zinc-800 hover:bg-red-950/10 text-red-400 hover:text-red-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out Account</span>
@@ -488,12 +506,12 @@ export const ProfilePanel: React.FC = () => {
       )}
 
       {/* Voice Selection Settings Panel */}
-      <div className="bg-white border border-zinc-200 dark:bg-zinc-900/40 dark:border-zinc-900 rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-2 flex items-center gap-2">
-          <Headphones className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+      <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-6 space-y-4">
+        <h3 className="text-sm font-semibold text-zinc-200 border-b border-zinc-800 pb-2 flex items-center gap-2">
+          <Headphones className="w-5 h-5 text-emerald-400" />
           <span>AI Narrator Voice Settings</span>
         </h3>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+        <p className="text-xs text-zinc-400 leading-relaxed">
           Select your preferred Text-to-Speech voice profile. The chosen voice
           will read new audio briefings you compile.
         </p>
@@ -513,17 +531,17 @@ export const ProfilePanel: React.FC = () => {
                 }}
                 className={`group relative p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
                   isSelected
-                    ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 text-zinc-900 dark:text-white"
-                    : "bg-zinc-50 dark:bg-zinc-950/40 border-zinc-200 dark:border-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-800 text-zinc-700 dark:text-zinc-300"
+                    ? "bg-emerald-950/20 border-emerald-500 text-white"
+                    : "bg-zinc-950/40 border-zinc-900 hover:border-zinc-800 text-zinc-300"
                 }`}
               >
                 {/* Custom radio indicator */}
                 <div className="mt-1 flex-shrink-0">
                   <div
-                    className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${isSelected ? "border-emerald-500 dark:border-emerald-400" : "border-zinc-300 dark:border-zinc-700 group-hover:border-zinc-400 dark:group-hover:border-zinc-500"}`}
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${isSelected ? "border-emerald-400" : "border-zinc-700 group-hover:border-zinc-500"}`}
                   >
                     {isSelected && (
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
                     )}
                   </div>
                 </div>
@@ -531,17 +549,17 @@ export const ProfilePanel: React.FC = () => {
                 {/* Info Text */}
                 <div className="flex-1 min-w-0 pr-8">
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
+                    <span className="font-bold text-sm text-zinc-100">
                       {voice.name}
                     </span>
-                    <span className="text-[10px] font-mono text-zinc-500 bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-1.5 py-0.5 rounded">
                       {voice.techName}
                     </span>
-                    <span className="text-[9px] font-semibold text-emerald-600/80 dark:text-emerald-400/80 uppercase tracking-wider font-mono bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-semibold text-emerald-400/80 uppercase tracking-wider font-mono bg-emerald-950/40 px-1.5 py-0.5 rounded">
                       {voice.accent}
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                  <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
                     {voice.description}
                   </p>
                 </div>
@@ -557,8 +575,8 @@ export const ProfilePanel: React.FC = () => {
                     isPlaying
                       ? "bg-emerald-500 text-black border-emerald-400 scale-105 shadow-md shadow-emerald-500/20"
                       : isSelected
-                        ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-500 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
-                        : "bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800"
+                        ? "bg-emerald-950/40 border-emerald-800/60 text-emerald-400 hover:bg-emerald-900/50"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
                   }`}
                   title={isPlaying ? "Stop Preview" : "Play Voice Preview"}
                 >
@@ -595,12 +613,12 @@ export const ProfilePanel: React.FC = () => {
       </div>
 
       {/* Diagnostics Panel (Interactive Testing Suite) */}
-      <div className="bg-white border border-zinc-200 dark:bg-zinc-900/40 dark:border-zinc-900 rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-2 flex items-center gap-2">
-          <Beaker className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+      <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-6 space-y-4">
+        <h3 className="text-sm font-semibold text-zinc-200 border-b border-zinc-800 pb-2 flex items-center gap-2">
+          <Beaker className="w-5 h-5 text-emerald-400" />
           <span>CommuteNews Test & Diagnostics Suite</span>
         </h3>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+        <p className="text-xs text-zinc-400 leading-relaxed">
           Execute real-time integrated unit tests to verify the offline flow
           database state, progress tracking, and client-server synchronization.
         </p>
@@ -609,7 +627,7 @@ export const ProfilePanel: React.FC = () => {
           id="run-tests-btn"
           onClick={runDiagnostics}
           disabled={testing}
-          className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-200 dark:disabled:bg-zinc-800 disabled:text-zinc-400 dark:disabled:text-zinc-500 text-black font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+          className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
         >
           <ShieldCheck className="w-4 h-4" />
           <span>
@@ -620,16 +638,16 @@ export const ProfilePanel: React.FC = () => {
         </button>
 
         {testLogs.length > 0 && (
-          <div className="bg-zinc-50 border border-zinc-200 dark:bg-zinc-950 dark:border-zinc-900 rounded-xl p-4 font-mono text-[10px] space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
+          <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-4 font-mono text-[10px] space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
             {testLogs.map((log, i) => (
               <p
                 key={i}
                 className={
                   log.startsWith("❌")
-                    ? "text-red-500 dark:text-red-400"
+                    ? "text-red-400"
                     : log.startsWith("✅")
-                      ? "text-emerald-500 dark:text-emerald-400"
-                      : "text-zinc-500 dark:text-zinc-400"
+                      ? "text-emerald-400"
+                      : "text-zinc-400"
                 }
               >
                 {log}

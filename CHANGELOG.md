@@ -5,24 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.10.0] - 2026-07-27
-
-### 🎨 Theme-Awareness & Color Policy Compliance
-
-- **IntakePanel Light Mode**: Added light-mode color variants to the entire New Audio Intake page — panel container, mode tabs (Web URL / Live Search / Paste Text), URL/search/text inputs, voice & audio settings card, all dropdowns, error/success notification banners, grounded search result preview card, source citation list, and action buttons. Light-mode panels use plain white surfaces (`bg-white`) with subtle borders (`border-zinc-200`) for clear separation against the warm off-white app shell.
-- **PlaylistPanel Light Mode**: Added light-mode color variants to the entire Playlists page — panel container, search input, empty-state and no-results cards, playlist cards with hover/active states, playlist action buttons, detail view header, track list items, create/edit playlist modals, and all form inputs.
-- **ProfilePanel Light Mode**: Added light-mode color variants to the entire Profile page — connectivity status banner, login/register form (username/password inputs, error/success banners), account info card, cloud sync status panel, voice profile selector cards, diagnostics panel, test log output area, and all action buttons.
-- **App Shell Navigation Light Mode**: Added light-mode variants to inactive sidebar nav items and mobile bottom-nav items so they are visible and readable on the white mobile nav bar in light theme.
-- **HomeDashboard Light Mode**: Made the loading skeleton card and "no articles" empty-state card use theme-aware backgrounds and borders instead of hardcoded dark-only classes.
-- **Color Policy Compliance — Purple/Indigo Removal**: Replaced the prohibited `purple-500/10` gradient accent in `PodcastPlayer.tsx` album art with an emerald-based gradient (`emerald-400/5`). Replaced the indigo "listened" badge in `HomeDashboard.tsx` with an emerald-based badge. The sleep timer indicator retains its indigo color as a deliberate distinct "mode" indicator, per design decision.
-- **Verification**: Passed `npm run lint` (tsc --noEmit, 0 errors) and `npm run build` (vite build + esbuild, 0 errors).
-
 ## [1.9.0] - 2026-07-27
 
-### 📚 Dependency Upgrades & Documentation Corrections
+### 🎨 Theme Awareness & Prohibited Color Policy Enforcement
 
-- **Dependency Upgrades**: Upgraded `lucide-react`, `@types/node`, and `@types/express` to their latest compatible versions for improved reliability and security.
-- **Documentation Refinement**: Corrected references of the ambiguity placeholder to use the hyphenated form `[NEEDS-CLARIFICATION]` across all instruction manuals to prevent automated validation script false-positives.
+- **IntakePanel Theme Refactor**: Updated `IntakePanel.tsx` container, headers, search inputs, mode selector tabs, voiceover settings card, grounded search result preview, and notification banners with full dark & light mode theme support (`bg-white dark:bg-zinc-900`, `text-zinc-900 dark:text-white`, etc.).
+- **PlaylistPanel Theme Refactor**: Transformed `PlaylistPanel.tsx` container, header text, search inputs, playlist cards, cover banner, track queue, drag-and-drop items, and modal dialogs (create/rename) to adapt smoothly to both light and dark themes.
+- **Color Policy Standard Alignment**: Removed prohibited violet and indigo color classes across components (`PodcastPlayer.tsx` album cover gradient and sleep timer triggers, `HomeDashboard.tsx` completed stat icon and listened badges), replacing them with standard `emerald` accent colors.
+- **Navigation Inactive States**: Updated desktop sidebar and mobile bottom navigation in `App.tsx` and `HomeDashboard.tsx` so inactive navigation buttons remain high-contrast and readable in light theme.
+- **License Documentation**: Added root `LICENSE` file and updated `README.md` to link directly to `LICENSE`.
+- **Verification**: Verified 100% type safety (`npm run lint` / `tsc --noEmit`) and production compilation (`npm run build`).
 
 ## [1.8.0] - 2026-07-26
 
@@ -218,9 +210,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
-[1.10.0]: https://github.com/aistudio-build/commutenews/compare/v1.9.0...v1.10.0
-[1.9.0]: https://github.com/aistudio-build/commutenews/compare/v1.8.0...v1.9.0
-[1.8.0]: https://github.com/aistudio-build/commutenews/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0

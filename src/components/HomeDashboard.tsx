@@ -5,7 +5,22 @@
 
 import React, { useState, useMemo, useCallback, useRef } from "react";
 import { useApp } from "../context/AppContext";
-import { Search, Play, Pause, Bookmark, Trash, Check, FileText, ListPlus, Factory as History, Headphones, Download, X, RefreshCw, ArrowDown } from "lucide-react";
+import {
+  Search,
+  Play,
+  Pause,
+  Bookmark,
+  Trash,
+  Check,
+  FileText,
+  ListPlus,
+  History,
+  Headphones,
+  Download,
+  X,
+  RefreshCw,
+  ArrowDown,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Article } from "../types";
 import { searchAndFilterArticles } from "../utils/search";
@@ -396,9 +411,9 @@ export const HomeDashboard: React.FC = () => {
             ))}
           </div>
         ) : filteredArticles.length === 0 ? (
-          <div className="bg-zinc-50 border border-zinc-200 dark:bg-zinc-900/20 dark:border-zinc-900 rounded-2xl py-12 px-6 text-center">
+          <div className="bg-white dark:bg-zinc-900/20 border border-zinc-200 dark:border-zinc-900 rounded-2xl py-12 px-6 text-center">
             <FileText className="w-12 h-12 text-zinc-400 dark:text-zinc-700 mx-auto mb-3" />
-            <h4 className="font-semibold text-zinc-600 dark:text-zinc-400">
+            <h4 className="font-semibold text-zinc-700 dark:text-zinc-400">
               No briefs match criteria
             </h4>
             <p className="text-zinc-500 dark:text-zinc-600 text-xs mt-1">

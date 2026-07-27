@@ -63,12 +63,13 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 
 | Document                                                               | Description                                 | Key Focus Areas                                                                                 |
 | :--------------------------------------------------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------------------------- |
-| **[`AGENTS.md`](./AGENTS.md)**                                         | Spec-Driven Development rules & constraints | SDD lifecycle, ambiguity protocols (`[NEEDS-CLARIFICATION]`), system rules                      |
+| **[`AGENTS.md`](./AGENTS.md)**                                         | Spec-Driven Development rules & constraints | SDD lifecycle, ambiguity protocols (`[NEEDS CLARIFICATION]`), system rules                      |
 | **[`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md)**                   | Master System Specification                 | System scope, Firestore schema, ABAC rules, user stories, acceptance criteria                   |
-| **[`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md)**   | Architecture Mapping & Roadmap              | Component mapping, completed roadmap phases (1–7), defect tracking catalog                      |
+| **[`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md)**   | Architecture Mapping & Roadmap              | Component mapping, completed roadmap phases (1–8), defect tracking catalog                      |
 | **[`specs/VALIDATION_CHECKLIST.md`](./specs/VALIDATION_CHECKLIST.md)** | Verification & QA Protocol                  | Type safety, production build validation, feature AC checks, defect verifications               |
 | **[`CHANGELOG.md`](./CHANGELOG.md)**                                   | Release & Version History                   | Version release notes following standard [Keep a Changelog](https://keepachangelog.com/) format |
 | **[`HANDOFF_LOG.md`](./HANDOFF_LOG.md)**                               | Agent Handoff & Audit Logs                  | Engineering audits, visual layout verifications, and context handoff logs                       |
+| **[`LICENSE`](./LICENSE)**                                             | Open-source MIT License                     | Project license terms and permissions                                                           |
 
 ---
 
@@ -92,6 +93,8 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 - **HTML Branding & OpenGraph Meta**: Replaced generic template title in `index.html` with `"CommuteBrief — Smart Commute Audio Briefings"` and OpenGraph metadata.
 - **Source Control Protection**: Added `data/` and `*.db` to `.gitignore` to prevent database secret leaks.
 - **Rate Limiter Memory Cleanup**: Added a periodic 10-minute sweep in `server.ts` to purge stale IP entries from `rateLimitStore` and eliminate map memory accumulation.
+- **Adaptive Light/Dark Theme Surfaces (DEF-22)**: Refactored `IntakePanel.tsx` and `PlaylistPanel.tsx` containers, mode tabs, inputs, selects, and cards to use white surface cards (`bg-white`) in light mode and dark cards (`bg-zinc-900`) in dark mode, ensuring high-contrast legibility across themes.
+- **Prohibited Color Policy Standardization (DEF-23)**: Removed prohibited purple and indigo accent utilities from `PodcastPlayer.tsx` and `HomeDashboard.tsx`, standardizing on primary `emerald` accents.
 
 ---
 
@@ -116,3 +119,11 @@ npm run build
 # Start production server
 npm run start
 ```
+
+---
+
+## 📄 License
+
+This project is licensed under the [License](LICENSE).
+
+

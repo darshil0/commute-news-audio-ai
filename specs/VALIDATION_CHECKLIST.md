@@ -55,7 +55,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **SDD Alignment**:
   - Code changes match the definitions in `/specs/SYSTEM_SPEC.md`.
   - Any new behavior or scope change has been documented in `/specs/SYSTEM_SPEC.md` first.
-  - Unclear requirements are flagged with `[NEEDS-CLARIFICATION]`.
+  - Unclear requirements are flagged with `[NEEDS CLARIFICATION]`.
 
 - [x] **Documentation Updates**:
   - `/README.md` accurately reflects project architecture and SDD workflow.
@@ -113,5 +113,5 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-19 (HTML Title & Meta Tags)**: `index.html` renders `<title>CommuteBrief — Smart Commute Audio Briefings</title>` and OpenGraph description tags.
 - [x] **DEF-20 (Git Ignore Data Protection)**: `.gitignore` includes `data/` and `*.db` rules to prevent user database or secret leaks in repository commits.
 - [x] **DEF-21 (Rate Limiter Memory Sweep)**: `server.ts` executes a periodic 10-minute sweep purging stale IP keys from `rateLimitStore` to prevent in-memory map leakage.
-- [x] **DEF-22 (Theme-Awareness Across Panels)**: `IntakePanel.tsx`, `PlaylistPanel.tsx`, `ProfilePanel.tsx`, and `App.tsx` navigation items include light-mode color variants (`dark:` prefixed classes with light-mode base classes). All panels use `bg-white` with `border-zinc-200` in light mode for clear surface separation.
-- [x] **DEF-23 (Color Policy Compliance)**: No prohibited purple/indigo/violet hues remain in the codebase except the sleep timer indicator in `PodcastPlayer.tsx`, which deliberately uses indigo as a distinct "mode" indicator per design decision. Album art gradient uses emerald-based colors. "Listened" badge in `HomeDashboard.tsx` uses emerald-based colors.
+- [x] **DEF-22 (Adaptive Surface Contrast)**: `IntakePanel.tsx` and `PlaylistPanel.tsx` adapt contrast in light mode with crisp `bg-white` cards and `text-zinc-900` body text.
+- [x] **DEF-23 (Color Standard Enforcement)**: Prohibited purple and indigo utilities removed across player controls and dashboard badges, standardizing on `emerald`.
