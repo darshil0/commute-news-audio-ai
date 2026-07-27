@@ -8,16 +8,17 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 
 | Component / File                     | Purpose                                                                                                                                                                                            | Corresponding Spec Criteria            |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| `server.ts`                          | Express backend proxy handling Gemini API summarization (`/api/summarize`, `/api/extract`) and TTS synthesis (`/api/tts`, `/api/tts-preview`). Handles robust JSON cleaning (`cleanAndParseJson`). | AC-1.1, AC-1.2, AC-2.2                 |
-| `src/context/AppContext.tsx`         | Centralized React state management for articles, playback state, queue, playlists, user profile settings, and haptic triggers. Includes automatic fallback to `window.speechSynthesis`.            | AC-3.1, AC-3.2, AC-4.1, AC-6.1, AC-6.2 |
+| `server.ts`                          | Express backend proxy handling Gemini API summarization (`/api/summarize`, `/api/extract`), TTS synthesis (`/api/tts`), auth (`/api/auth`), and sync storage (`/api/sync/save`, `/api/sync/get`). | AC-1.1, AC-1.2, AC-2.2, AC-7.1 - AC-7.4 |
+| `src/context/AppContext.tsx`         | Centralized React state management for articles, playback state, queue, playlists, user profile settings, and haptic triggers. Integrates `syncWithServer()` with local IndexedDB.                   | AC-3.1, AC-3.2, AC-4.1, AC-6.1, AC-7.1 - AC-7.3 |
+| `src/lib/api.ts`                     | Client API service wrapper communicating with Express authentication and sync endpoints (`backupData`, `getBackupData`).                                                                           | AC-7.1, AC-7.2, AC-7.3                 |
 | `src/components/PodcastPlayer.tsx`   | Persistent audio player panel with expanded view, speed slider (`0.5x`-`2.0x`), quick presets, sleep timer, seek bar, and voice badge.                                                             | AC-3.1, AC-3.2                         |
 | `src/components/HomeDashboard.tsx`   | Main briefing feed with tokenized search bar, category filter chips ("All", "Saved", "Downloaded"), audio card interactions, and queue management.                                                 | AC-5.1, AC-5.2                         |
 | `src/components/PlaylistPanel.tsx`   | Playlist manager featuring creation, track reordering (HTML5 drag-and-drop), and inline search across playlists and briefs.                                                                        | AC-4.1, AC-4.2, AC-5.1                 |
 | `src/components/IntakePanel.tsx`     | Article submission interface supporting URL extraction, raw text input, Gemini Search Grounding real-time news search, grounded web sources preview, and voice/summary customization.              | AC-1.1, AC-1.2, AC-1.3                 |
 | `src/components/ProfilePanel.tsx`    | Settings & voice profile selector (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities.                                                                                    | AC-2.1, AC-2.2                         |
 | `src/utils/search.ts`                | High-performance tokenized fuzzy search utility scoring article titles, categories, authors, tags, and summaries.                                                                                  | AC-5.1, AC-5.2                         |
-| `src/lib/db.ts`                      | IndexedDB client wrapper managing durable local persistence for articles, playlists, listening history, and playback progress.                                                                     | AC-6.1                                 |
-| `scripts/verify_and_prepare_push.sh` | Automated verification and Git push preparation script executing linting, compilation, git initialization, and staging.                                                                            | AC-1 to AC-6                           |
+| `src/lib/db.ts`                      | IndexedDB client wrapper managing durable local persistence for articles, playlists, listening history, and playback progress.                                                                     | AC-6.1, AC-7.2                         |
+| `scripts/verify_and_prepare_push.sh` | Automated verification and Git push preparation script executing linting, compilation, git initialization, and staging.                                                                            | AC-1 to AC-7                           |
 
 ---
 
@@ -41,17 +42,17 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 
 - [x] Audit repository documentation and eliminate spec conflicts.
 - [x] Create root `/AGENTS.md` specifying Spec-Driven Development rules.
-- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, Firestore cloud sync technical architecture, acceptance criteria, non-goals, and validation protocols.
+- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, Express JWT cross-device sync architecture, acceptance criteria, non-goals, and validation protocols.
 - [x] Create `/specs/IMPLEMENTATION_PLAN.md` mapping architecture to spec criteria.
 - [x] Create `/specs/VALIDATION_CHECKLIST.md` providing a verification protocol for future agents.
 - [x] Create `/scripts/verify_and_prepare_push.sh` executable asset for automated verification and Git setup.
 - [x] Update `/README.md` to explain the SDD workflow to human developers and AI tools.
 
-### Phase 4: Cloud Cross-Device Synchronization Architecture (Completed)
+### Phase 4: Express Cross-Device Synchronization Architecture (Completed)
 
-- [x] Formally define Firestore data models (`UserBrief`, `UserPlaylist`, `UserSettings`) in `/specs/SYSTEM_SPEC.md`.
-- [x] Define Firestore ABAC Security Rules & access model in `/specs/SYSTEM_SPEC.md` for `/users/{userId}` path scope.
-- [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + Firestore `onSnapshot` listener reconciliation).
+- [x] Formally define `SyncData` payload schema (`Article`, `Playlist`, `UserPreferences`) in `/specs/SYSTEM_SPEC.md`.
+- [x] Define Express JWT security model & username allowlist in `/specs/SYSTEM_SPEC.md` for `/api/sync/save` and `/api/sync/get` endpoints.
+- [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + Express server JSON backup reconciliation).
 
 ### Phase 5: Gemini Search Grounding Integration (Completed)
 
@@ -96,7 +97,7 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 | **DEF-1**  | Server / Security | Express extraction endpoint `/api/articles/extract` lacked SSRF safeguards. Added scheme checks (HTTP/HTTPS only) and blocked private IP blocks (RFC 1918/4193), loopback (`127.0.0.1`), and link-local ranges. | High     |
 | **DEF-2**  | Server / Model    | Deprecated model aliases broke Gemini API integration. Updated server endpoints to use `@google/genai` with `gemini-2.5-flash` and `gemini-2.5-flash-preview-tts`.                                              | High     |
 | **DEF-3**  | Server / Testing  | Server auto-bound to port 3000 during test suite execution. Added `NODE_ENV === "test"` guard to `startServer()`.                                                                                               | Medium   |
-| **DEF-4**  | State / Sync      | `syncWithServer` wiped unsynced local data due to premature snapshotting. Implemented atomic bi-directional merges between IndexedDB and Firestore.                                                             | High     |
+| **DEF-4**  | State / Sync      | `syncWithServer` wiped unsynced local data due to premature snapshotting. Implemented atomic bi-directional merges between IndexedDB and Express `/api/sync` backend storage. | High     |
 | **DEF-5**  | State / Memory    | `deleteArticle` failed to purge deleted articles from user playlists and left stale `HTMLAudioElement` objects in `audioElementsCache`. Added automatic playlist cleaning and audio element eviction.           | Medium   |
 | **DEF-6**  | Player / UI       | `PodcastPlayer` seek slider scrubbed erratically due to active audio position state updates during drag. Added `isDragging` and `dragPos` state separation.                                                     | Medium   |
 | **DEF-7**  | Player / Logic    | 15s skip backward/forward calculated offsets from stale audio element `currentTime`. Updated calculation to evaluate against `activePos`.                                                                       | Low      |

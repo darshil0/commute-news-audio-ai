@@ -1,5 +1,11 @@
 # CommuteBrief: Smart Commute Audio Briefings
 
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/version-v1.9.0-blue.svg)](./package.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.0-61dafb.svg)](https://react.dev/)
+
 CommuteBrief is a full-stack web application designed to optimize daily commutes. It transforms real-time news search queries, web articles, and custom text into structured, audio-first briefings narrated by customizable AI voice profiles or client-side speech fallbacks.
 
 ---
@@ -38,8 +44,9 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 ## 🛠️ Tech Stack & Architecture
 
 - **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Framer Motion (`motion/react`), Lucide Icons.
-- **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, and Text-to-Speech proxying.
+- **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, Text-to-Speech proxying, JWT authentication (`/api/auth`), and cross-device sync (`/api/sync`).
 - **AI Engine**: `@google/genai` TypeScript SDK utilizing `gemini-2.5-flash` with Google Search Grounding tools and `gemini-2.5-flash-preview-tts` for TTS generation.
+- **Persistence & Sync**: Local IndexedDB persistence engine (`src/lib/db.ts`) with Express JWT-authenticated REST endpoints (`/api/sync/save`, `/api/sync/get`) for cross-device backup and synchronization.
 
 ---
 
@@ -64,7 +71,7 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 | Document                                                               | Description                                 | Key Focus Areas                                                                                 |
 | :--------------------------------------------------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------------------------- |
 | **[`AGENTS.md`](./AGENTS.md)**                                         | Spec-Driven Development rules & constraints | SDD lifecycle, ambiguity protocols (`[NEEDS CLARIFICATION]`), system rules                      |
-| **[`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md)**                   | Master System Specification                 | System scope, Firestore schema, ABAC rules, user stories, acceptance criteria                   |
+| **[`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md)**                   | Master System Specification                 | System scope, Express sync schema, auth security, user stories, acceptance criteria             |
 | **[`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md)**   | Architecture Mapping & Roadmap              | Component mapping, completed roadmap phases (1–8), defect tracking catalog                      |
 | **[`specs/VALIDATION_CHECKLIST.md`](./specs/VALIDATION_CHECKLIST.md)** | Verification & QA Protocol                  | Type safety, production build validation, feature AC checks, defect verifications               |
 | **[`CHANGELOG.md`](./CHANGELOG.md)**                                   | Release & Version History                   | Version release notes following standard [Keep a Changelog](https://keepachangelog.com/) format |

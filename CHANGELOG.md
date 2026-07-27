@@ -7,13 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.9.0] - 2026-07-27
 
-### 🎨 Theme Awareness & Prohibited Color Policy Enforcement
+### 🎨 Theme Awareness, Spec Alignment & Documentation Polish
 
+- **Docs vs. Code Architecture Audit**: Audited repository specifications against the codebase implementation. Updated `SYSTEM_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `VALIDATION_CHECKLIST.md`, and `README.md` to accurately document the Express JWT authentication (`/api/auth`) and cross-device sync (`/api/sync/save`, `/api/sync/get`) endpoints backed by server file storage and local IndexedDB persistence (`src/lib/db.ts`).
 - **IntakePanel Theme Refactor**: Updated `IntakePanel.tsx` container, headers, search inputs, mode selector tabs, voiceover settings card, grounded search result preview, and notification banners with full dark & light mode theme support (`bg-white dark:bg-zinc-900`, `text-zinc-900 dark:text-white`, etc.).
 - **PlaylistPanel Theme Refactor**: Transformed `PlaylistPanel.tsx` container, header text, search inputs, playlist cards, cover banner, track queue, drag-and-drop items, and modal dialogs (create/rename) to adapt smoothly to both light and dark themes.
 - **Color Policy Standard Alignment**: Removed prohibited violet and indigo color classes across components (`PodcastPlayer.tsx` album cover gradient and sleep timer triggers, `HomeDashboard.tsx` completed stat icon and listened badges), replacing them with standard `emerald` accent colors.
 - **Navigation Inactive States**: Updated desktop sidebar and mobile bottom navigation in `App.tsx` and `HomeDashboard.tsx` so inactive navigation buttons remain high-contrast and readable in light theme.
-- **License Documentation**: Added root `LICENSE` file and updated `README.md` to link directly to `LICENSE`.
+- **Project Badges & License Polish**: Added root `LICENSE` file, added professional status badges (build, version, license, TypeScript, React) to `README.md`, and linked directly to `LICENSE`.
 - **Verification**: Verified 100% type safety (`npm run lint` / `tsc --noEmit`) and production compilation (`npm run build`).
 
 ## [1.8.0] - 2026-07-26

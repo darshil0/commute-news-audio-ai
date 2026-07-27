@@ -48,6 +48,10 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
   - When offline or if TTS API fails, playback falls back to browser `window.speechSynthesis`.
   - Haptic feedback (`navigator.vibrate`) triggers on user interactions without console warnings.
 
+- [x] **AC-7 (Cross-Device Sync & Authentication)**:
+  - User registration and login generate JWT tokens anchoring data backup scope (`/api/auth/register`, `/api/auth/login`).
+  - Briefs, playlists, and user preferences synchronize seamlessly via Express `/api/sync/save` and `/api/sync/get` endpoints with IndexedDB local persistence.
+
 ---
 
 ## 3. Spec & Documentation Consistency Check
@@ -95,7 +99,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-1 (SSRF Protection)**: Extract endpoint rejects non-HTTP protocols, RFC 1918 private IPs (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), RFC 4193 IPv6, loopback (`127.0.0.1`), and link-local (`169.254.0.0/16`).
 - [x] **DEF-2 (Gemini API Models)**: AI endpoints utilize `@google/genai` with `gemini-2.5-flash` for summarization/extraction and `gemini-2.5-flash-preview-tts` for TTS synthesis.
 - [x] **DEF-3 (Port Isolation in Tests)**: `server.ts` checks `NODE_ENV !== "test"` before binding to port 3000 to prevent port conflict errors during automated testing.
-- [x] **DEF-4 (Firestore Sync Safety)**: `syncWithServer` executes atomic bidirectional updates without wiping unsynced local IndexedDB entries.
+- [x] **DEF-4 (Server Sync Safety)**: `syncWithServer` executes atomic bidirectional updates without wiping unsynced local IndexedDB entries.
 - [x] **DEF-5 (Memory Leak Cleanup)**: Deleting an article cleans playlist references and evicts cached `HTMLAudioElement` instances from `audioElementsCache`.
 - [x] **DEF-6 (Audio Slider Scrubbing)**: Scrubbing audio progress bar does not cause UI jitter or haptic vibration spam.
 - [x] **DEF-7 (Relative Skip Timing)**: 15s skip backward/forward operates relative to `activePos` for accurate jumping.
