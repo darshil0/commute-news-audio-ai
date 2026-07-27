@@ -4,6 +4,38 @@ This document records the end-to-end repository audits, quality verifications, v
 
 ---
 
+## [Audit Log - 2026-07-27] (Codebase Cleanup & Pruning)
+
+### 👨‍💻 Auditing Engineer
+- **Agent**: AI Studio Coding Agent
+
+### 🔍 Context & Scope
+- **Task**: Execute full repository codebase audit, fix coding/linting/library issues, and remove all unused code, dead types, and unused imports across the workspace.
+- **Repository**: CommuteBrief / CommuteNews full-stack SPA.
+
+### 📊 Metric & Status Summary
+- **Files Modified**:
+  - `src/lib/db.ts`
+  - `src/components/HomeDashboard.tsx`
+  - `src/components/PlaylistPanel.tsx`
+  - `src/components/PodcastPlayer.tsx`
+  - `src/components/ProfilePanel.tsx`
+  - `CHANGELOG.md`
+  - `HANDOFF_LOG.md`
+- **Type Checking (`npm run lint` / `tsc --noEmit`)**: PASSED with 0 errors.
+- **Production Build (`npm run build` / `vite + esbuild`)**: PASSED with 0 errors, successfully bundling `dist/server.cjs`.
+
+### 🧹 Pruning & Cleanup Results
+- **Dead Code & Types Removed**: Removed unused `SettingsKey` and `SettingsStoreShape` types and unused private method `getStore` from `src/lib/db.ts`.
+- **Unused Import Cleanups**:
+  - `HomeDashboard.tsx`: Removed unused `ArrowDown` icon import.
+  - `PlaylistPanel.tsx`: Removed unused `Check` icon import.
+  - `PodcastPlayer.tsx`: Removed unused `isOnline` destructured variable from `useApp()`.
+  - `ProfilePanel.tsx`: Removed unused `CheckCircle2`, `Volume2`, and `Sparkles` icon imports.
+- **Verification**: Verified 100% type safety and zero unused code warnings across all frontend components, server endpoints, and utility modules.
+
+---
+
 ## [Audit Log - 2026-07-27] (Docs vs. Code Architecture Audit & Sync Spec Alignment)
 
 ### 👨‍💻 Auditing Engineer

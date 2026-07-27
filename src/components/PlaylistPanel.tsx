@@ -14,7 +14,6 @@ import {
   ChevronRight,
   ArrowRight,
   Play,
-  Check,
   X,
   GripVertical,
   Search,

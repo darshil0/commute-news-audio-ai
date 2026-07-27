@@ -19,7 +19,6 @@ import {
   Download,
   X,
   RefreshCw,
-  ArrowDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Article } from "../types";

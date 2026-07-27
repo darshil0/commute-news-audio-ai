@@ -8,13 +8,6 @@ import { Article, Playlist, PlaybackProgress, UserPreferences } from "../types";
 const DB_NAME = "CommuteNewsDB";
 const DB_VERSION = 1;
 
-type SettingsKey = "preferences" | "queue";
-
-type SettingsStoreShape = {
-  preferences?: UserPreferences;
-  queue?: string[];
-};
-
 function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
@@ -77,19 +70,6 @@ class LocalDatabase {
     });
 
     return this.openPromise;
-  }
-
-  private async getStore(
-    storeName:
-      "articles" | "playlists" | "progress" | "settings" | "audioStore",
-    mode: IDBTransactionMode = "readonly",
-  ): Promise<IDBObjectStore> {
-    const db = await this.initDB();
-    const tx = db.transaction(storeName, mode);
-    tx.onerror = () => {
-      tx.abort();
-    };
-    return tx.objectStore(storeName);
   }
 
   private async withStore<T>(

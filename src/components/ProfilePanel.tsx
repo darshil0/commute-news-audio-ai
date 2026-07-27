@@ -15,15 +15,12 @@ import {
   Cloud,
   RefreshCw,
   LogOut,
-  CheckCircle2,
   Wifi,
   WifiOff,
   Beaker,
   Play,
   ShieldCheck,
-  Volume2,
   Pause,
-  Sparkles,
   Headphones,
 } from "lucide-react";
 

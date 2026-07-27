@@ -35,7 +35,6 @@ export const PodcastPlayer: React.FC = () => {
     updatePlaybackPosition,
     downloadArticleAudio,
     clearPlaybackError,
-    isOnline,
   } = useApp();
 
   const [isExpanded, setIsExpanded] = useState(false);
