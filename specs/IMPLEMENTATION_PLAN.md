@@ -80,6 +80,17 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Clean up unused imports, dead code, and unused function arguments across `server.ts`, `PodcastPlayer.tsx`, `PlaylistPanel.tsx`, `ProfilePanel.tsx`, `QueuePanel.tsx`, and `db.ts`.
 - [x] Fix character class regex escape syntax in `src/utils/search.ts`.
 
+### Phase 8: Theme-Awareness & Color Policy Compliance (Completed)
+
+- [x] Add light-mode color variants to `IntakePanel.tsx` — panel container, mode tabs, all inputs, voice settings card, dropdowns, notification banners, grounded search result preview, and action buttons. Light-mode panels use `bg-white` with `border-zinc-200` borders.
+- [x] Add light-mode color variants to `PlaylistPanel.tsx` — search input, empty-state/no-results cards, playlist cards, detail view, track list, create/edit modals, and all form inputs.
+- [x] Add light-mode color variants to `ProfilePanel.tsx` — connectivity banner, login/register form, account info card, cloud sync panel, voice profile selector cards, diagnostics panel, and test log output.
+- [x] Add light-mode variants to inactive sidebar and mobile nav items in `App.tsx`.
+- [x] Make loading skeleton and empty-state cards in `HomeDashboard.tsx` theme-aware.
+- [x] Replace prohibited `purple-500/10` gradient in `PodcastPlayer.tsx` album art with emerald-based gradient.
+- [x] Replace indigo "listened" badge in `HomeDashboard.tsx` with emerald-based badge.
+- [x] Sleep timer indicator in `PodcastPlayer.tsx` retains indigo as a deliberate distinct "mode" indicator (per design decision).
+
 ---
 
 ## 🐛 Bugs, Errors, and Defects Fixed Thus Far
@@ -107,6 +118,8 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 | **DEF-19** | HTML / Branding   | `index.html` title tag contained generic default title. Updated to `CommuteBrief — Smart Commute Audio Briefings` with OpenGraph meta tags.                                                                     | High     |
 | **DEF-20** | Git / Security    | `.gitignore` lacked explicit data directory rules. Added `data/` and `*.db` to `.gitignore` to prevent database secret leaks.                                                                                   | High     |
 | **DEF-21** | Server / Memory   | In-memory sliding window rate limiter (`rateLimitStore`) accumulated empty keys indefinitely over time. Added periodic 10-minute cleanup sweep to purge stale keys.                                             | Low      |
+| **DEF-22** | Styling / Theme   | `IntakePanel.tsx`, `PlaylistPanel.tsx`, `ProfilePanel.tsx`, and `App.tsx` nav items were hardcoded to dark-mode colors with no light-mode variants, causing broken/unreadable UI in light theme. Added `dark:` prefixed variants and light-mode base classes to all affected elements. | High     |
+| **DEF-23** | Styling / Color   | `PodcastPlayer.tsx` album art used prohibited `purple-500/10` gradient and `HomeDashboard.tsx` used indigo "listened" badge, violating the color policy (no purple/indigo/violet). Replaced with emerald-based equivalents. Sleep timer indigo retained as deliberate distinct mode indicator. | Medium   |
 
 ---
 

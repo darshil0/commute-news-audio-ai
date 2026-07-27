@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-07-27
+
+### 🎨 Theme-Awareness & Color Policy Compliance
+
+- **IntakePanel Light Mode**: Added light-mode color variants to the entire New Audio Intake page — panel container, mode tabs (Web URL / Live Search / Paste Text), URL/search/text inputs, voice & audio settings card, all dropdowns, error/success notification banners, grounded search result preview card, source citation list, and action buttons. Light-mode panels use plain white surfaces (`bg-white`) with subtle borders (`border-zinc-200`) for clear separation against the warm off-white app shell.
+- **PlaylistPanel Light Mode**: Added light-mode color variants to the entire Playlists page — panel container, search input, empty-state and no-results cards, playlist cards with hover/active states, playlist action buttons, detail view header, track list items, create/edit playlist modals, and all form inputs.
+- **ProfilePanel Light Mode**: Added light-mode color variants to the entire Profile page — connectivity status banner, login/register form (username/password inputs, error/success banners), account info card, cloud sync status panel, voice profile selector cards, diagnostics panel, test log output area, and all action buttons.
+- **App Shell Navigation Light Mode**: Added light-mode variants to inactive sidebar nav items and mobile bottom-nav items so they are visible and readable on the white mobile nav bar in light theme.
+- **HomeDashboard Light Mode**: Made the loading skeleton card and "no articles" empty-state card use theme-aware backgrounds and borders instead of hardcoded dark-only classes.
+- **Color Policy Compliance — Purple/Indigo Removal**: Replaced the prohibited `purple-500/10` gradient accent in `PodcastPlayer.tsx` album art with an emerald-based gradient (`emerald-400/5`). Replaced the indigo "listened" badge in `HomeDashboard.tsx` with an emerald-based badge. The sleep timer indicator retains its indigo color as a deliberate distinct "mode" indicator, per design decision.
+- **Verification**: Passed `npm run lint` (tsc --noEmit, 0 errors) and `npm run build` (vite build + esbuild, 0 errors).
+
 ## [1.9.0] - 2026-07-27
 
 ### 📚 Dependency Upgrades & Documentation Corrections
@@ -206,6 +218,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.10.0]: https://github.com/aistudio-build/commutenews/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/aistudio-build/commutenews/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/aistudio-build/commutenews/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...v1.7.0
