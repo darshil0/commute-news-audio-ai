@@ -55,7 +55,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **SDD Alignment**:
   - Code changes match the definitions in `/specs/SYSTEM_SPEC.md`.
   - Any new behavior or scope change has been documented in `/specs/SYSTEM_SPEC.md` first.
-  - Unclear requirements are flagged with `[NEEDS CLARIFICATION]`.
+  - Unclear requirements are flagged with `[NEEDS-CLARIFICATION]`.
 
 - [x] **Documentation Updates**:
   - `/README.md` accurately reflects project architecture and SDD workflow.
