@@ -88,6 +88,12 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Remove prohibited `purple` and `indigo` Tailwind utility classes across `PodcastPlayer.tsx` and `HomeDashboard.tsx`, standardizing on `emerald` accents.
 - [x] Polish navigation inactive button contrast in `App.tsx` and `HomeDashboard.tsx` for optimal readability in light theme.
 
+### Phase 9: Unit Testing & Automated Quality Safeguards (Completed)
+
+- [x] **Search Engine Punctuation Stripping**: Improved search query tokenization to filter out common punctuation symbols (`!?;:"'()[]{}`), enabling pristine word matching.
+- [x] **Unit Testing Infrastructure**: Integrated a comprehensive native Node.js test suite (`src/utils/search.test.ts`) validating tokenization, accent normalization, weighting matches (titles, categories, authors, tags, and summaries), multi-token match-all bonuses, and category filters. Added `"test"` run-script to `package.json`.
+- [x] **Self-Created Quality Validators**: Deployed custom automated validation scripts (`doc_validator.py`, `changelog_validator.py`, and `audit_diagnostics.py`) to systematically verify relative documentation links, prevent active `[NEEDS-CLARIFICATION]` placeholders, check changelog syntax, and execute production builds.
+
 ---
 
 ## 🐛 Bugs, Errors, and Defects Fixed Thus Far

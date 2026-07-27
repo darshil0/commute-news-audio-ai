@@ -100,6 +100,31 @@ The Express server enforces JWT-based authorization and input security:
 
 ---
 
+### 3.4 Tokenized Search & Relevance Scoring Spec
+
+The search engine features a high-performance tokenized fuzzy search implementation located in `src/utils/search.ts` to query briefings in real time.
+
+1. **Punctuation Stripping & Tokenization**:
+   - Query strings and article attributes are converted to lowercase.
+   - Accents are normalized and stripped using NFD Unicode decomposition (`normalize("NFD")` followed by `replace(/[\u0300-\u036f]/g, "")`).
+   - Common punctuation symbols (`!?;:"'()[]{}`) are stripped to keep core words clean.
+   - Strings are split on word boundaries including spaces, hyphens, underscores, slashes, commas, and dots. Empty tokens are discarded.
+2. **Weighted Relevance Scoring**:
+   For each token in the search query, matching weights are aggregated:
+   - **Title Matches**: Exact match = `10` points | Partial match = `4` points.
+   - **Category Matches**: Exact match = `8` points | Partial match = `3` points.
+   - **Tag Matches**: Exact match = `6` points | Partial match = `2` points.
+   - **Author Matches**: Exact match = `5` points | Partial match = `2` points.
+   - **Summary Matches**: Exact match = `2` points | Partial match = `0.5` points.
+3. **Multi-Term Match-All Bonus**:
+   - When a multi-token query is searched (e.g. "quantum computing"), a **relevance bonus of `+15` points** is awarded if *all* query tokens find at least one match within the article.
+4. **Sorting Logic**:
+   - Matches are filtered based on selected categories ("All", "Saved", "Downloaded", or custom categories).
+   - Results are sorted by **score (descending)**.
+   - Items with identical match scores (or when search input is empty) are sorted by **creation date (`createdAt` timestamp) descending** to showcase fresh briefings first.
+
+---
+
 ## 4. User Stories & Use Cases
 
 ### US-1: Article Intake & Briefing Generation

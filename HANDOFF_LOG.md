@@ -4,6 +4,40 @@ This document records the end-to-end repository audits, quality verifications, v
 
 ---
 
+## [Audit Log - 2026-07-27] (Unit Testing, Automated Quality Safeguards & Search Punctuation Stripping)
+
+### 👨‍💻 Auditing Engineer
+- **Agent**: Jules
+
+### 🔍 Context & Scope
+- **Task**: Implement comprehensive testing infrastructure, deploy automated documentation and build validation scripts, and enhance search engine tokenization to strip common punctuation.
+- **Repository**: CommuteBrief / CommuteNews full-stack SPA.
+
+### 📊 Metric & Status Summary
+- **Files Modified/Created**:
+  - `src/utils/search.ts`
+  - `src/utils/search.test.ts`
+  - `package.json`
+  - `specs/SYSTEM_SPEC.md`
+  - `specs/IMPLEMENTATION_PLAN.md`
+  - `specs/VALIDATION_CHECKLIST.md`
+  - `CHANGELOG.md`
+  - `HANDOFF_LOG.md`
+- **Self-Created Quality Tools Deployed**:
+  - `/home/jules/self_created_tools/doc_validator.py`
+  - `/home/jules/self_created_tools/changelog_validator.py`
+  - `/home/jules/self_created_tools/audit_diagnostics.py`
+- **Type Checking (`npm run lint`)**: PASSED with 0 errors.
+- **Unit Testing Suite (`npm run test`)**: PASSED with 100% success (17 test cases passed).
+- **Production Build (`npm run build`)**: PASSED with 0 errors.
+
+### 🧪 Refactor & Verification Results
+- **Search Tokenizer Enhancement**: Updated tokenization in `search.ts` to automatically strip common punctuation symbols (`!?;:"'()[]{}`), securing pristine search term matching on trailing/leading characters.
+- **Node.js Test Runner Suite**: Introduced native `node:test` and `node:assert` TypeScript tests in `search.test.ts` to validate accent normalization, punctuation filtering, weight scoring hierarchies (titles, categories, tags, authors, summaries), query match-all bonuses, and category filtering.
+- **Automated Validation Checks**: Configured local Python tools ensuring 100% relative link correctness, active placeholder prevention, and syntax compliance across all project specs and release records.
+
+---
+
 ## [Audit Log - 2026-07-27] (Codebase Cleanup & Pruning)
 
 ### 👨‍💻 Auditing Engineer

@@ -20,6 +20,12 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
   ```
   _Pass Criteria_: `vite build` and `esbuild server.ts` complete successfully, generating `dist/` and `dist/server.cjs`.
 
+- [x] **Unit Testing Suite**:
+  ```bash
+  npm run test
+  ```
+  _Pass Criteria_: `node --import tsx --test` completes successfully with zero failures, passing all 17 search utility test cases.
+
 ---
 
 ## 2. Feature Acceptance Criteria Verification
@@ -59,7 +65,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **SDD Alignment**:
   - Code changes match the definitions in `/specs/SYSTEM_SPEC.md`.
   - Any new behavior or scope change has been documented in `/specs/SYSTEM_SPEC.md` first.
-  - Unclear requirements are flagged with `[NEEDS CLARIFICATION]`.
+  - Unclear requirements are flagged with `[NEEDS-CLARIFICATION]`.
 
 - [x] **Documentation Updates**:
   - `/README.md` accurately reflects project architecture and SDD workflow.

@@ -14,6 +14,7 @@ export function tokenize(str?: string | null): string[] {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[!?;:"'()\[\]{}]/g, "") // strip common punctuation to clean token matches
     .split(/[\s\-_\/,\.]+/)
     .filter((token) => token.length > 0);
 }

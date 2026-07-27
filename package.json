@@ -10,6 +10,7 @@
     "start": "node dist/server.cjs",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true }); require('fs').rmSync('server.js', { force: true })\"",
     "lint": "tsc --noEmit",
+    "test": "node --import tsx --test src/utils/search.test.ts",
     "format": "prettier --write \"**/*.{ts,tsx,json,md,html,css}\""
   },
   "dependencies": {
