@@ -28,7 +28,7 @@ This document records the end-to-end repository audits, quality verifications, v
 - **System Specification (`SYSTEM_SPEC.md`)**: Updated Section 1, Section 2.6, Section 3, US-7, AC-7.1–AC-7.4, Non-Goals, and DEF-4 to accurately describe Express JWT authentication, server file sync payloads (`SyncData`), and IndexedDB persistence.
 - **Implementation Plan (`IMPLEMENTATION_PLAN.md`)**: Updated System Architecture Mapping table, Phase 4 roadmap goals, and DEF-4 defect entries to reference `/api/sync` endpoints and Express backend storage.
 - **Validation Checklist (`VALIDATION_CHECKLIST.md`)**: Added explicit AC-7 verification checklist for Express JWT authentication and sync API, and updated DEF-4 defect safety verification.
-- **README (`README.md`)**: Added professional status badges (build, version, license, TypeScript, React), updated Tech Stack & Architecture to document Express JWT auth & sync endpoints with IndexedDB persistence, and aligned Documentation Map.
+- **README (`README.md`)**: Added professional status badges (build, version, license, TypeScript, React), updated Tech Stack & Architecture to document Express JWT auth & sync endpoints with IndexedDB persistence, aligned Documentation Map, and replaced raw defect sections with a structured `Specification & Maintenance` section linking to `SYSTEM_SPEC.md`, `IMPLEMENTATION_PLAN.md`, and `VALIDATION_CHECKLIST.md`.
 
 ---
 

@@ -80,6 +80,17 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 
 ---
 
+## 📋 Specification & Maintenance
+
+CommuteBrief adheres to strict **Spec-Driven Development (SDD)** principles. Maintenance and quality assurance protocols ensure high code quality, security, and stability:
+
+- **System Specification**: Functional requirements, user stories, API endpoints (`/api/sync`, `/api/auth`, `/api/summarize`, `/api/tts`), and data models (`Article`, `Playlist`, `UserPreferences`) are defined in [`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md).
+- **Type Safety & Build Verification**: All contributions must pass continuous type checking (`npm run lint` / `tsc --noEmit`) and production bundling (`npm run build`).
+- **Security & Input Boundaries**: Server endpoints enforce SSRF IP range blocking on article extraction, username allowlist regex validation (`/^[a-z0-9_-]{3,32}$/`), and JWT authentication signature checks.
+- **Defect & Regression Prevention**: Ongoing maintenance items, including state sync reconciliation, memory leak cleanup in audio element caches, and speech synthesis fallbacks, are continuously verified against [`specs/VALIDATION_CHECKLIST.md`](./specs/VALIDATION_CHECKLIST.md) and tracked in [`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md).
+
+---
+
 ## ⚙️ Development & Build Commands
 
 ```bash

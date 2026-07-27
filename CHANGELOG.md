@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **PlaylistPanel Theme Refactor**: Transformed `PlaylistPanel.tsx` container, header text, search inputs, playlist cards, cover banner, track queue, drag-and-drop items, and modal dialogs (create/rename) to adapt smoothly to both light and dark themes.
 - **Color Policy Standard Alignment**: Removed prohibited violet and indigo color classes across components (`PodcastPlayer.tsx` album cover gradient and sleep timer triggers, `HomeDashboard.tsx` completed stat icon and listened badges), replacing them with standard `emerald` accent colors.
 - **Navigation Inactive States**: Updated desktop sidebar and mobile bottom navigation in `App.tsx` and `HomeDashboard.tsx` so inactive navigation buttons remain high-contrast and readable in light theme.
-- **Project Badges & License Polish**: Added root `LICENSE` file, added professional status badges (build, version, license, TypeScript, React) to `README.md`, and linked directly to `LICENSE`.
+- **Project Badges, License & README Restructuring**: Added root `LICENSE` file, added status badges to `README.md`, replaced raw defect section with a structured `Specification & Maintenance` section linking to `SYSTEM_SPEC.md`, `IMPLEMENTATION_PLAN.md`, and `VALIDATION_CHECKLIST.md`.
 - **Verification**: Verified 100% type safety (`npm run lint` / `tsc --noEmit`) and production compilation (`npm run build`).
 
 ## [1.8.0] - 2026-07-26
@@ -137,7 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Spec-Driven Development (SDD) Framework**:
   - Introduced root `/AGENTS.md` specifying mandatory spec-first development workflows, port constraints, error handling, and agent handoff protocols.
-  - Created `/specs/SYSTEM_SPEC.md` formally defining system purpose, scope, Firestore cloud cross-device sync technical architecture (`UserBrief`, `UserPlaylist`, `UserSettings`), ABAC security model, offline-first sync resolution strategies, acceptance criteria (AC-1 to AC-7), non-goals, and validation protocols.
+  - Created `/specs/SYSTEM_SPEC.md` formally defining system purpose, scope, cross-device sync technical architecture (`Article`, `Playlist`, `UserPreferences`), JWT authentication security model, offline-first sync resolution strategies, acceptance criteria (AC-1 to AC-7), non-goals, and validation protocols.
   - Created `/specs/IMPLEMENTATION_PLAN.md` mapping system architecture components (`server.ts`, `AppContext.tsx`, `PodcastPlayer.tsx`, `search.ts`, `db.ts`) directly to specification criteria and tracking completion phases.
   - Created `/specs/VALIDATION_CHECKLIST.md` establishing a formal verification protocol for linting, compilation, feature acceptance criteria, and documentation consistency.
   - Created `/scripts/verify_and_prepare_push.sh` executable script asset for automated linting, compilation, Git repository initialization, and staging.
