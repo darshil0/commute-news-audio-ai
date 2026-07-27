@@ -119,3 +119,5 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-21 (Rate Limiter Memory Sweep)**: `server.ts` executes a periodic 10-minute sweep purging stale IP keys from `rateLimitStore` to prevent in-memory map leakage.
 - [x] **DEF-22 (Adaptive Surface Contrast)**: `IntakePanel.tsx` and `PlaylistPanel.tsx` adapt contrast in light mode with crisp `bg-white` cards and `text-zinc-900` body text.
 - [x] **DEF-23 (Color Standard Enforcement)**: Prohibited purple and indigo utilities removed across player controls and dashboard badges, standardizing on `emerald`.
+- [x] **DEF-24 (Function Hoisting & Ref Safety)**: Circular function dependencies between `togglePlayPause` and `playArticle` resolved via `playArticleRef` mutable ref.
+- [x] **DEF-25 (Unused Code & Import Pruning)**: All unused types, unused private database methods, unused Lucide icons, and unused state variables purged cleanly from codebase.

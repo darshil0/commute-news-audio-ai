@@ -117,6 +117,8 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 | **DEF-21** | Server / Memory   | In-memory sliding window rate limiter (`rateLimitStore`) accumulated empty keys indefinitely over time. Added periodic 10-minute cleanup sweep to purge stale keys.                                             | Low      |
 | **DEF-22** | UI / Theme        | `IntakePanel` and `PlaylistPanel` hardcoded dark mode utility classes (`bg-zinc-900`, `text-white`), causing unreadable low-contrast elements when user switched to light theme. Added adaptive light/dark classes. | High     |
 | **DEF-23** | Styling / Color   | `PodcastPlayer` and `HomeDashboard` contained prohibited purple/indigo accent colors violating project standards. Replaced with `emerald` primary accent. | Medium   |
+| **DEF-24** | State / Hoisting  | `AppContext.tsx` contained circular reference/hoisting fragility between `togglePlayPause` and `playArticle`. Fixed using `playArticleRef` mutable ref pattern. | Medium   |
+| **DEF-25** | Codebase / Clean  | Unused types (`SettingsKey`, `SettingsStoreShape`), unused `getStore` method in `db.ts`, and unused icon/variable imports across components produced lint noise. Purged all dead code and unused imports. | Low      |
 
 ---
 

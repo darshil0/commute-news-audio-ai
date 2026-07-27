@@ -188,44 +188,46 @@ The Express server enforces JWT-based authorization and input security:
 
 ### 7.1 Backend, Server & API Security Defects
 
-- **Model Alignment & Deprecated API Removal**: Updated `@google/genai` model aliases in `server.ts` to `gemini-2.5-flash` (summarization, extraction, search grounding) and `gemini-2.5-flash-preview-tts` (audio synthesis).
-- **Server Port Isolation in Tests**: Guarded `startServer()` in `server.ts` to prevent automatic port binding on port 3000 during test execution (`NODE_ENV === "test"`).
-- **SSRF Defense Vulnerability Fix**: Implemented strict HTTP/HTTPS protocol checks and blocked private RFC 1918/4193 IP ranges, loopback (`127.0.0.1`), and link-local addresses in `/api/articles/extract`.
+- **SSRF Defense Vulnerability Fix (DEF-1)**: Implemented strict HTTP/HTTPS protocol checks and blocked private RFC 1918/4193 IP ranges, loopback (`127.0.0.1`), and link-local addresses in `/api/articles/extract`.
+- **Model Alignment & Deprecated API Removal (DEF-2)**: Updated `@google/genai` model aliases in `server.ts` to `gemini-2.5-flash` (summarization, extraction, search grounding) and `gemini-2.5-flash-preview-tts` (audio synthesis).
+- **Server Port Isolation in Tests (DEF-3)**: Guarded `startServer()` in `server.ts` to prevent automatic port binding on port 3000 during test execution (`NODE_ENV === "test"`).
+- **Production Secret Management (DEF-13)**: Configured mandatory `validateEnvironment()` startup check that halts server execution if `TOKEN_SECRET` is unset in production (`NODE_ENV === "production"`).
+- **Startup Environment Validation (DEF-14)**: Added startup validation for `GEMINI_API_KEY` presence and format warnings to fail fast before binding listeners.
+- **API Rate Limiting Middleware (DEF-15)**: Implemented sliding-window in-memory rate limiters (60 req/min global, 15 req/min AI routes) returning HTTP 429 when thresholds are exceeded.
+- **Input Length Bounds Enforcement (DEF-16)**: Added strict character limits across AI endpoints (`/api/articles/extract` url <= 2000 chars, `/api/articles/summarize` text <= 50,000 chars, `/api/articles/search-news` query <= 200 chars, `/api/articles/tts` text <= 10,000 chars).
+- **Structured Error Logging & Observability (DEF-17)**: Replaced raw `console.error` with a structured `logStructured` logger providing JSON timestamps, paths, status codes, and masked internal stack traces.
+- **Auth Server Log Context & Generic Client Errors (DEF-18)**: Added server-side security warnings for invalid login attempts without leaking detailed error states or stack traces to clients.
 - **JSON Parsing & Prompt Security**: Fixed markdown code block stripping and string escaping in `cleanAndParseJson` to prevent JSON syntax exceptions from LLM responses.
-- **JWT & Auth Security**: Fixed token expiration validation (7-day validity) and sanitized error responses to prevent internal stack trace leakage.
+- **JWT & Auth Security**: Fixed token expiration validation (7-day validity) and sanitized error responses.
 
 ### 7.2 State Engine, Memory Leak & Sync Defects
 
-- **Server Sync Data-Loss Bug**: Resolved data overwrite bug in `syncWithServer` by eliminating premature local snapshotting and implementing atomic bi-directional merges between IndexedDB and Express `/api/sync` endpoints.
-- **Article Deletion Memory Leak**: Purged deleted articles from user playlists and cleared invalid HTML Audio objects in `audioElementsCache`.
+- **Server Sync Data-Loss Bug (DEF-4)**: Resolved data overwrite bug in `syncWithServer` by eliminating premature local snapshotting and implementing atomic bi-directional merges between IndexedDB and Express `/api/sync` endpoints.
+- **Article Deletion Memory Leak (DEF-5)**: Purged deleted articles from user playlists and cleared invalid HTML Audio objects in `audioElementsCache`.
+- **Circular Dependency & Hoisting Fix (DEF-24)**: Refactored `AppContext.tsx` using `playArticleRef` mutable ref pattern to break circular dependency and function hoisting fragility between `togglePlayPause` and `playArticle`.
 - **Stale Closure Race Conditions**: Converted `setPreferences` to a functional state updater to eliminate race conditions during rapid settings toggles.
 - **Audio Speech Synthesis Fixes**: Fixed speech synthesis seeking, `playPrev` speech synth playback, and cleared sleep timer interval handles cleanly.
 - **Error Banner Auto-Dismissal**: Added 6-second auto-dismissal (`clearPlaybackErrorLater`) for audio playback error banners.
 
 ### 7.3 Player, UI & Accessibility Defects
 
-- **Audio Seek Slider Jitter**: Isolated slider drag state (`isDragging`, `dragPos`) in `PodcastPlayer.tsx` to prevent position jitter and haptic spam during scrubbing.
-- **15-Second Skip Offset Calculation**: Fixed skip backward/forward calculations to evaluate relative to `activePos` rather than stale audio DOM timestamps.
-- **Drag-and-Drop Filter Indexing Defect**: Fixed playlist reordering when search filters are active by mapping filtered indices back to original array indices.
-- **Invalid Tailwind Classes**: Replaced non-existent Tailwind utility classes (`zinc-750`, `zinc-850`, `w-4.5`) with standard dark/light theme utilities across `HomeDashboard.tsx` and `ProfilePanel.tsx`.
-- **Firefox HTML5 Drag Bug**: Added `e.dataTransfer.setData('text/plain', String(index))` in `QueuePanel.tsx` to ensure cross-browser drag support.
-- **Strict Typing Hardening**: Replaced remaining `any` types in `IntakePanel.tsx` and `ProfilePanel.tsx` with explicit domain unions (`SummaryLength`, `SummaryTone`, `VoiceName`).
-- **Null Safety in Search**: Added strict null and array guards to `tokenize`, `scoreArticle`, and `searchAndFilterArticles` in `src/utils/search.ts` to prevent `TypeError` exceptions.
-- **Accessibility & Theme Contrast**: Updated expanded player overlay for seamless light/dark mode contrast and added `aria-label`, `role="dialog"`, and `aria-current="page"` across player buttons and navigation.
+- **Audio Seek Slider Jitter (DEF-6)**: Isolated slider drag state (`isDragging`, `dragPos`) in `PodcastPlayer.tsx` to prevent position jitter and haptic spam during scrubbing.
+- **15-Second Skip Offset Calculation (DEF-7)**: Fixed skip backward/forward calculations to evaluate relative to `activePos` rather than stale audio DOM timestamps.
+- **Drag-and-Drop Filter Indexing Defect (DEF-8)**: Fixed playlist reordering when search filters are active by mapping filtered indices back to original array indices.
+- **Firefox HTML5 Drag Bug (DEF-9)**: Added `e.dataTransfer.setData('text/plain', String(index))` in `QueuePanel.tsx` to ensure cross-browser drag support.
+- **Invalid Tailwind Classes (DEF-10)**: Replaced non-existent Tailwind utility classes (`zinc-750`, `zinc-850`, `w-4.5`) with standard dark/light theme utilities across `HomeDashboard.tsx` and `ProfilePanel.tsx`.
+- **Null Safety in Search (DEF-11)**: Added strict null and array guards to `tokenize`, `scoreArticle`, and `searchAndFilterArticles` in `src/utils/search.ts` to prevent `TypeError` exceptions.
+- **Accessibility & Theme Contrast (DEF-12)**: Updated expanded player overlay for seamless light/dark mode contrast and added `aria-label`, `role="dialog"`, and `aria-current="page"` across player buttons and navigation.
 - **Adaptive Light/Dark Surface Contrast (DEF-22)**: Refactored `IntakePanel.tsx` and `PlaylistPanel.tsx` with white card surfaces (`bg-white dark:bg-zinc-900`) and dark text (`text-zinc-900 dark:text-white`) in light mode for crisp legibility and high contrast.
 - **Color Standard Enforcement (DEF-23)**: Removed prohibited purple/indigo accents from `PodcastPlayer.tsx` and `HomeDashboard.tsx`, aligning with primary `emerald` brand palette.
+- **Strict Typing Hardening**: Replaced remaining `any` types in `IntakePanel.tsx` and `ProfilePanel.tsx` with explicit domain unions (`SummaryLength`, `SummaryTone`, `VoiceName`).
 
-### 7.4 Audit Report Resolutions & Production Hardening
+### 7.4 Audit Report Resolutions, Maintenance & Codebase Cleanup
 
-- **Production Secret Management (TOKEN_SECRET)**: Configured mandatory `validateEnvironment()` startup check that halts server execution if `TOKEN_SECRET` is unset in production (`NODE_ENV === "production"`).
-- **Startup Environment Validation**: Added startup validation for `GEMINI_API_KEY` presence and format warnings to fail fast before binding listeners.
-- **API Rate Limiting Middleware**: Implemented sliding-window in-memory rate limiters (60 req/min global, 15 req/min AI routes) returning HTTP 429 when thresholds are exceeded.
-- **Input Length Bounds Enforcement**: Added strict character limits across AI endpoints (`/api/articles/extract` url <= 2000 chars, `/api/articles/summarize` text <= 50,000 chars, `/api/articles/search-news` query <= 200 chars, `/api/articles/tts` text <= 10,000 chars).
-- **Structured Error Logging & Observability**: Replaced raw `console.error` with a structured `logStructured` logger providing JSON timestamps, paths, status codes, and masked internal stack traces.
-- **Auth Server Log Context**: Added server-side security warnings for invalid login attempts without leaking detailed error states to clients.
-- **HTML Title & OpenGraph Metadata**: Replaced generic template title in `index.html` with `"CommuteBrief — Smart Commute Audio Briefings"` and complete OpenGraph meta tags.
-- **Source Control Security (.gitignore)**: Added `data/` and `*.db` to `.gitignore` to prevent secret or user database leaks in git commits.
+- **HTML Title & OpenGraph Metadata (DEF-19)**: Replaced generic template title in `index.html` with `"CommuteBrief — Smart Commute Audio Briefings"` and complete OpenGraph meta tags.
+- **Source Control Security (.gitignore) (DEF-20)**: Added `data/` and `*.db` to `.gitignore` to prevent secret or user database leaks in git commits.
 - **Rate Limiter Memory Sweep (DEF-21)**: Added periodic 10-minute cleanup sweep in `server.ts` to purge expired IP entries from `rateLimitStore` and prevent memory growth.
+- **Codebase Pruning & Unused Import Cleanup (DEF-25)**: Purged unused types (`SettingsKey`, `SettingsStoreShape`) and unused private method `getStore` in `src/lib/db.ts`, unused Lucide icon imports (`ArrowDown` in `HomeDashboard.tsx`, `Check` in `PlaylistPanel.tsx`, `CheckCircle2`, `Volume2`, `Sparkles` in `ProfilePanel.tsx`), and unused variable `isOnline` in `PodcastPlayer.tsx`.
 
 ---
 
