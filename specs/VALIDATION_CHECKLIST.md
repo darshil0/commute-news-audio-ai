@@ -25,20 +25,20 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 ## 2. Feature Acceptance Criteria Verification
 
 - [x] **AC-1 (Intake & Summarization)**:
-  - Submitting article text or URL invokes server proxy (`/api/extract` / `/api/summarize`).
+  - Submitting article text or URL invokes server proxy (`/api/articles/extract` / `/api/articles/summarize`).
   - Extracted title and summary are accurately displayed in the brief list.
 
 - [x] **AC-2 (Voice Profiles & Audition)**:
   - All 5 voice profiles (Zephyr, Kore, Charon, Puck, Fenrir) are selectable in the Profile Panel.
-  - Clicking "Audition" generates and plays a voice preview sample.
+  - Clicking "Audition" generates and plays a voice preview sample via `/api/articles/tts`.
 
 - [x] **AC-3 (Playback & Speed Controls)**:
-  - Audio player plays, pauses, seeks, and skips tracks cleanly.
+  - Audio player plays, pauses, seeks, skips 15s forward/backward, and manages a sleep timer cleanly.
   - Speed slider adjusts between `0.5x` and `2.0x`. Quick preset buttons set exact speeds (`1.0x`, `1.25x`, `1.5x`, etc.).
 
 - [x] **AC-4 (Playlists & Drag-and-Drop Reordering)**:
-  - Users can create, view, and delete playlists.
-  - Dragging track handles in a playlist reorders the queue correctly.
+  - Users can create, rename, view, and delete playlists.
+  - Dragging track handles in a playlist reorders the queue correctly, including when a search filter is active.
 
 - [x] **AC-5 (Tokenized Search & Category Filters)**:
   - Search input filters articles by title, author, summary, tags, and categories in real time.
@@ -90,12 +90,32 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 
 ---
 
-## 5. Bugs, Errors, and Defects Verification Checklist
+## 5. Cloud Sync Verification
+
+- [x] **AC-7.1 (User-Scoped Sync Files)**:
+  - Authentication resolves an HMAC-signed bearer token to a single username.
+  - Sync reads/writes are scoped to `data/sync_<username>.json`; no cross-user access is possible.
+
+- [x] **AC-7.2 (Event-Driven Sync Reconciliation)**:
+  - Mutations (article/playlist create/update/delete) trigger `scheduleSync`, which pushes the merged state to `/api/sync/save`.
+  - Login, registration, and network reconnection pull the remote sync document via `/api/sync/get` and merge it with local IndexedDB state.
+  - Sync is event-driven (pull-on-login + push-on-mutation); no real-time push listeners are used.
+
+- [x] **AC-7.3 (Playback Progress Sync)**:
+  - Playback progress records are included in the `SyncData` payload and synchronized to allow cross-device resume.
+
+- [x] **AC-7.4 (Sync Path Traversal Guard)**:
+  - Sync handlers verify `path.resolve(syncFile).startsWith(path.resolve(DATA_DIR))` before filesystem access.
+  - Username allowlist prevents traversal sequences from reaching the filesystem.
+
+---
+
+## 6. Bugs, Errors, and Defects Verification Checklist
 
 - [x] **DEF-1 (SSRF Protection)**: Extract endpoint rejects non-HTTP protocols, RFC 1918 private IPs (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), RFC 4193 IPv6, loopback (`127.0.0.1`), and link-local (`169.254.0.0/16`).
-- [x] **DEF-2 (Gemini API Models)**: AI endpoints utilize `@google/genai` with `gemini-2.5-flash` for summarization/extraction and `gemini-2.5-flash-preview-tts` for TTS synthesis.
+- [x] **DEF-2 (Gemini API Models)**: AI endpoints utilize `@google/genai` with `gemini-2.5-flash` for summarization/extraction/search and `gemini-2.5-flash-preview-tts` for TTS synthesis.
 - [x] **DEF-3 (Port Isolation in Tests)**: `server.ts` checks `NODE_ENV !== "test"` before binding to port 3000 to prevent port conflict errors during automated testing.
-- [x] **DEF-4 (Firestore Sync Safety)**: `syncWithServer` executes atomic bidirectional updates without wiping unsynced local IndexedDB entries.
+- [x] **DEF-4 (Sync Safety)**: `syncWithServer` executes atomic bidirectional updates without wiping unsynced local IndexedDB entries.
 - [x] **DEF-5 (Memory Leak Cleanup)**: Deleting an article cleans playlist references and evicts cached `HTMLAudioElement` instances from `audioElementsCache`.
 - [x] **DEF-6 (Audio Slider Scrubbing)**: Scrubbing audio progress bar does not cause UI jitter or haptic vibration spam.
 - [x] **DEF-7 (Relative Skip Timing)**: 15s skip backward/forward operates relative to `activePos` for accurate jumping.
@@ -115,3 +135,4 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-21 (Rate Limiter Memory Sweep)**: `server.ts` executes a periodic 10-minute sweep purging stale IP keys from `rateLimitStore` to prevent in-memory map leakage.
 - [x] **DEF-22 (Adaptive Surface Contrast)**: `IntakePanel.tsx` and `PlaylistPanel.tsx` adapt contrast in light mode with crisp `bg-white` cards and `text-zinc-900` body text.
 - [x] **DEF-23 (Color Standard Enforcement)**: Prohibited purple and indigo utilities removed across player controls and dashboard badges, standardizing on `emerald`.
+- [x] **DEF-24 (Spec Architecture Accuracy)**: Documentation describes the actual Express file-based JSON sync with HMAC-signed tokens, not Firestore/Firebase.

@@ -1,6 +1,6 @@
 # CommuteBrief: Smart Commute Audio Briefings
 
-CommuteBrief is a full-stack web application designed to optimize daily commutes. It transforms real-time news search queries, web articles, and custom text into structured, audio-first briefings narrated by customizable AI voice profiles or client-side speech fallbacks.
+CommuteBrief is a full-stack web application designed to optimize daily commutes. It transforms real-time news search queries, web articles, and custom text into structured, audio-first briefings narrated by customizable AI voice profiles or client-side speech fallbacks. User briefs, playlists, and listening progress sync across devices via an Express backend with per-user JSON storage and HMAC-signed session tokens.
 
 ---
 
@@ -33,12 +33,18 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 - **IndexedDB Local Engine**: Save articles, playlists, and listening history locally for offline playback.
 - **Tactile Haptics**: Snappy vibration feedback on tap, skip, and playback completion.
 
+### ☁️ Cross-Device Cloud Sync
+
+- **Express File-Based Sync**: Briefs, playlists, progress, and preferences are backed up to a per-user JSON file on the server (`data/sync_<username>.json`).
+- **HMAC-Signed Sessions**: Login issues a bearer token signed with `TOKEN_SECRET`; sync endpoints reject unsigned or tampered requests.
+- **Event-Driven Reconciliation**: Sync runs on login, registration, manual refresh, and network reconnection, merging remote and local state atomically.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
 - **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Framer Motion (`motion/react`), Lucide Icons.
-- **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, and Text-to-Speech proxying.
+- **Backend**: Express server running on Node.js on port `3000` (`server.ts`), handling Gemini AI summarization, search grounding, Text-to-Speech proxying, authentication (PBKDF2 password hashing + HMAC-signed tokens), and per-user cloud sync (`/api/sync/save`, `/api/sync/get`).
 - **AI Engine**: `@google/genai` TypeScript SDK utilizing `gemini-2.5-flash` with Google Search Grounding tools and `gemini-2.5-flash-preview-tts` for TTS generation.
 
 ---
@@ -64,8 +70,8 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 | Document                                                               | Description                                 | Key Focus Areas                                                                                 |
 | :--------------------------------------------------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------------------------- |
 | **[`AGENTS.md`](./AGENTS.md)**                                         | Spec-Driven Development rules & constraints | SDD lifecycle, ambiguity protocols (`[NEEDS CLARIFICATION]`), system rules                      |
-| **[`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md)**                   | Master System Specification                 | System scope, Firestore schema, ABAC rules, user stories, acceptance criteria                   |
-| **[`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md)**   | Architecture Mapping & Roadmap              | Component mapping, completed roadmap phases (1–8), defect tracking catalog                      |
+| **[`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md)**                   | Master System Specification                 | System scope, sync data schema, security model, user stories, acceptance criteria              |
+| **[`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md)**   | Architecture Mapping & Roadmap              | Component mapping, completed roadmap phases (1–9), defect tracking catalog                      |
 | **[`specs/VALIDATION_CHECKLIST.md`](./specs/VALIDATION_CHECKLIST.md)** | Verification & QA Protocol                  | Type safety, production build validation, feature AC checks, defect verifications               |
 | **[`CHANGELOG.md`](./CHANGELOG.md)**                                   | Release & Version History                   | Version release notes following standard [Keep a Changelog](https://keepachangelog.com/) format |
 | **[`HANDOFF_LOG.md`](./HANDOFF_LOG.md)**                               | Agent Handoff & Audit Logs                  | Engineering audits, visual layout verifications, and context handoff logs                       |
@@ -83,7 +89,7 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 - **Auth Security & Log Warnings**: Added server-side security warnings for invalid login attempts without leaking detailed error states to clients.
 - **SSRF Endpoint Safeguards**: Protected `/api/articles/extract` against SSRF by checking schemes (`http:`, `https:`) and blocking private RFC 1918/4193 IP blocks, loopbacks, and link-local ranges.
 - **Model Standardizations**: Aligned Express server AI requests to `@google/genai` models `gemini-2.5-flash` and `gemini-2.5-flash-preview-tts`.
-- **Atomic Cloud Synchronization**: Fixed Firestore data-loss bug in `syncWithServer` by merging IndexedDB and cloud changes atomically.
+- **Atomic Cloud Synchronization**: Fixed data-loss bug in `syncWithServer` by merging IndexedDB and server sync changes atomically.
 - **Memory & Resource Eviction**: Fixed memory leak on article deletion by cleaning up playlist entries and removing cached `HTMLAudioElement` instances.
 - **Audio Slider Scrubbing**: Isolated seek slider drag state (`isDragging`, `dragPos`) in `PodcastPlayer` to prevent audio playback jitter.
 - **Filtered Drag-and-Drop Reordering**: Fixed track reordering in playlists when search query filters are active.

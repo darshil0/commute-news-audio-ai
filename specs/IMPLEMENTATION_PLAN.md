@@ -8,16 +8,19 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 
 | Component / File                     | Purpose                                                                                                                                                                                            | Corresponding Spec Criteria            |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| `server.ts`                          | Express backend proxy handling Gemini API summarization (`/api/summarize`, `/api/extract`) and TTS synthesis (`/api/tts`, `/api/tts-preview`). Handles robust JSON cleaning (`cleanAndParseJson`). | AC-1.1, AC-1.2, AC-2.2                 |
-| `src/context/AppContext.tsx`         | Centralized React state management for articles, playback state, queue, playlists, user profile settings, and haptic triggers. Includes automatic fallback to `window.speechSynthesis`.            | AC-3.1, AC-3.2, AC-4.1, AC-6.1, AC-6.2 |
-| `src/components/PodcastPlayer.tsx`   | Persistent audio player panel with expanded view, speed slider (`0.5x`-`2.0x`), quick presets, sleep timer, seek bar, and voice badge.                                                             | AC-3.1, AC-3.2                         |
-| `src/components/HomeDashboard.tsx`   | Main briefing feed with tokenized search bar, category filter chips ("All", "Saved", "Downloaded"), audio card interactions, and queue management.                                                 | AC-5.1, AC-5.2                         |
-| `src/components/PlaylistPanel.tsx`   | Playlist manager featuring creation, track reordering (HTML5 drag-and-drop), and inline search across playlists and briefs.                                                                        | AC-4.1, AC-4.2, AC-5.1                 |
-| `src/components/IntakePanel.tsx`     | Article submission interface supporting URL extraction, raw text input, Gemini Search Grounding real-time news search, grounded web sources preview, and voice/summary customization.              | AC-1.1, AC-1.2, AC-1.3                 |
-| `src/components/ProfilePanel.tsx`    | Settings & voice profile selector (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities.                                                                                    | AC-2.1, AC-2.2                         |
-| `src/utils/search.ts`                | High-performance tokenized fuzzy search utility scoring article titles, categories, authors, tags, and summaries.                                                                                  | AC-5.1, AC-5.2                         |
-| `src/lib/db.ts`                      | IndexedDB client wrapper managing durable local persistence for articles, playlists, listening history, and playback progress.                                                                     | AC-6.1                                 |
-| `scripts/verify_and_prepare_push.sh` | Automated verification and Git push preparation script executing linting, compilation, git initialization, and staging.                                                                            | AC-1 to AC-6                           |
+| `server.ts`                          | Express backend proxy handling Gemini API summarization (`/api/articles/summarize`, `/api/articles/extract`), search grounding (`/api/articles/search-news`), TTS synthesis (`/api/articles/tts`), auth (`/api/auth/register`, `/api/auth/login`), and cloud sync (`/api/sync/save`, `/api/sync/get`). Handles robust JSON cleaning (`cleanAndParseJson`). | AC-1.1, AC-1.2, AC-2.2, AC-7.1, AC-7.4 |
+| `src/context/AppContext.tsx`         | Centralized React state management for articles, playback state, queue, playlists, user profile settings, and haptic triggers. Includes automatic fallback to `window.speechSynthesis` and event-driven server sync. | AC-3.1, AC-3.2, AC-4.1, AC-6.1, AC-6.2, AC-7.2, AC-7.3 |
+| `src/components/PodcastPlayer.tsx`   | Persistent audio player panel with expanded view, speed slider (`0.5x`-`2.0x`), quick presets, sleep timer, seek bar, volume control, and voice badge.                                          | AC-3.1, AC-3.2                         |
+| `src/components/HomeDashboard.tsx`   | Main briefing feed with tokenized search bar, category filter chips ("All", "Saved", "Downloaded"), audio card interactions, pull-to-refresh, and queue management.                            | AC-5.1, AC-5.2                         |
+| `src/components/PlaylistPanel.tsx`   | Playlist manager featuring creation, rename, deletion, track reordering (HTML5 drag-and-drop), and inline search across playlists and briefs.                                                  | AC-4.1, AC-4.2, AC-5.1                 |
+| `src/components/IntakePanel.tsx`     | Article submission interface supporting URL extraction, raw text input, Gemini Search Grounding real-time news search, grounded web sources preview, and voice/summary customization.          | AC-1.1, AC-1.2                         |
+| `src/components/ProfilePanel.tsx`    | Settings & voice profile selector (Zephyr, Kore, Charon, Puck, Fenrir) with live audition preview capabilities, cloud sync controls, and diagnostics test suite.                                 | AC-2.1, AC-2.2, AC-7.2                 |
+| `src/components/QueuePanel.tsx`      | Up-next queue manager with HTML5 drag-and-drop reordering and swipe-to-delete gestures.                                                                                                          | AC-4.2                                 |
+| `src/utils/search.ts`                | High-performance tokenized fuzzy search utility scoring article titles, categories, authors, tags, and summaries.                                                                               | AC-5.1, AC-5.2, AC-8.7                 |
+| `src/lib/db.ts`                      | IndexedDB client wrapper managing durable local persistence for articles, playlists, listening history, playback progress, and audio blobs.                                                    | AC-6.1                                 |
+| `src/lib/api.ts`                     | Client API transport layer routing requests to Express `/api/*` endpoints with structured error handling and offline detection.                                                                  | AC-1.1, AC-1.2, AC-7.1                 |
+| `src/types.ts`                       | Strict TypeScript domain types (`Article`, `Playlist`, `PlaybackProgress`, `UserPreferences`, `SyncData`, `VoiceName`, etc.).                                                                     | AC-8.4                                 |
+| `scripts/verify_and_prepare_push.sh` | Automated verification and Git push preparation script executing linting, compilation, git initialization, and staging.                                                                          | AC-1 to AC-8                           |
 
 ---
 
@@ -41,7 +44,7 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 
 - [x] Audit repository documentation and eliminate spec conflicts.
 - [x] Create root `/AGENTS.md` specifying Spec-Driven Development rules.
-- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, Firestore cloud sync technical architecture, acceptance criteria, non-goals, and validation protocols.
+- [x] Create `/specs/SYSTEM_SPEC.md` defining purpose, scope, sync architecture, acceptance criteria, non-goals, and validation protocols.
 - [x] Create `/specs/IMPLEMENTATION_PLAN.md` mapping architecture to spec criteria.
 - [x] Create `/specs/VALIDATION_CHECKLIST.md` providing a verification protocol for future agents.
 - [x] Create `/scripts/verify_and_prepare_push.sh` executable asset for automated verification and Git setup.
@@ -49,9 +52,10 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 
 ### Phase 4: Cloud Cross-Device Synchronization Architecture (Completed)
 
-- [x] Formally define Firestore data models (`UserBrief`, `UserPlaylist`, `UserSettings`) in `/specs/SYSTEM_SPEC.md`.
-- [x] Define Firestore ABAC Security Rules & access model in `/specs/SYSTEM_SPEC.md` for `/users/{userId}` path scope.
-- [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + Firestore `onSnapshot` listener reconciliation).
+- [x] Define sync data models (`Article`, `Playlist`, `PlaybackProgress`, `UserPreferences`) in `src/types.ts` and `/specs/SYSTEM_SPEC.md`.
+- [x] Implement Express sync endpoints (`/api/sync/save`, `/api/sync/get`) with HMAC-signed bearer token auth in `server.ts`.
+- [x] Implement per-user JSON sync file storage (`data/sync_<username>.json`) with path traversal guards.
+- [x] Outline offline-first bi-directional sync strategy (IndexedDB cache + server reconciliation on login/reconnect) in `AppContext.tsx`.
 
 ### Phase 5: Gemini Search Grounding Integration (Completed)
 
@@ -87,6 +91,14 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Remove prohibited `purple` and `indigo` Tailwind utility classes across `PodcastPlayer.tsx` and `HomeDashboard.tsx`, standardizing on `emerald` accents.
 - [x] Polish navigation inactive button contrast in `App.tsx` and `HomeDashboard.tsx` for optimal readability in light theme.
 
+### Phase 9: Documentation Sync & Architecture Accuracy (Completed)
+
+- [x] Correct `/specs/SYSTEM_SPEC.md` to reflect the actual Express file-based sync architecture (HMAC tokens, `data/sync_<username>.json`) instead of the previously documented Firestore/Firebase model.
+- [x] Align endpoint paths in specs (`/api/articles/extract`, `/api/articles/summarize`, `/api/articles/search-news`, `/api/articles/tts`) with the implemented `server.ts` routes.
+- [x] Update `/specs/IMPLEMENTATION_PLAN.md` component mapping to include `QueuePanel.tsx`, `src/lib/api.ts`, and `src/types.ts`.
+- [x] Update `/specs/VALIDATION_CHECKLIST.md` AC-7 criteria to describe the actual sync mechanism (event-driven pull/push, not real-time `onSnapshot` listeners).
+- [x] Update `/README.md` to remove Firestore references and describe the Express sync backend.
+
 ---
 
 ## 🐛 Bugs, Errors, and Defects Fixed Thus Far
@@ -96,26 +108,27 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 | **DEF-1**  | Server / Security | Express extraction endpoint `/api/articles/extract` lacked SSRF safeguards. Added scheme checks (HTTP/HTTPS only) and blocked private IP blocks (RFC 1918/4193), loopback (`127.0.0.1`), and link-local ranges. | High     |
 | **DEF-2**  | Server / Model    | Deprecated model aliases broke Gemini API integration. Updated server endpoints to use `@google/genai` with `gemini-2.5-flash` and `gemini-2.5-flash-preview-tts`.                                              | High     |
 | **DEF-3**  | Server / Testing  | Server auto-bound to port 3000 during test suite execution. Added `NODE_ENV === "test"` guard to `startServer()`.                                                                                               | Medium   |
-| **DEF-4**  | State / Sync      | `syncWithServer` wiped unsynced local data due to premature snapshotting. Implemented atomic bi-directional merges between IndexedDB and Firestore.                                                             | High     |
-| **DEF-5**  | State / Memory    | `deleteArticle` failed to purge deleted articles from user playlists and left stale `HTMLAudioElement` objects in `audioElementsCache`. Added automatic playlist cleaning and audio element eviction.           | Medium   |
-| **DEF-6**  | Player / UI       | `PodcastPlayer` seek slider scrubbed erratically due to active audio position state updates during drag. Added `isDragging` and `dragPos` state separation.                                                     | Medium   |
-| **DEF-7**  | Player / Logic    | 15s skip backward/forward calculated offsets from stale audio element `currentTime`. Updated calculation to evaluate against `activePos`.                                                                       | Low      |
-| **DEF-8**  | Playlists / Drag  | HTML5 drag-and-drop playlist reordering mapped to wrong items when a search query was active. Mapped filtered drag indices back to original array indices.                                                      | Medium   |
-| **DEF-9**  | Browser / Drag    | Drag-and-drop failed in Firefox due to missing dataTransfer payload. Added `e.dataTransfer.setData('text/plain', String(index))`.                                                                               | Medium   |
+| **DEF-4**  | State / Sync      | `syncWithServer` wiped unsynced local data due to premature snapshotting. Implemented atomic bi-directional merges between IndexedDB and the server sync document.                                              | High     |
+| **DEF-5**  | State / Memory    | `deleteArticle` failed to purge deleted articles from user playlists and left stale `HTMLAudioElement` objects in `audioElementsCache`. Added automatic playlist cleaning and audio element eviction.          | Medium   |
+| **DEF-6**  | Player / UI       | `PodcastPlayer` seek slider scrubbed erratically due to active audio position state updates during drag. Added `isDragging` and `dragPos` state separation.                                                    | Medium   |
+| **DEF-7**  | Player / Logic    | 15s skip backward/forward calculated offsets from stale audio element `currentTime`. Updated calculation to evaluate against `activePos`.                                                                    | Low      |
+| **DEF-8**  | Playlists / Drag  | HTML5 drag-and-drop playlist reordering mapped to wrong items when a search query was active. Mapped filtered drag indices back to original array indices.                                                     | Medium   |
+| **DEF-9**  | Browser / Drag    | Drag-and-drop failed in Firefox due to missing dataTransfer payload. Added `e.dataTransfer.setData('text/plain', String(index))`.                                                                              | Medium   |
 | **DEF-10** | Styling / CSS     | Invalid non-existent Tailwind CSS utilities (`zinc-750`, `zinc-850`, `w-4.5`) broke light/dark mode contrast. Replaced with standard Tailwind scale classes.                                                    | Low      |
 | **DEF-11** | Search / Guard    | `tokenize`, `scoreArticle`, and `searchAndFilterArticles` crashed on undefined/null input. Added strict null, type, and array guards in `src/utils/search.ts`.                                                  | Medium   |
-| **DEF-12** | Accessibility     | Missing button labels and dialog attributes in player overlay. Added `aria-label`, `role="dialog"`, `aria-current="page"`, and Escape key listener.                                                             | Low      |
-| **DEF-13** | Server / Security | Production secret `TOKEN_SECRET` missing validation. Added `validateEnvironment()` startup check to halt execution if `TOKEN_SECRET` is unset in production.                                                    | Critical |
-| **DEF-14** | Server / Config   | `GEMINI_API_KEY` validation occurred on first API request instead of startup. Added startup environment checks and format verification.                                                                         | High     |
-| **DEF-15** | Server / DoS      | API routes lacked rate limiting protection. Created in-memory sliding-window rate limiters (60 req/min global, 15 req/min AI routes).                                                                           | High     |
-| **DEF-16** | Server / DoS      | AI endpoints lacked payload length bounds. Added length checks (`/api/articles/summarize` <= 50,000 chars, `/api/articles/search-news` <= 200 chars, `/api/articles/tts` <= 10,000 chars).                      | High     |
-| **DEF-17** | Server / Logging  | Unstructured console error logging lost context. Implemented `logStructured` for JSON formatted logs with timestamps, levels, paths, status codes, and stack trace masking.                                     | Medium   |
-| **DEF-18** | Server / Security | Login failure error states leaked information. Added server-side warning logs for failed auth while returning generic client errors.                                                                            | Medium   |
-| **DEF-19** | HTML / Branding   | `index.html` title tag contained generic default title. Updated to `CommuteBrief — Smart Commute Audio Briefings` with OpenGraph meta tags.                                                                     | High     |
-| **DEF-20** | Git / Security    | `.gitignore` lacked explicit data directory rules. Added `data/` and `*.db` to `.gitignore` to prevent database secret leaks.                                                                                   | High     |
-| **DEF-21** | Server / Memory   | In-memory sliding window rate limiter (`rateLimitStore`) accumulated empty keys indefinitely over time. Added periodic 10-minute cleanup sweep to purge stale keys.                                             | Low      |
+| **DEF-12** | Accessibility     | Missing button labels and dialog attributes in player overlay. Added `aria-label`, `role="dialog"`, `aria-current="page"`, and Escape key listener.                                                            | Low      |
+| **DEF-13** | Server / Security | Production secret `TOKEN_SECRET` missing validation. Added `validateEnvironment()` startup check to halt execution if `TOKEN_SECRET` is unset in production.                                                  | Critical |
+| **DEF-14** | Server / Config   | `GEMINI_API_KEY` validation occurred on first API request instead of startup. Added startup environment checks and format verification.                                                                       | High     |
+| **DEF-15** | Server / DoS      | API routes lacked rate limiting protection. Created in-memory sliding-window rate limiters (60 req/min global, 15 req/min AI routes).                                                                          | High     |
+| **DEF-16** | Server / DoS      | AI endpoints lacked payload length bounds. Added length checks (`/api/articles/summarize` <= 50,000 chars, `/api/articles/search-news` <= 200 chars, `/api/articles/tts` <= 10,000 chars).                     | High     |
+| **DEF-17** | Server / Logging  | Unstructured console error logging lost context. Implemented `logStructured` for JSON formatted logs with timestamps, levels, paths, status codes, and stack trace masking.                                    | Medium   |
+| **DEF-18** | Server / Security | Login failure error states leaked information. Added server-side warning logs for failed auth while returning generic client errors.                                                                           | Medium   |
+| **DEF-19** | HTML / Branding   | `index.html` title tag contained generic default title. Updated to `CommuteBrief — Smart Commute Audio Briefings` with OpenGraph meta tags.                                                                    | High     |
+| **DEF-20** | Git / Security    | `.gitignore` lacked explicit data directory rules. Added `data/` and `*.db` to `.gitignore` to prevent database secret leaks.                                                                                  | High     |
+| **DEF-21** | Server / Memory   | In-memory sliding window rate limiter (`rateLimitStore`) accumulated empty keys indefinitely over time. Added periodic 10-minute cleanup sweep to purge stale keys.                                            | Low      |
 | **DEF-22** | UI / Theme        | `IntakePanel` and `PlaylistPanel` hardcoded dark mode utility classes (`bg-zinc-900`, `text-white`), causing unreadable low-contrast elements when user switched to light theme. Added adaptive light/dark classes. | High     |
 | **DEF-23** | Styling / Color   | `PodcastPlayer` and `HomeDashboard` contained prohibited purple/indigo accent colors violating project standards. Replaced with `emerald` primary accent. | Medium   |
+| **DEF-24** | Docs / Spec       | `SYSTEM_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `VALIDATION_CHECKLIST.md`, and `README.md` described a Firestore/Firebase sync architecture that does not exist in the codebase. Corrected to reflect the actual Express file-based JSON sync with HMAC-signed tokens. | High     |
 
 ---
 

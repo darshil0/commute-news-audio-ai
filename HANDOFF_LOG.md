@@ -4,6 +4,41 @@ This document records the end-to-end repository audits, quality verifications, v
 
 ---
 
+## [Audit Log - 2026-07-27] (Documentation Sync & Architecture Accuracy)
+
+### 👨‍💻 Auditing Engineer
+- **Agent**: AI Studio Coding Agent
+
+### 🔍 Context & Scope
+- **Task**: Correct the system specification and supporting documentation to reflect the actual cloud sync architecture implemented in the codebase. Previous specs described a Firestore/Firebase model (real-time `onSnapshot` listeners, Firestore security rules, `firebase-blueprint.json`) that does not exist in the repository. The real implementation uses an Express backend with per-user JSON sync files (`data/sync_<username>.json`), HMAC-signed session tokens, and event-driven pull/push reconciliation.
+- **Repository**: CommuteBrief / CommuteNews full-stack SPA.
+
+### 📊 Metric & Status Summary
+- **Files Modified**:
+  - `specs/SYSTEM_SPEC.md`
+  - `specs/IMPLEMENTATION_PLAN.md`
+  - `specs/VALIDATION_CHECKLIST.md`
+  - `README.md`
+  - `CHANGELOG.md`
+  - `HANDOFF_LOG.md`
+- **Source Code Changes**: None required — the codebase was already correct; only the documentation had drifted from the implementation.
+- **Type Checking (npm run lint / tsc --noEmit)**: PASSED with 0 errors.
+- **Production Build (npm run build / vite + esbuild)**: PASSED with 0 errors, successfully bundling `dist/server.cjs`.
+
+### 📝 Correction Summary
+- **SYSTEM_SPEC.md**: Rewrote Section 3 (Cloud Architecture) to describe the Express file-based sync model, HMAC token auth, path traversal guards, PBKDF2 password hashing, and event-driven conflict resolution. Updated endpoint paths in AC-1.1, AC-2.2, AC-7.x, and AC-8.3 to the implemented `/api/articles/*` and `/api/sync/*` routes. Removed Firestore `onSnapshot` references and the `firebase-blueprint.json` schema.
+- **IMPLEMENTATION_PLAN.md**: Updated Phase 4 to describe the actual Express sync endpoints and per-user JSON storage. Expanded the component mapping table to include `QueuePanel.tsx`, `src/lib/api.ts`, and `src/types.ts`. Added Phase 9 documenting this sync. Added DEF-24 to the defect catalog.
+- **VALIDATION_CHECKLIST.md**: Rewrote Section 5 (Cloud Sync Verification) and AC-7 criteria to verify HMAC token scoping, event-driven reconciliation, and path traversal guards instead of Firestore rules and real-time listeners. Added DEF-24 verification entry.
+- **README.md**: Updated the intro, backend description, and documentation map to describe the Express sync backend. Added a Cross-Device Cloud Sync feature section. Removed Firestore references.
+
+### 🏁 Handoff Status
+- **Current State**: Documentation now matches the implemented architecture end-to-end. All specs, roadmap, checklist, and README references are consistent with `server.ts` and `AppContext.tsx`.
+- **Recommendations for Future Contributors**:
+  1. Before describing a backend system in the specs, verify the actual transport and storage mechanism in `server.ts` rather than assuming a managed database.
+  2. Keep endpoint paths in the specs identical to the routes registered in `server.ts` to avoid AC verification false negatives.
+
+---
+
 ## [Audit Log - 2026-07-27] (Theme-Awareness & Color Policy Refactor)
 
 ### 👨‍💻 Auditing Engineer
