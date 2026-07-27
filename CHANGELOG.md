@@ -5,16 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.10.0] - 2026-07-27
-
-### 📚 Documentation Sync & Architecture Accuracy
-
-- **Spec Architecture Correction (DEF-24)**: Corrected `SYSTEM_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `VALIDATION_CHECKLIST.md`, and `README.md` to reflect the actual Express file-based JSON sync architecture (HMAC-signed session tokens, `data/sync_<username>.json`) instead of the previously documented Firestore/Firebase model that does not exist in the codebase.
-- **Endpoint Path Alignment**: Aligned all documented endpoint paths (`/api/articles/extract`, `/api/articles/summarize`, `/api/articles/search-news`, `/api/articles/tts`) with the implemented `server.ts` routes.
-- **Component Mapping Expansion**: Updated `IMPLEMENTATION_PLAN.md` architecture mapping to include `QueuePanel.tsx`, `src/lib/api.ts`, and `src/types.ts`, and added Phase 9 documenting this documentation sync.
-- **AC-7 Criteria Rewrite**: Rewrote `VALIDATION_CHECKLIST.md` AC-7 cloud sync criteria to describe the actual event-driven pull/push sync mechanism (pull-on-login + push-on-mutation) rather than non-existent real-time `onSnapshot` listeners.
-- **Verification**: Verified 100% type safety (`npm run lint` / `tsc --noEmit`) and production compilation (`npm run build`).
-
 ## [1.9.0] - 2026-07-27
 
 ### 🎨 Theme Awareness & Prohibited Color Policy Enforcement
@@ -220,7 +210,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
-[1.9.0]: https://github.com/aistudio-build/commutenews/compare/v1.8.0...v1.9.0
 [1.7.0]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0
