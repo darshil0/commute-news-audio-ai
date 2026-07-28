@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2] - 2026-07-27
+
+### 🧪 Unit Testing, Quality Verification Scripts & Search Refinements
+
+- **Search Tokenization Enhancement**: Upgraded `src/utils/search.ts` query tokenization to automatically strip out common punctuation symbols (`!?;:"'()[]{}`), securing clean, punctuation-isolated keyword exact/partial matches.
+- **Search Engine Unit Test Suite**: Engineered a comprehensive, native Node.js test runner suite (`src/utils/search.test.ts`) covering accent-normalization, punctuation stripping, scoring weight distribution (title, category, tags, author, and summary), multi-token match-all bonuses, and edge cases.
+- **Quality Validator Tools**: Imployed a set of custom Python-based verification scripts in `/home/jules/self_created_tools/` to automate relative link checking, prevent active `[NEEDS-CLARIFICATION]` placeholders, validate changelog syntax structure, and execute type/build checks.
+- **Package Scripts Integration**: Added native `"test"` run-script to `package.json` to seamlessly integrate automated unit testing.
+- **Verification**: Verified that 100% of unit tests pass, and zero documentation/changelog anomalies exist.
+
 ## [1.9.1] - 2026-07-27
 
 ### 🧹 Codebase Cleanup & Pruning
@@ -220,6 +230,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.9.2]: https://github.com/aistudio-build/commutenews/compare/v1.9.1...v1.9.2
+[1.9.1]: https://github.com/aistudio-build/commutenews/compare/v1.9.0...v1.9.1
+[1.9.0]: https://github.com/aistudio-build/commutenews/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/aistudio-build/commutenews/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/aistudio-build/commutenews/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/aistudio-build/commutenews/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/aistudio-build/commutenews/compare/v1.4.0...v1.5.0
