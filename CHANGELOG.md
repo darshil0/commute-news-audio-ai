@@ -5,13 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.4] - 2026-07-28
+
+### 📝 Comprehensive Documentation Pass
+
+- **`src/types.ts`**: Added full JSDoc to every type alias, interface, and field — covering `Article`, `PlaybackProgress`, `Playlist`, `UserPreferences`, `PlaybackState`, `UserProfile`, and `SyncData`. Each field is described with purpose, accepted values, and cross-links where appropriate (e.g. `volume` field documents the `0.0`–`1.0` hardware gain range and its direct connection to `HTMLAudioElement.volume`).
+- **`src/lib/api.ts`**: Added file-level `@file` module doc with a route table, documented every `ApiService` static method with `@param`, `@returns`, and `@throws` annotations, and documented all internal helpers (`readJson`, `readMaybeJson`, `readErrorMessage`, `requestJson`, `isLikelyOnline`).
+- **`src/lib/db.ts`**: Added file-level `@file` module doc with an object-store reference table, documented `LocalDatabase` class and every public method (`getArticles`, `saveArticle`, `deleteArticle`, `getPlaylists`, `savePlaylist`, `deletePlaylist`, `getProgress`, `saveProgress`, `deleteProgress`, `getPreferences`, `savePreferences`, `getQueue`, `saveQueue`, `getAudio`, `saveAudio`, `deleteAudio`, `clearAll`) with `@param`, `@returns`, and `@remarks`.
+- **`src/context/AppContext.tsx`**: Added file-level `@file` doc describing the audio architecture (`currentAudioRef`, `currentSpeechUtteranceRef`, `isSpeechSynthesisActiveRef`). Added JSDoc to `AppContextProps` with inline descriptions for every state property and action callback, grouped into logical sections (State, Auth, Articles, Playlists, Playback, Settings & Sync). Documented `audioElementsCache`, `DEFAULT_PREFERENCES`, `AppProvider`, and the `useApp` hook.
+- **`server.ts`**: Added file-level `@file` module doc with a complete API route table, environment variable reference, and security controls summary. Documented `validateEnvironment`, `RateLimitEntry`, and `createRateLimiter` with `@param`, `@returns`, and `@throws`.
+- **`README.md`**: Bumped version badge to `v1.9.3`, added **Master Volume Gain Control** to the Key Features section, and added `npm test` (Node.js native test runner) to the Development & Build Commands reference.
+- **`specs/VALIDATION_CHECKLIST.md`**: Added DEF-26 (Hardware Volume Gain Control) verification item.
+- **Verification**: Confirmed `npm run lint` (0 errors), `npm test` (17/17 passed), and `npm run build` (clean production bundle) after all documentation edits.
+
 ## [1.9.3] - 2026-07-28
 
 ### 🔊 Audio Hardware Volume Control Integration & Codebase Audit
 
 - **Hardware & Speech Synthesis Volume Control**: Integrated `volume` state (clamped `0.0`–`1.0`) into `PlaybackState` in `src/types.ts` and added `setVolume` handler to `AppContext.tsx`. Connected `PodcastPlayer.tsx` volume slider directly to `HTMLAudioElement.volume` and `SpeechSynthesisUtterance.volume`, enabling real-time audio gain adjustment.
 - **Environment & Dependency Verification**: Deployed portable Node.js v22.14.0 environment, clean `npm ci` package installation, and verified zero vulnerability status across dependencies.
-- **Verification**: Verified 100% type safety (`npm run lint`), 100% unit test success (`npm test` with 17 passing tests), and clean production build (`npm run build`).
+- **Verification**: Verified 100% type safety (`npm run lint`), 100% unit test success (`npm test` — 17 passing tests), and clean production build (`npm run build`).
 
 ## [1.9.2] - 2026-07-27
 
@@ -238,6 +251,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.9.4]: https://github.com/aistudio-build/commutenews/compare/v1.9.3...v1.9.4
+[1.9.3]: https://github.com/aistudio-build/commutenews/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/aistudio-build/commutenews/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/aistudio-build/commutenews/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/aistudio-build/commutenews/compare/v1.8.0...v1.9.0
