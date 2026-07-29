@@ -3,6 +3,38 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file server.ts
+ * @description CommuteBrief Express server — handles all backend API routes,
+ * Gemini AI integration, JWT authentication, cross-device sync, and Vite
+ * dev-server middleware.
+ *
+ * ## API Routes
+ * | Method | Path                          | Description                              |
+ * |--------|-------------------------------|------------------------------------------|
+ * | POST   | `/api/auth/register`          | Create a new user account (bcrypt hash)  |
+ * | POST   | `/api/auth/login`             | Authenticate and receive a JWT token     |
+ * | POST   | `/api/sync/save`              | Upload full data snapshot (JWT required) |
+ * | GET    | `/api/sync/get`               | Download full data snapshot (JWT req.)   |
+ * | POST   | `/api/articles/extract`       | SSRF-safe URL fetch + Gemini summarize   |
+ * | POST   | `/api/articles/summarize`     | Summarize raw text via Gemini            |
+ * | POST   | `/api/articles/search-news`   | Real-time news via Search Grounding      |
+ * | POST   | `/api/articles/tts`           | Text-to-Speech via `gemini-2.5-flash-preview-tts` |
+ *
+ * ## Environment Variables
+ * - `GEMINI_API_KEY` *(required)* — Google Gemini API key.
+ * - `TOKEN_SECRET`  *(required in production)* — HMAC-SHA256 secret for JWT
+ *   signing. Defaults to `"dev-only-change-me"` in development.
+ * - `PORT` *(optional)* — TCP port to listen on. Defaults to `3000`.
+ * - `NODE_ENV` — Set to `"production"` to enforce `TOKEN_SECRET` validation.
+ *
+ * ## Security Controls
+ * - Per-IP sliding-window rate limiting on all `/api/articles/*` endpoints.
+ * - SSRF protection: blocks private IP ranges on article URL extraction.
+ * - Username allowlist regex: `^[a-z0-9_-]{3,32}$`.
+ * - JWT signed with HMAC-SHA256; tokens expire after 30 days.
+ */
+
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 import fs from "fs/promises";
@@ -18,6 +50,12 @@ const PORT = Number(process.env.PORT) || 3000;
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 
+/**
+ * Validates required environment variables at startup.
+ * In production mode, throws a fatal error when `TOKEN_SECRET` is absent.
+ * Logs warnings for missing or malformed `GEMINI_API_KEY`.
+ * @throws {Error} If `NODE_ENV === "production"` and `TOKEN_SECRET` is unset.
+ */
 function validateEnvironment() {
   if (process.env.NODE_ENV === "production" && !process.env.TOKEN_SECRET) {
     throw new Error(
@@ -39,10 +77,24 @@ function validateEnvironment() {
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "dev-only-change-me";
 
-// In-memory sliding window rate limiter
+/**
+ * Per-IP request timestamp log used by the sliding-window rate limiter.
+ * Keyed by `"<path>:<ip>"` to scope limits per endpoint per client.
+ */
 type RateLimitEntry = { timestamps: number[] };
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
+/**
+ * Creates an Express middleware that enforces a per-IP sliding-window rate
+ * limit scoped to the matched request path.
+ *
+ * Requests exceeding the limit receive a `429 Too Many Requests` response with
+ * a JSON error body. All violations are logged via {@link logStructured}.
+ *
+ * @param maxRequests - Maximum number of requests allowed in the window.
+ * @param windowMs - Window duration in milliseconds.
+ * @returns Express middleware function.
+ */
 function createRateLimiter(maxRequests: number, windowMs: number) {
   return (req: Request, res: Response, next: NextFunction) => {
     const ip = req.ip || req.socket.remoteAddress || "127.0.0.1";
