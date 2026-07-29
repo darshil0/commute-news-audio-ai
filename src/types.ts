@@ -59,6 +59,7 @@ export interface PlaybackState {
   readonly sleepTimerDuration: number | null;
   readonly sleepTimerEndTimestamp: number | null;
   readonly playbackError: string | null;
+  readonly volume: number;
 }
 
 export interface UserProfile {
