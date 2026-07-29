@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.3] - 2026-07-28
+
+### 🔊 Audio Hardware Volume Control Integration & Codebase Audit
+
+- **Hardware & Speech Synthesis Volume Control**: Integrated `volume` state (clamped `0.0`–`1.0`) into `PlaybackState` in `src/types.ts` and added `setVolume` handler to `AppContext.tsx`. Connected `PodcastPlayer.tsx` volume slider directly to `HTMLAudioElement.volume` and `SpeechSynthesisUtterance.volume`, enabling real-time audio gain adjustment.
+- **Environment & Dependency Verification**: Deployed portable Node.js v22.14.0 environment, clean `npm ci` package installation, and verified zero vulnerability status across dependencies.
+- **Verification**: Verified 100% type safety (`npm run lint`), 100% unit test success (`npm test` with 17 passing tests), and clean production build (`npm run build`).
+
 ## [1.9.2] - 2026-07-27
 
 ### 🧪 Unit Testing, Quality Verification Scripts & Search Refinements
