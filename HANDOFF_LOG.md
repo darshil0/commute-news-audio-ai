@@ -4,6 +4,55 @@ This document records the end-to-end repository audits, quality verifications, v
 
 ---
 
+## [Audit Log - 2026-07-28] (Comprehensive Documentation Pass — v1.9.4)
+
+### 👨‍💻 Auditing Engineer
+- **Agent**: Antigravity
+
+### 🔍 Context & Scope
+- **Task**: Complete a full documentation pass across all source files, configuration files, and specification documents. Add JSDoc module-level `@file` annotations, interface/type field descriptions, `@param`/`@returns`/`@throws` annotations, and inline comments throughout the codebase.
+- **Repository**: CommuteBrief / CommuteNews full-stack SPA.
+
+### 📊 Metric & Status Summary
+- **Files Modified**:
+  - `src/types.ts`
+  - `src/main.tsx`
+  - `src/App.tsx`
+  - `src/context/AppContext.tsx`
+  - `src/lib/api.ts`
+  - `src/lib/db.ts`
+  - `src/utils/search.ts` *(already documented — verified)*
+  - `src/components/HomeDashboard.tsx`
+  - `src/components/IntakePanel.tsx`
+  - `src/components/PlaylistPanel.tsx`
+  - `src/components/PodcastPlayer.tsx`
+  - `src/components/ProfilePanel.tsx`
+  - `src/components/QueuePanel.tsx`
+  - `server.ts`
+  - `vite.config.ts`
+  - `README.md`
+  - `CHANGELOG.md`
+  - `specs/VALIDATION_CHECKLIST.md`
+  - `HANDOFF_LOG.md`
+- **Type Checking (`npm run lint`)**: PASSED with 0 errors.
+- **Unit Testing Suite (`npm test`)**: PASSED with 100% success (17 test cases passed).
+- **Production Build (`npm run build`)**: PASSED with 0 errors.
+
+### 📝 Documentation Coverage Results
+- **`src/types.ts`**: Every type alias, interface, and field fully documented with JSDoc including `@remarks` and range constraints (e.g. `volume: 0.0–1.0`).
+- **`src/lib/api.ts`**: File `@file` module doc with route table; all `ApiService` methods documented with `@param`, `@returns`, `@throws`; all private helpers documented.
+- **`src/lib/db.ts`**: File `@file` module doc with object-store table; `LocalDatabase` class and all 16 public methods documented.
+- **`src/context/AppContext.tsx`**: File `@file` doc with audio architecture overview; `AppContextProps` interface fully documented with inline JSDoc per method/property in grouped sections; `AppProvider` and `useApp` hook documented.
+- **`server.ts`**: File `@file` doc with complete API route table, environment variable reference, and security controls summary; `validateEnvironment`, `RateLimitEntry`, and `createRateLimiter` documented.
+- **`src/App.tsx`**: File `@file` doc with navigation table and gesture/theme notes; `TABS`, `TabKey`, `CommuteAppContent`, and default `App` export documented.
+- **`src/main.tsx`**: License header, `@file` module doc, and bootstrap comment added.
+- **`vite.config.ts`**: `@file` module doc explaining plugins, aliases, and HMR/watch conditional.
+- **All 6 components**: `@file` module-level JSDoc added to `HomeDashboard.tsx`, `IntakePanel.tsx`, `PlaylistPanel.tsx`, `PodcastPlayer.tsx`, `ProfilePanel.tsx`, and `QueuePanel.tsx` — each describing purpose, key features, and notable implementation details.
+- **`README.md`**: Version badge updated to `v1.9.3`; Master Volume Gain Control feature entry added; `npm test` command added to dev commands.
+- **`CHANGELOG.md`**: `[1.9.4]` documentation release entry added; `[1.9.3]` and `[1.9.4]` comparison links added to footer.
+
+---
+
 ## [Audit Log - 2026-07-28] (Audio Hardware Volume Control & Full-Stack Audit)
 
 ### 👨‍💻 Auditing Engineer
