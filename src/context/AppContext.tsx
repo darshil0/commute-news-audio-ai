@@ -3,6 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/context/AppContext.tsx
+ * @description Global React context for CommuteBrief application state.
+ *
+ * {@link AppProvider} manages all application state including articles,
+ * playlists, playback, preferences, authentication, and cross-device sync.
+ * Consumers access state and actions via the {@link useApp} hook.
+ *
+ * ## Audio Architecture
+ * - `currentAudioRef` — holds the active {@link HTMLAudioElement} for
+ *   Gemini TTS or downloaded audio playback.
+ * - `currentSpeechUtteranceRef` — holds the active
+ *   {@link SpeechSynthesisUtterance} for browser fallback TTS.
+ * - `isSpeechSynthesisActiveRef` — guards against concurrent audio sources.
+ * - Hardware volume (`0.0`–`1.0`) and speed are applied directly to both
+ *   audio sources whenever {@link AppContextProps.setVolume} or
+ *   {@link AppContextProps.setPlaybackSpeed} is called.
+ */
+
 import React, {
   createContext,
   useContext,
@@ -24,79 +43,213 @@ import {
 import { localDB } from "../lib/db";
 import { ApiService } from "../lib/api";
 
+/**
+ * Shape of the value provided by {@link AppContext}.
+ * All state is read-only; mutations are performed exclusively through the
+ * action callbacks listed below.
+ */
 interface AppContextProps {
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
+
+  /** Reactive list of all articles stored in IndexedDB. */
   articles: Article[];
+  /** Reactive list of all playlists stored in IndexedDB. */
   playlists: Playlist[];
+  /** Reactive list of all per-article playback progress records. */
   progress: PlaybackProgress[];
+  /** Current user preferences (summary length/tone, voice, speed, theme). */
   preferences: UserPreferences;
+  /** Real-time audio playback state (current article, queue, speed, volume, sleep timer). */
   playbackState: PlaybackState;
+  /** Authenticated user profile, or `null` when logged out. */
   userProfile: UserProfile | null;
+  /** `true` when `navigator.onLine` is `true`. */
   isOnline: boolean;
+  /** `true` while the initial IndexedDB hydration is in progress. */
   isLoading: boolean;
+  /** Currently active navigation tab key (e.g. `"home"`, `"search"`). */
   activeTab: string;
+  /** Updates the active navigation tab. */
   setActiveTab: (tab: string) => void;
 
+  // ---------------------------------------------------------------------------
+  // Auth actions
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Registers a new account via `POST /api/auth/register` and persists the
+   * JWT token to `localStorage`.
+   * @throws {Error} If the username is taken or validation fails.
+   */
   registerUser: (u: string, p: string) => Promise<void>;
+  /**
+   * Authenticates via `POST /api/auth/login` and persists the JWT token.
+   * @throws {Error} If credentials are invalid.
+   */
   loginUser: (u: string, p: string) => Promise<void>;
+  /** Clears the user session, JWT token, and all local IndexedDB data. */
   logoutUser: () => Promise<void>;
 
+  // ---------------------------------------------------------------------------
+  // Article actions
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Summarizes raw text via Gemini and adds the result as a new article.
+   * @param title - User-provided working title.
+   * @param text - Raw text content to summarize.
+   */
   addArticleText: (title: string, text: string) => Promise<void>;
+  /**
+   * Fetches, extracts, and summarizes a web URL via the server, then adds
+   * the result as a new article.
+   * @param url - Public HTTP/HTTPS URL to import.
+   */
   importArticleUrl: (url: string) => Promise<void>;
+  /**
+   * Saves a pre-summarized grounded search result as a new article.
+   * @param title - Article headline.
+   * @param category - Content category label.
+   * @param summary - Pre-generated summary text.
+   * @param sourceUrl - Optional source citation URL.
+   * @returns The newly created {@link Article}.
+   */
   addGroundedArticle: (
     title: string,
     category: string,
     summary: string,
     sourceUrl?: string,
   ) => Promise<Article>;
+  /** Removes an article from state, IndexedDB, and the play queue. */
   deleteArticle: (id: string) => Promise<void>;
+  /** Generates and caches TTS audio for an article to `audioStore`. */
   downloadArticleAudio: (id: string) => Promise<void>;
+  /** Toggles the `isSaved` bookmark flag on an article. */
   toggleSaveArticle: (id: string) => Promise<void>;
 
+  // ---------------------------------------------------------------------------
+  // Playlist actions
+  // ---------------------------------------------------------------------------
+
+  /** Creates a new empty playlist with the given name and optional description. */
   createPlaylist: (name: string, description?: string) => Promise<void>;
+  /** Permanently removes a playlist by ID. */
   deletePlaylist: (id: string) => Promise<void>;
+  /** Updates the name and/or description of an existing playlist. */
   updatePlaylistDetails: (
     playlistId: string,
     name: string,
     description?: string,
   ) => Promise<void>;
+  /** Appends an article to the end of a playlist's `articleIds`. */
   addArticleToPlaylist: (
     playlistId: string,
     articleId: string,
   ) => Promise<void>;
+  /** Removes an article from a playlist's `articleIds`. */
   removeArticleFromPlaylist: (
     playlistId: string,
     articleId: string,
   ) => Promise<void>;
+  /** Moves an article within a playlist from `startIndex` to `endIndex`. */
   reorderPlaylist: (
     playlistId: string,
     startIndex: number,
     endIndex: number,
   ) => Promise<void>;
 
+  // ---------------------------------------------------------------------------
+  // Playback actions
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Begins playback of the specified article, generating TTS audio if needed.
+   * Falls back to browser SpeechSynthesis when TTS generation fails.
+   * @param id - ID of the article to play.
+   */
   playArticle: (id: string) => Promise<void>;
+  /** Toggles between play and pause for the current article. */
   togglePlayPause: () => void;
+  /** Advances to the next article in the play queue. */
   playNextInQueue: () => void;
+  /** Returns to the previous article (restarts current if past 3 s). */
   playPrev: () => void;
+  /**
+   * Updates playback speed on the active audio element and persists the new
+   * speed to user preferences.
+   * @param speed - Speed multiplier in range `0.5`–`2.0`.
+   */
   setPlaybackSpeed: (speed: number) => void;
+  /**
+   * Starts or clears the sleep timer.
+   * @param minutes - Duration in minutes, or `null` to cancel.
+   */
   setSleepTimer: (minutes: number | null) => void;
+  /**
+   * Seeks the active audio element to the specified position.
+   * @param seconds - Target position in seconds.
+   */
   updatePlaybackPosition: (seconds: number) => void;
+  /**
+   * Sets the master hardware volume gain on both `HTMLAudioElement` and
+   * `SpeechSynthesisUtterance`, and persists it to `playbackState`.
+   * @param volume - Gain level in range `0.0` (muted) to `1.0` (full).
+   */
   setVolume: (volume: number) => void;
+  /** Appends an article ID to the end of the play queue. */
   addToQueue: (id: string) => void;
+  /** Removes an article ID from the play queue. */
   removeFromQueue: (id: string) => void;
+  /** Empties the entire play queue. */
   clearQueue: () => void;
+  /** Moves an item within the queue from `startIndex` to `endIndex`. */
   reorderQueue: (startIndex: number, endIndex: number) => void;
+  /** Clears the `playbackError` field in `playbackState`. */
   clearPlaybackError: () => void;
 
+  // ---------------------------------------------------------------------------
+  // Settings & sync actions
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Merges a partial preferences update, persists to IndexedDB, and triggers
+   * a background server sync if the user is authenticated.
+   * @param prefs - Partial {@link UserPreferences} fields to update.
+   */
   setPreferences: (prefs: Partial<UserPreferences>) => void;
+  /** Manually triggers a full data backup to `/api/sync/save`. */
   syncWithServer: () => Promise<void>;
+  /**
+   * Logs a categorized analytics event (currently `console.log`-based).
+   * @param category - High-level category (e.g. `"Playback"`).
+   * @param action - Specific action label (e.g. `"Play"`).
+   * @param label - Optional additional context.
+   */
   analyticsEvent: (category: string, action: string, label?: string) => void;
+  /**
+   * Triggers the device vibration motor with the given pattern.
+   * Silently no-ops on platforms that do not support `navigator.vibrate`.
+   * @param pattern - Single duration (ms) or array of on/off durations.
+   */
   triggerHaptic: (pattern: number | number[]) => void;
 }
 
+
 const AppContext = createContext<AppContextProps | undefined>(undefined);
 
+/**
+ * Module-level cache mapping article IDs to their `HTMLAudioElement`.
+ * Avoids re-creating audio elements on each playback invocation and allows
+ * the same element to be reused when re-playing a cached article.
+ */
 const audioElementsCache: Record<string, HTMLAudioElement> = {};
 
+/**
+ * Sensible defaults applied before the user's persisted preferences are
+ * loaded from IndexedDB on startup.
+ */
 const DEFAULT_PREFERENCES: UserPreferences = {
   summaryLength: "medium",
   summaryTone: "engaging",
@@ -105,6 +258,14 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   theme: "dark",
 };
 
+/**
+ * Root context provider for CommuteBrief.
+ * Wrap the application tree with `<AppProvider>` to make all state and actions
+ * available to descendant components via the {@link useApp} hook.
+ *
+ * On mount, `AppProvider` hydrates state from IndexedDB, restores the user
+ * session from `localStorage`, and sets up online/offline event listeners.
+ */
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -1409,6 +1570,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
+/**
+ * Custom hook that provides access to the {@link AppContext} value.
+ *
+ * Must be called from a component tree that is wrapped in {@link AppProvider}.
+ * @throws {Error} If called outside of an `AppProvider` tree.
+ * @returns The full {@link AppContextProps} containing application state and
+ *   all action callbacks.
+ */
 export const useApp = () => {
   const context = useContext(AppContext);
   if (!context) {
