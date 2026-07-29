@@ -1,7 +1,7 @@
 # CommuteBrief: Smart Commute Audio Briefings
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![Version](https://img.shields.io/badge/version-v1.9.3-blue.svg)](./package.json)
+[![Version](https://img.shields.io/badge/version-v1.9.4-blue.svg)](./package.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.0-61dafb.svg)](https://react.dev/)
