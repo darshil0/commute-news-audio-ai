@@ -33,6 +33,7 @@ export const PodcastPlayer: React.FC = () => {
     setPlaybackSpeed,
     setSleepTimer,
     updatePlaybackPosition,
+    setVolume,
     downloadArticleAudio,
     clearPlaybackError,
   } = useApp();
@@ -41,11 +42,10 @@ export const PodcastPlayer: React.FC = () => {
   const [showSleepMenu, setShowSleepMenu] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [showVolumeMenu, setShowVolumeMenu] = useState(false);
-  const [volume, setVolume] = useState(1.0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragPos, setDragPos] = useState<number | null>(null);
 
-  const { currentArticleId, isPlaying, speed, sleepTimerDuration } =
+  const { currentArticleId, isPlaying, speed, sleepTimerDuration, volume } =
     playbackState;
   const currentArticle = articles.find((a) => a.id === currentArticleId);
   const currentProgress = progress.find(
