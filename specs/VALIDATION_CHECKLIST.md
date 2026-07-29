@@ -127,3 +127,5 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-23 (Color Standard Enforcement)**: Prohibited purple and indigo utilities removed across player controls and dashboard badges, standardizing on `emerald`.
 - [x] **DEF-24 (Function Hoisting & Ref Safety)**: Circular function dependencies between `togglePlayPause` and `playArticle` resolved via `playArticleRef` mutable ref.
 - [x] **DEF-25 (Unused Code & Import Pruning)**: All unused types, unused private database methods, unused Lucide icons, and unused state variables purged cleanly from codebase.
+- [x] **DEF-26 (Hardware Volume Gain Control)**: `PodcastPlayer.tsx` volume slider directly controls `HTMLAudioElement.volume` and `SpeechSynthesisUtterance.volume` via global `setVolume` in `AppContext.tsx`.
+
