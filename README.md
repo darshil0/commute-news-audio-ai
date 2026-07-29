@@ -1,7 +1,7 @@
 # CommuteBrief: Smart Commute Audio Briefings
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![Version](https://img.shields.io/badge/version-v1.9.0-blue.svg)](./package.json)
+[![Version](https://img.shields.io/badge/version-v1.9.3-blue.svg)](./package.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.0-61dafb.svg)](https://react.dev/)
@@ -27,6 +27,7 @@ CommuteBrief is a full-stack web application designed to optimize daily commutes
 
 - **Custom Audio Controls**: Play, pause, seek, and skip between queued briefings.
 - **Fluid Speed Control**: Adjustable speed slider (`0.5x` to `2.0x`) and quick preset buttons (`0.5x`, `1.0x`, `1.25x`, `1.5x`, `1.75x`, `2.0x`).
+- **Master Volume Gain Control**: Global hardware volume slider (`0.0`–`1.0`) that directly adjusts `HTMLAudioElement.volume` and `SpeechSynthesisUtterance.volume` in real time.
 - **Sleep Timer**: Configurable countdown timer (5m to 60m) that automatically pauses playback when expired.
 
 ### 🔊 AI Narrator Voice Profiles
@@ -97,11 +98,14 @@ CommuteBrief adheres to strict **Spec-Driven Development (SDD)** principles. Mai
 # Install dependencies
 npm install
 
-# Start development server
+# Start development server (Vite + Express on port 3000)
 npm run dev
 
-# Run TypeScript linting check
+# Run TypeScript type-checking
 npm run lint
+
+# Run unit tests (Node.js native test runner)
+npm test
 
 # Format codebase with Prettier
 npm run format
