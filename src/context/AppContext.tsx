@@ -80,6 +80,7 @@ interface AppContextProps {
   setPlaybackSpeed: (speed: number) => void;
   setSleepTimer: (minutes: number | null) => void;
   updatePlaybackPosition: (seconds: number) => void;
+  setVolume: (volume: number) => void;
   addToQueue: (id: string) => void;
   removeFromQueue: (id: string) => void;
   clearQueue: () => void;
@@ -127,6 +128,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     sleepTimerDuration: null,
     sleepTimerEndTimestamp: null,
     playbackError: null,
+    volume: 1.0,
   });
 
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -830,6 +832,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(article.summary);
         utterance.rate = playbackStateRef.current.speed || 1.0;
+        utterance.volume = playbackStateRef.current.volume ?? 1.0;
 
         const words = article.summary.split(/\s+/).length;
         const estimatedDuration = Math.max(15, Math.round((words / 150) * 60));
@@ -1038,6 +1041,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         audioObj.onended = () => playNextInQueueRef.current();
         currentAudioRef.current = audioObj;
         audioObj.playbackRate = playbackStateRef.current.speed;
+        audioObj.volume = playbackStateRef.current.volume ?? 1.0;
 
         const prog = progressRef.current.find((p) => p.articleId === id);
         if (prog && !prog.completed && prog.position > 0) {
@@ -1223,6 +1227,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     [triggerHaptic],
   );
 
+  const setVolume = useCallback(
+    (volume: number) => {
+      const clamped = Math.max(0, Math.min(1, volume));
+      setPlaybackState((prev) => ({ ...prev, volume: clamped }));
+      if (currentAudioRef.current) {
+        currentAudioRef.current.volume = clamped;
+      }
+      if (currentSpeechUtteranceRef.current) {
+        currentSpeechUtteranceRef.current.volume = clamped;
+      }
+      triggerHaptic(10);
+    },
+    [triggerHaptic],
+  );
+
   const addToQueue = useCallback(
     (id: string) => {
       setPlaybackState((prev) => {
@@ -1331,6 +1350,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       setPlaybackSpeed,
       setSleepTimer,
       updatePlaybackPosition,
+      setVolume,
       addToQueue,
       removeFromQueue,
       clearQueue,
@@ -1373,6 +1393,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       setPlaybackSpeed,
       setSleepTimer,
       updatePlaybackPosition,
+      setVolume,
       addToQueue,
       removeFromQueue,
       clearQueue,
