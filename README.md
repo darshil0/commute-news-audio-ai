@@ -122,5 +122,3 @@ npm run start
 ## 📄 License
 
 This project is licensed under the [License](LICENSE).
-
-
