@@ -94,6 +94,16 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] **Unit Testing Infrastructure**: Integrated a comprehensive native Node.js test suite (`src/utils/search.test.ts`) validating tokenization, accent normalization, weighting matches (titles, categories, authors, tags, and summaries), multi-token match-all bonuses, and category filters. Added `"test"` run-script to `package.json`.
 - [x] **Self-Created Quality Validators**: Deployed custom automated validation scripts (`doc_validator.py`, `changelog_validator.py`, and `audit_diagnostics.py`) to systematically verify relative documentation links, prevent active `[NEEDS-CLARIFICATION]` placeholders, check changelog syntax, and execute production builds.
 
+### Phase 10: Code Quality, Contrast & Documentation Accuracy (Completed)
+
+- [x] Fix invalid Tailwind class `top-4.5` in `PodcastPlayer.tsx` (2 occurrences on 15s skip button labels).
+- [x] Fix invalid `rows={2.5}` on `<textarea>` elements in `PlaylistPanel.tsx` (create/rename modals).
+- [x] Add missing `e.dataTransfer.setData` call in `PlaylistPanel.tsx` drag handler for Firefox compatibility.
+- [x] Strengthen URL validation in `IntakePanel.tsx` from `startsWith("http")` to `^https?:\/\/` regex.
+- [x] Correct `server.ts` JSDoc: token expiry documented as "30 days" but code enforces 7 days.
+- [x] Correct `AppContext.tsx` `logoutUser` JSDoc: claimed to clear IndexedDB but only clears session/localStorage.
+- [x] Fix light-mode contrast on `PodcastPlayer.tsx` version badge: `hover:text-white` → `hover:text-zinc-700 dark:hover:text-white`.
+
 ---
 
 ## 🐛 Bugs, Errors, and Defects Fixed Thus Far
@@ -125,6 +135,13 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 | **DEF-23** | Styling / Color   | `PodcastPlayer` and `HomeDashboard` contained prohibited purple/indigo accent colors violating project standards. Replaced with `emerald` primary accent. | Medium   |
 | **DEF-24** | State / Hoisting  | `AppContext.tsx` contained circular reference/hoisting fragility between `togglePlayPause` and `playArticle`. Fixed using `playArticleRef` mutable ref pattern. | Medium   |
 | **DEF-25** | Codebase / Clean  | Unused types (`SettingsKey`, `SettingsStoreShape`), unused `getStore` method in `db.ts`, and unused icon/variable imports across components produced lint noise. Purged all dead code and unused imports. | Low      |
+| **DEF-27** | Styling / CSS       | `PodcastPlayer.tsx` used non-existent Tailwind class `top-4.5` on 15s skip button labels, causing misaligned overlay text. Replaced with valid `top-4` class. | Low      |
+| **DEF-28** | Forms / HTML        | `PlaylistPanel.tsx` create/rename modals used `rows={2.5}` on `<textarea>`, an invalid fractional value. Changed to `rows={3}`. | Low      |
+| **DEF-29** | Browser / Drag      | `PlaylistPanel.tsx` drag-and-drop reordering failed in Firefox due to missing `e.dataTransfer.setData` call. Added `setData("text/plain", ...)` wrapped in try/catch. | Medium   |
+| **DEF-30** | Validation / Input  | `IntakePanel.tsx` URL validation used `startsWith("http")`, accepting invalid strings like `httpfoo`. Replaced with `^https?:\/\/` regex for strict scheme validation. | Medium   |
+| **DEF-31** | Docs / Accuracy    | `server.ts` JSDoc stated JWT tokens expire after "30 days" but `verifyToken` enforces 7-day expiry. Corrected JSDoc to match implementation. | Low      |
+| **DEF-32** | Docs / Accuracy    | `AppContext.tsx` `logoutUser` JSDoc claimed it "clears all local IndexedDB data" but only clears session and `localStorage`. Corrected JSDoc to accurately describe behavior. | Low      |
+| **DEF-33** | UI / Contrast      | `PodcastPlayer.tsx` version badge used `hover:text-white`, invisible on white/light backgrounds. Added `hover:text-zinc-700 dark:hover:text-white` for both themes. | Low      |
 
 ---
 

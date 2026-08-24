@@ -128,4 +128,11 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-24 (Function Hoisting & Ref Safety)**: Circular function dependencies between `togglePlayPause` and `playArticle` resolved via `playArticleRef` mutable ref.
 - [x] **DEF-25 (Unused Code & Import Pruning)**: All unused types, unused private database methods, unused Lucide icons, and unused state variables purged cleanly from codebase.
 - [x] **DEF-26 (Hardware Volume Gain Control)**: `PodcastPlayer.tsx` volume slider directly controls `HTMLAudioElement.volume` and `SpeechSynthesisUtterance.volume` via global `setVolume` in `AppContext.tsx`.
+- [x] **DEF-27 (Tailwind Class `top-4.5`)**: `PodcastPlayer.tsx` 15s skip button labels no longer use the non-existent `top-4.5` class; replaced with valid `top-4`.
+- [x] **DEF-28 (Textarea `rows` Fractional)**: `PlaylistPanel.tsx` create/rename modals use integer `rows={3}` instead of invalid `rows={2.5}`.
+- [x] **DEF-29 (Firefox Drag-and-Drop in Playlists)**: `PlaylistPanel.tsx` drag handler includes `e.dataTransfer.setData("text/plain", ...)` for Firefox compatibility.
+- [x] **DEF-30 (URL Validation Regex)**: `IntakePanel.tsx` validates URLs with `^https?:\/\/` regex instead of weak `startsWith("http")`.
+- [x] **DEF-31 (Token Expiry JSDoc)**: `server.ts` JSDoc accurately documents 7-day token expiry matching `verifyToken` implementation.
+- [x] **DEF-32 (logoutUser JSDoc)**: `AppContext.tsx` `logoutUser` JSDoc accurately describes session/localStorage clearing without claiming IndexedDB wipe.
+- [x] **DEF-33 (Light-Mode Badge Contrast)**: `PodcastPlayer.tsx` version badge uses `hover:text-zinc-700 dark:hover:text-white` for readable hover state in both themes.
 

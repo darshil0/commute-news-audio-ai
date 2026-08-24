@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.5] - 2026-08-24
+
+### 🐛 Code Quality, Contrast & Documentation Accuracy Fixes
+
+- **Invalid Tailwind class `top-4.5`** (`PodcastPlayer.tsx`): Two occurrences of the non-existent `top-4.5` utility class on the 15-second skip button labels replaced with valid `top-4`, fixing misaligned overlay text on rewind/forward buttons.
+- **Invalid `rows={2.5}` on `<textarea>`** (`PlaylistPanel.tsx`): Two textarea elements in the create/rename playlist modals used a fractional `rows` value, which is invalid (must be an integer). Changed to `rows={3}`.
+- **Missing `dataTransfer.setData` in playlist drag handler** (`PlaylistPanel.tsx`): The HTML5 drag-and-drop reordering handler for playlist tracks was missing `e.dataTransfer.setData()`, causing drag-and-drop to silently fail in Firefox. Added the call, matching the pattern already used in `QueuePanel.tsx`.
+- **Weak URL validation** (`IntakePanel.tsx`): URL input validation used `url.startsWith("http")`, which accepted invalid strings like `httpfoo`. Replaced with a proper `^https?:\/\/` regex for strict scheme validation.
+- **JSDoc contradicted code: token expiry** (`server.ts`): File-level JSDoc stated tokens expire after "30 days" but the actual `verifyToken` implementation enforces 7-day expiry. Corrected the comment to match the code.
+- **JSDoc contradicted code: `logoutUser`** (`AppContext.tsx`): The `logoutUser` JSDoc claimed it "clears all local IndexedDB data" but the function only clears the user session and `localStorage` — it does not wipe IndexedDB. Corrected the comment to accurately describe the behavior.
+- **Light-mode contrast on player version badge** (`PodcastPlayer.tsx`): The "commutenews v1" status badge used `hover:text-white`, which is invisible on a white/light background. Added `hover:text-zinc-700 dark:hover:text-white` so the hover state is readable in both themes.
+- **Verification**: Confirmed `npm run lint` (0 errors), `npm test` (17/17 passed), and `npm run build` (clean production bundle) after all fixes.
+
 ## [1.9.4] - 2026-07-28
 
 ### 📝 Comprehensive Documentation Pass
@@ -251,6 +264,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[1.9.5]: https://github.com/aistudio-build/commutenews/compare/v1.9.4...v1.9.5
 [1.9.4]: https://github.com/aistudio-build/commutenews/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/aistudio-build/commutenews/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/aistudio-build/commutenews/compare/v1.9.1...v1.9.2

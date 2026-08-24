@@ -4,6 +4,42 @@ This document records the end-to-end repository audits, quality verifications, v
 
 ---
 
+## [Audit Log - 2026-08-24] (Code Quality, Contrast & Documentation Accuracy Fixes — v1.9.5)
+
+### 👨‍💻 Auditing Engineer
+- **Agent**: Claude Code
+
+### 🔍 Context & Scope
+- **Task**: Identify and fix all code quality, styling, contrast, and documentation accuracy issues across the codebase. Update all SDD documentation to reflect the fixes.
+- **Repository**: CommuteBrief / CommuteNews full-stack SPA.
+
+### 📊 Metric & Status Summary
+- **Files Modified**:
+  - `src/components/PodcastPlayer.tsx` — fixed `top-4.5` → `top-4` (2 occurrences), fixed `hover:text-white` light-mode contrast
+  - `src/components/PlaylistPanel.tsx` — fixed `rows={2.5}` → `rows={3}` (2 occurrences), added `dataTransfer.setData` for Firefox drag-and-drop
+  - `src/components/IntakePanel.tsx` — strengthened URL validation from `startsWith("http")` to `^https?:\/\/` regex
+  - `server.ts` — corrected JSDoc token expiry from "30 days" to "7 days"
+  - `src/context/AppContext.tsx` — corrected `logoutUser` JSDoc to not claim IndexedDB wipe
+  - `CHANGELOG.md` — added v1.9.5 release entry
+  - `README.md` — updated version badge to v1.9.5
+  - `specs/IMPLEMENTATION_PLAN.md` — added Phase 10 and DEF-27 through DEF-33
+  - `specs/VALIDATION_CHECKLIST.md` — added DEF-27 through DEF-33 verification items
+  - `HANDOFF_LOG.md` — this audit entry
+- **Type Checking (`npm run lint`)**: PASSED with 0 errors.
+- **Unit Testing Suite (`npm test`)**: PASSED with 100% success (17 test cases passed).
+- **Production Build (`npm run build`)**: PASSED with 0 errors.
+
+### 🔧 Fixes Applied
+- **DEF-27**: Invalid Tailwind class `top-4.5` in `PodcastPlayer.tsx` replaced with `top-4`.
+- **DEF-28**: Invalid `rows={2.5}` on textareas in `PlaylistPanel.tsx` changed to `rows={3}`.
+- **DEF-29**: Missing `e.dataTransfer.setData` in `PlaylistPanel.tsx` drag handler added for Firefox compatibility.
+- **DEF-30**: Weak URL validation in `IntakePanel.tsx` replaced with proper `^https?:\/\/` regex.
+- **DEF-31**: `server.ts` JSDoc corrected from "30 days" to "7 days" token expiry.
+- **DEF-32**: `AppContext.tsx` `logoutUser` JSDoc corrected to not claim IndexedDB wipe.
+- **DEF-33**: `PodcastPlayer.tsx` version badge `hover:text-white` fixed with light-mode fallback.
+
+---
+
 ## [Audit Log - 2026-07-28] (Comprehensive Documentation Pass — v1.9.4)
 
 ### 👨‍💻 Auditing Engineer
