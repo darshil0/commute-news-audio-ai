@@ -89,7 +89,7 @@ interface AppContextProps {
    * @throws {Error} If credentials are invalid.
    */
   loginUser: (u: string, p: string) => Promise<void>;
-  /** Clears the user session, JWT token, and all local IndexedDB data. */
+  /** Clears the user session and JWT token from local storage. */
   logoutUser: () => Promise<void>;
 
   // ---------------------------------------------------------------------------

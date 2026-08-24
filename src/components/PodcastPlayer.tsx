@@ -295,7 +295,7 @@ export const PodcastPlayer: React.FC = () => {
                   className="p-3 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors relative flex items-center justify-center"
                   title="Rewind 15 seconds"
                 >
-                  <span className="text-[9px] font-bold font-mono absolute top-4.5">
+                  <span className="text-[9px] font-bold font-mono absolute top-4">
                     15
                   </span>
                   <Timer className="w-6 h-6 rotate-180 text-zinc-500 dark:text-zinc-400" />
@@ -321,7 +321,7 @@ export const PodcastPlayer: React.FC = () => {
                   className="p-3 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors relative flex items-center justify-center"
                   title="Forward 15 seconds"
                 >
-                  <span className="text-[9px] font-bold font-mono absolute top-4.5">
+                  <span className="text-[9px] font-bold font-mono absolute top-4">
                     15
                   </span>
                   <Timer className="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
@@ -508,7 +508,7 @@ export const PodcastPlayer: React.FC = () => {
               </div>
 
               {/* AirPlay / Cast style decorative status */}
-              <div className="flex items-center text-zinc-400 hover:text-white transition-colors cursor-pointer gap-1">
+              <div className="flex items-center text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-colors cursor-pointer gap-1">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
                 <span className="text-xs font-mono">commutenews v1</span>
               </div>

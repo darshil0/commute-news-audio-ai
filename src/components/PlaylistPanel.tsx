@@ -139,6 +139,11 @@ export const PlaylistPanel: React.FC = () => {
   const handleDragStart = (e: React.DragEvent, filteredIndex: number) => {
     setDraggedIndex(filteredIndex);
     e.dataTransfer.effectAllowed = "move";
+    try {
+      e.dataTransfer.setData("text/plain", String(filteredIndex));
+    } catch {
+      // ignore
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -630,7 +635,7 @@ export const PlaylistPanel: React.FC = () => {
                   </label>
                   <textarea
                     id="pdesc"
-                    rows={2.5}
+                    rows={3}
                     value={newPlaylistDesc}
                     onChange={(e) => setNewPlaylistDesc(e.target.value)}
                     placeholder="Briefly summarize what this playlist holds..."
@@ -719,7 +724,7 @@ export const PlaylistPanel: React.FC = () => {
                   </label>
                   <textarea
                     id="rename-pdesc"
-                    rows={2.5}
+                    rows={3}
                     value={renameDesc}
                     onChange={(e) => setRenameDesc(e.target.value)}
                     placeholder="Description..."

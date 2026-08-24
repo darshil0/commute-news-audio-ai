@@ -32,7 +32,7 @@
  * - Per-IP sliding-window rate limiting on all `/api/articles/*` endpoints.
  * - SSRF protection: blocks private IP ranges on article URL extraction.
  * - Username allowlist regex: `^[a-z0-9_-]{3,32}$`.
- * - JWT signed with HMAC-SHA256; tokens expire after 30 days.
+ * - JWT signed with HMAC-SHA256; tokens expire after 7 days.
  */
 
 import express, { NextFunction, Request, Response } from "express";
