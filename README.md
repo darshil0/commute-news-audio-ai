@@ -123,4 +123,4 @@ npm run start
 
 ## 📄 License
 
-This project is licensed under the [MIT License](https://www.google.com/search?q=./LICENSE&utm_source=gemini).
+This project is licensed under the [MIT License](https://github.com/darshil0/commute-news-audio-ai/tree/main?tab=MIT-1-ov-file)
