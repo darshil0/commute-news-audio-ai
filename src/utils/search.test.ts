@@ -3,10 +3,12 @@ import assert from "node:assert";
 import { tokenize, scoreArticle, searchAndFilterArticles } from "./search";
 import { Article } from "../types";
 
-// Helper function to easily construct mock articles for testing
+// Deterministic IDs keep test fixtures reproducible and easy to debug.
+let nextMockId = 0;
+
 function makeMockArticle(overrides: Partial<Article>): Article {
   return {
-    id: overrides.id || "id-" + Math.random().toString(36).slice(2, 9),
+    id: overrides.id ?? `mock-${++nextMockId}`,
     title: overrides.title ?? "Mock Title",
     author: overrides.author,
     summary: overrides.summary ?? "Mock Summary",
@@ -25,7 +27,6 @@ function makeMockArticle(overrides: Partial<Article>): Article {
 }
 
 describe("Search Utility Suite", () => {
-
   describe("tokenize()", () => {
     test("tokenizes standard lowercase words and handles punctuation", () => {
       const result = tokenize("Hello, World! This is a test.");
@@ -55,7 +56,7 @@ describe("Search Utility Suite", () => {
       assert.strictEqual(scoreArticle(null, ["test"]), 0);
       assert.strictEqual(scoreArticle(undefined, ["test"]), 0);
       assert.strictEqual(scoreArticle(makeMockArticle({}), []), 0);
-      assert.strictEqual(scoreArticle(makeMockArticle({}), null as any), 0);
+      assert.strictEqual(scoreArticle(makeMockArticle({}), null as unknown as readonly string[]), 0);
     });
 
     test("weights matches in title highly", () => {
@@ -96,14 +97,9 @@ describe("Search Utility Suite", () => {
 
     test("applies significant bonus (+15) when all query tokens are matched", () => {
       const article = makeMockArticle({ title: "EV Battery Breakthrough", category: "Science" });
-      // Match both tokens: "ev" and "battery"
       const scoreBoth = scoreArticle(article, ["ev", "battery"]);
-      // Match only one: "ev"
       const scoreOne = scoreArticle(article, ["ev"]);
 
-      // scoreBoth should be: title_exact("ev") + title_exact("battery") + matchesAll_bonus
-      // scoreOne should be: title_exact("ev")
-      // matchesAll_bonus is 15, plus title_exact("battery") is 10.
       assert.ok(scoreBoth > (scoreOne + 10), "Match-all multi-token bonus should be applied");
     });
   });
@@ -165,22 +161,19 @@ describe("Search Utility Suite", () => {
     });
 
     test("filters and scores queries properly, sorting by highest relevance score", () => {
-      // "Battery" matches "EV Batteries" (title) and "Battery Startups" (title)
       const result = searchAndFilterArticles(articles, "Battery", "All");
       assert.strictEqual(result.length, 2);
-      // Let's make sure both are in the result.
-      const ids = result.map(r => r.id);
+      const ids = result.map((r) => r.id);
       assert.ok(ids.includes("art-1"));
       assert.ok(ids.includes("art-3"));
     });
 
     test("sorts items with identical search score by creation date descending", () => {
-      // When query is empty, all match score is 0. Sorting is done purely by createdAt date descending.
       const result = searchAndFilterArticles(articles, "", "All");
       assert.strictEqual(result.length, 3);
-      assert.strictEqual(result[0].id, "art-3"); // 2026-01-03
-      assert.strictEqual(result[1].id, "art-2"); // 2026-01-02
-      assert.strictEqual(result[2].id, "art-1"); // 2026-01-01
+      assert.strictEqual(result[0].id, "art-3");
+      assert.strictEqual(result[1].id, "art-2");
+      assert.strictEqual(result[2].id, "art-1");
     });
 
     test("excludes articles with 0 match score when search query is non-empty", () => {
