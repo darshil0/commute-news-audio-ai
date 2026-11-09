@@ -3,6 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/components/PlaylistPanel.tsx
+ * @description Custom playlist management panel for CommuteBrief.
+ *
+ * Capabilities:
+ * - Create, rename, view, and delete custom playlists.
+ * - Add/remove audio briefs to/from playlists.
+ * - HTML5 drag-and-drop track reordering with Firefox compatibility support.
+ * - In-playlist track filtering and search.
+ * - "Listen Now" action replacing the playback queue with full playlist tracks.
+ */
+
 import React, { useState, useMemo, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import {

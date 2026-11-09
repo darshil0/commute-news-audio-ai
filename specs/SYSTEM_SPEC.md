@@ -74,7 +74,7 @@ Data is stored server-side under `data/sync_{username}.json` and communicated vi
   - `voiceName` (`string`, required): Selected voice profile ID (`Zephyr`, `Kore`, `Charon`, `Puck`, `Fenrir`).
   - `playbackSpeed` (`number`, required): Preferred speed factor (`0.5` to `2.0`).
   - `summaryLength` (`string`, required): Desired summary depth (`short`, `medium`, `detailed`).
-  - `summaryTone` (`string`, required): Desired summary style (`concise`, `engaging`, `executive`).
+  - `summaryTone` (`string`, required): Desired summary style (`professional`, `engaging`, `concise`).
   - `theme` (`string`, required): UI theme selection (`dark`, `light`).
 
 ---

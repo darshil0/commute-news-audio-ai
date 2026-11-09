@@ -3,6 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/components/IntakePanel.tsx
+ * @description Article and audio briefing intake panel for CommuteBrief.
+ *
+ * Supports three primary modes:
+ * 1. Web URL extraction (`/api/articles/extract`) — SSRF-safe URL content fetch and Gemini summarization.
+ * 2. Custom text summarization (`/api/articles/summarize`) — Summarize raw text or notes into TTS audio briefings.
+ * 3. Gemini Search Grounding (`/api/articles/search-news`) — Live real-time topic searches with citations and web sources.
+ *
+ * Also provides audio summary customization options (summary length, tone, and voice profile selection).
+ */
+
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Globe, FileText, Sparkles, CircleAlert as AlertCircle, Search, ExternalLink, Play, Radio, CircleCheck as CheckCircle2 } from "lucide-react";

@@ -72,13 +72,13 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 
 | Document | Description | Key Focus Areas |
 | --- | --- | --- |
-| **[`AGENTS.md`](https://www.google.com/search?q=./AGENTS.md&utm_source=gemini)** | Spec-Driven Development rules & constraints | SDD lifecycle, ambiguity protocols (`[NEEDS-CLARIFICATION]`), system rules |
-| **[`specs/SYSTEM_SPEC.md`](https://www.google.com/search?q=./specs/SYSTEM_SPEC.md&utm_source=gemini)** | Master System Specification | System scope, Express sync schema, auth security, user stories, acceptance criteria |
-| **[`specs/IMPLEMENTATION_PLAN.md`](https://www.google.com/search?q=./specs/IMPLEMENTATION_PLAN.md&utm_source=gemini)** | Architecture Mapping & Roadmap | Component mapping, completed roadmap phases (1–10), defect tracking catalog |
-| **[`specs/VALIDATION_CHECKLIST.md`](https://www.google.com/search?q=./specs/VALIDATION_CHECKLIST.md&utm_source=gemini)** | Verification & QA Protocol | Type safety, production build validation, feature AC checks, defect verifications |
-| **[`CHANGELOG.md`](https://www.google.com/search?q=./CHANGELOG.md&utm_source=gemini)** | Release & Version History | Version release notes following standard [Keep a Changelog](https://keepachangelog.com/?utm_source=gemini) format |
-| **[`HANDOFF_LOG.md`](https://www.google.com/search?q=./HANDOFF_LOG.md&utm_source=gemini)** | Agent Handoff & Audit Logs | Engineering audits, visual layout verifications, and context handoff logs |
-| **[`LICENSE`](https://www.google.com/search?q=./LICENSE&utm_source=gemini)** | Open-source MIT License | Project license terms and permissions |
+| **[`AGENTS.md`](./AGENTS.md)** | Spec-Driven Development rules & constraints | SDD lifecycle, ambiguity protocols (`[NEEDS-CLARIFICATION]`), system rules |
+| **[`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md)** | Master System Specification | System scope, Express sync schema, auth security, user stories, acceptance criteria |
+| **[`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md)** | Architecture Mapping & Roadmap | Component mapping, completed roadmap phases (1–11), defect tracking catalog |
+| **[`specs/VALIDATION_CHECKLIST.md`](./specs/VALIDATION_CHECKLIST.md)** | Verification & QA Protocol | Type safety, production build validation, feature AC checks, defect verifications |
+| **[`CHANGELOG.md`](./CHANGELOG.md)** | Release & Version History | Version release notes following standard [Keep a Changelog](https://keepachangelog.com/) format |
+| **[`HANDOFF_LOG.md`](./HANDOFF_LOG.md)** | Agent Handoff & Audit Logs | Engineering audits, visual layout verifications, and context handoff logs |
+| **[`LICENSE`](./LICENSE)** | Open-source MIT License | Project license terms and permissions |
 
 ---
 
@@ -86,10 +86,10 @@ This repository follows **Spec-Driven Development (SDD)** principles where specs
 
 CommuteBrief adheres to strict **Spec-Driven Development (SDD)** principles. Maintenance and quality assurance protocols ensure high code quality, security, and stability:
 
-* **System Specification**: Functional requirements, user stories, API endpoints (`/api/sync`, `/api/auth`, `/api/summarize`, `/api/tts`), and data models (`Article`, `Playlist`, `UserPreferences`) are defined in [`specs/SYSTEM_SPEC.md`](https://www.google.com/search?q=./specs/SYSTEM_SPEC.md&utm_source=gemini).
+* **System Specification**: Functional requirements, user stories, API endpoints (`/api/sync`, `/api/auth`, `/api/summarize`, `/api/tts`), and data models (`Article`, `Playlist`, `UserPreferences`) are defined in [`specs/SYSTEM_SPEC.md`](./specs/SYSTEM_SPEC.md).
 * **Type Safety & Build Verification**: All contributions must pass continuous type checking (`npm run lint` / `tsc --noEmit`) and production bundling (`npm run build`).
 * **Security & Input Boundaries**: Server endpoints enforce SSRF IP range blocking on article extraction, username allowlist regex validation (`/^[a-z0-9_-]{3,32}$/`), and JWT authentication signature checks.
-* **Defect & Regression Prevention**: Ongoing maintenance items, including state sync reconciliation, memory leak cleanup in audio element caches, and speech synthesis fallbacks, are continuously verified against [`specs/VALIDATION_CHECKLIST.md`](https://www.google.com/search?q=./specs/VALIDATION_CHECKLIST.md&utm_source=gemini) and tracked in [`specs/IMPLEMENTATION_PLAN.md`](https://www.google.com/search?q=./specs/IMPLEMENTATION_PLAN.md&utm_source=gemini).
+* **Defect & Regression Prevention**: Ongoing maintenance items, including state sync reconciliation, memory leak cleanup in audio element caches, and speech synthesis fallbacks, are continuously verified against [`specs/VALIDATION_CHECKLIST.md`](./specs/VALIDATION_CHECKLIST.md) and tracked in [`specs/IMPLEMENTATION_PLAN.md`](./specs/IMPLEMENTATION_PLAN.md).
 
 ---
 

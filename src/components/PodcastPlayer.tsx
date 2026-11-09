@@ -3,6 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/components/PodcastPlayer.tsx
+ * @description Persistent audio player and full-screen player overlay for CommuteBrief.
+ *
+ * Implements:
+ * - Persistent mini-player bar at bottom of the viewport with play/pause and progress scrubbing.
+ * - Expanded full-screen player modal dialog with album artwork, title, and category tags.
+ * - Hardware volume slider directly controlling HTMLAudioElement and SpeechSynthesis gain.
+ * - Granular playback speed slider (`0.5x` to `2.0x`) with quick preset buttons.
+ * - Configurable sleep timer (5m to 60m) with live countdown.
+ * - 15-second skip backward/forward controls with responsive layout.
+ * - Offline/SpeechSynthesis badge indicator.
+ */
+
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import {

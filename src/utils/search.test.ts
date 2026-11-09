@@ -1,3 +1,18 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * @file src/utils/search.test.ts
+ * @description Native Node.js test runner unit test suite for CommuteBrief search engine.
+ *
+ * Validates:
+ * - String tokenization, punctuation removal, and accented character normalization (`tokenize`).
+ * - Weighted relevance scoring, field hierarchy, and multi-token bonus rules (`scoreArticle`).
+ * - Category filtering, special query filters, and creation-date sorting (`searchAndFilterArticles`).
+ */
+
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import { tokenize, scoreArticle, searchAndFilterArticles } from "./search";
