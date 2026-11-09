@@ -3,6 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/components/QueuePanel.tsx
+ * @description Active playback queue management panel for CommuteBrief.
+ *
+ * Implements:
+ * - Sequenced playback queue display with active track indicator.
+ * - HTML5 drag-and-drop track reordering with tactile haptic feedback.
+ * - Individual track removal and clear entire queue operations.
+ * - One-tap playback start for any queued brief.
+ */
+
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Trash, X, Music, GripVertical, PlayCircle } from "lucide-react";

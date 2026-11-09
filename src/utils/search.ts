@@ -3,6 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/utils/search.ts
+ * @description High-performance tokenized search and relevance scoring engine for CommuteBrief.
+ *
+ * Implements accented Unicode normalization (NFD decomposition), punctuation removal,
+ * hierarchical weighted scoring across article fields (title, category, tags, author, summary),
+ * multi-token match-all bonuses, and category/special query filtering.
+ */
+
 import { Article } from "../types";
 
 /**

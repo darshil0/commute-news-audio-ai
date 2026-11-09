@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 📝 Documentation & Specification Alignment Pass
+
+- **Universal Module-Level JSDoc Coverage**:
+  - Added `@file` and `@description` JSDoc annotations to `src/App.tsx` (navigation overview table, touch gesture navigation, and theme system), `src/main.tsx` (React 19 bootstrap and strict mode mount), `src/utils/search.ts` (scoring algorithm and tokenization pipeline), and `src/utils/search.test.ts` (test coverage matrix).
+  - Added module-level `@file` and `@description` documentation across all 6 core components: `HomeDashboard.tsx`, `IntakePanel.tsx`, `PlaylistPanel.tsx`, `PodcastPlayer.tsx`, `ProfilePanel.tsx`, and `QueuePanel.tsx`.
+- **Specification Schema Correction**:
+  - Corrected `specs/SYSTEM_SPEC.md` entity documentation for `UserPreferences.summaryTone` to match the TypeScript union `SummaryTone` and UI implementation (`professional`, `engaging`, `concise`), fixing stale documentation referencing `executive`.
+- **Link Hygiene & Documentation Structure**:
+  - Replaced Google search query redirect URLs in `README.md` with direct repository relative links (`./AGENTS.md`, `./specs/SYSTEM_SPEC.md`, `./specs/IMPLEMENTATION_PLAN.md`, etc.).
+  - Updated `specs/IMPLEMENTATION_PLAN.md` with Phase 11 roadmap goals and catalogued items.
+  - Added DEF-34 (Universal File JSDoc Coverage), DEF-35 (Schema Tone Alignment), and DEF-36 (README Link Hygiene) verification items to `specs/VALIDATION_CHECKLIST.md`.
+- **Verification**:
+  - Confirmed 0 errors via custom `doc_validator.py` and `changelog_validator.py`.
+  - Confirmed 0 errors in type checking (`npm run lint`), 17/17 passing test cases (`npm test`), and successful production compilation (`npm run build`).
+
 ## [1.9.5] - 2026-08-24
 
 ### 🐛 Code Quality, Contrast & Documentation Accuracy Fixes
@@ -264,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent commute intake dashboard with custom curation criteria and playlists.
 - Queue management and article visual summaries.
 
+[Unreleased]: https://github.com/aistudio-build/commutenews/compare/v1.9.5...HEAD
 [1.9.5]: https://github.com/aistudio-build/commutenews/compare/v1.9.4...v1.9.5
 [1.9.4]: https://github.com/aistudio-build/commutenews/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/aistudio-build/commutenews/compare/v1.9.2...v1.9.3

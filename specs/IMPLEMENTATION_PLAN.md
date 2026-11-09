@@ -104,6 +104,13 @@ This document maps the **CommuteBrief / CommuteNews** codebase components to the
 - [x] Correct `AppContext.tsx` `logoutUser` JSDoc: claimed to clear IndexedDB but only clears session/localStorage.
 - [x] Fix light-mode contrast on `PodcastPlayer.tsx` version badge: `hover:text-white` → `hover:text-zinc-700 dark:hover:text-white`.
 
+### Phase 11: Comprehensive Codebase Documentation & Specification Alignment (Completed)
+
+- [x] **Universal Module-Level Documentation**: Add comprehensive `@file` and `@description` JSDoc headers to every source file (`src/App.tsx`, `src/main.tsx`, `src/utils/search.ts`, `src/utils/search.test.ts`, and all 6 components).
+- [x] **Specification Schema Alignment**: Correct `specs/SYSTEM_SPEC.md` `UserPreferences.summaryTone` to match TypeScript types and UI implementation (`professional`, `engaging`, `concise`).
+- [x] **Documentation Link Hygiene**: Replace external Google search query redirect URLs in `README.md` with direct repository relative links (`./AGENTS.md`, `./specs/SYSTEM_SPEC.md`, etc.).
+- [x] **Release Tracking**: Add comprehensive documentation audit entry in `CHANGELOG.md` under `[Unreleased]` and append audit record to `HANDOFF_LOG.md`.
+
 ---
 
 ## 🐛 Bugs, Errors, and Defects Fixed Thus Far

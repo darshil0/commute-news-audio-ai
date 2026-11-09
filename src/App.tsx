@@ -3,6 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/App.tsx
+ * @description Main application shell component for CommuteBrief.
+ *
+ * Provides the top-level layout, primary navigation (sidebar on desktop, bottom navigation
+ * bar on mobile), touch gesture navigation (swipe left/right between views), dark/light theme
+ * toggling, and mounts the persistent audio player overlay {@link PodcastPlayer}.
+ *
+ * ## Navigation Views
+ * | Tab Key      | Label            | Component          | Description                           |
+ * |--------------|------------------|--------------------|---------------------------------------|
+ * | `home`       | Commuter Feed    | `HomeDashboard`    | Briefs feed, tokenized search, filter |
+ * | `intake`     | New Audio Intake | `IntakePanel`      | URL intake, text summarization, search|
+ * | `playlists`  | Playlists        | `PlaylistPanel`    | Custom playlists, drag-and-drop sort  |
+ * | `queue`      | Up Next Queue    | `QueuePanel`       | Active playback queue sequence        |
+ * | `profile`    | Sync Account     | `ProfilePanel`     | Voice audition, auth & cloud sync     |
+ */
+
 import React, { useMemo, useRef, useCallback } from "react";
 import { AppProvider, useApp } from "./context/AppContext";
 import { HomeDashboard } from "./components/HomeDashboard";

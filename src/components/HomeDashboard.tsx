@@ -3,6 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/components/HomeDashboard.tsx
+ * @description Main commuter briefing dashboard component for CommuteBrief.
+ *
+ * Displays:
+ * - In-progress playback resume card ("Continue Listening").
+ * - Interactive filter chips: "All", "Saved", "Downloaded", and dynamically discovered categories.
+ * - Real-time tokenized search input with live debouncing and clear button.
+ * - Article cards with quick playback controls, save bookmarking, playlist queuing, and download actions.
+ * - Briefing deletion confirmation dialogs.
+ */
+
 import React, { useState, useMemo, useCallback, useRef } from "react";
 import { useApp } from "../context/AppContext";
 import {

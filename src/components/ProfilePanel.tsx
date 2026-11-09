@@ -3,6 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @file src/components/ProfilePanel.tsx
+ * @description Settings, voice auditioning, user authentication, and cloud sync panel for CommuteBrief.
+ *
+ * Implements:
+ * - AI narrator voice profile selector and live auditioning clip generator (`/api/articles/tts`).
+ * - User account authentication (Register / Sign In / Sign Out) with Express JWT backend (`/api/auth/*`).
+ * - Cross-device cloud sync triggering and diagnostic health checks.
+ * - System theme selection (dark / light mode).
+ */
+
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { localDB } from "../lib/db";

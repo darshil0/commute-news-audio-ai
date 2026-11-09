@@ -135,4 +135,7 @@ Use this checklist to validate code changes and ensure compliance with the Spec-
 - [x] **DEF-31 (Token Expiry JSDoc)**: `server.ts` JSDoc accurately documents 7-day token expiry matching `verifyToken` implementation.
 - [x] **DEF-32 (logoutUser JSDoc)**: `AppContext.tsx` `logoutUser` JSDoc accurately describes session/localStorage clearing without claiming IndexedDB wipe.
 - [x] **DEF-33 (Light-Mode Badge Contrast)**: `PodcastPlayer.tsx` version badge uses `hover:text-zinc-700 dark:hover:text-white` for readable hover state in both themes.
+- [x] **DEF-34 (Universal File JSDoc Coverage)**: All source modules (`src/*.tsx`, `src/**/*.tsx`, `src/**/*.ts`, `server.ts`, `vite.config.ts`) contain top-level `@file` and `@description` JSDoc annotations.
+- [x] **DEF-35 (Schema Tone Alignment)**: `specs/SYSTEM_SPEC.md` `UserPreferences.summaryTone` accurately documents accepted values (`professional`, `engaging`, `concise`).
+- [x] **DEF-36 (README Link Hygiene)**: `README.md` documentation links use direct repository relative paths instead of search-query URLs.
 
